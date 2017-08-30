@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "A quick demo of Simple Texture theme's code highlighting features"
-description: "A quick demo of Simple Texture theme's code highlighting features"
+title: "scala laziness"
+description: "scala laziness"
 categories: [language]
 tags: [scala]
 redirect_from:
