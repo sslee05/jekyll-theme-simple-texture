@@ -2,7 +2,7 @@
 layout: post
 title: "A quick demo of Simple Texture theme's code highlighting features"
 description: "A quick demo of Simple Texture theme's code highlighting features"
-categories: [functional_language]
+categories: [language]
 tags: [scala]
 redirect_from:
   - /2017/08/30/
@@ -13,12 +13,10 @@ redirect_from:
 * Kramdown table of contents
 {:toc .toc}
 
-# laziness 의 궁극적인 목적은
+# laziness 의 목적
 
-This is a test for inline codeblocks like `C:/Ruby23-x64` or `SELECT  "offices".* FROM "offices" `
+laziness 의 궁극적인 목적은 표현식의 서술과 평가 방법 및 시기를 분리 함으로써 재사용과 모듈성과 효율성을 증가 시킨다.
 
-Here is a literal `` ` `` backtick.
-And here is a Ruby code fragment `x = Class.new`{:.language-ruby}
 
 # call-by-value & call-by-name
 
@@ -36,6 +34,7 @@ def clientFn:Int = fn(1+2,3+4) 의 전계은 1+2,3+4의 계산 결과인 3,7이 
 반면 계산식 자체인 1+2, 3+4 가 넘어 가서 fn 의 body 안에 a + b를 만나는 곳에서 a = 1+ 2 가 대입되어 평가 되고 b = 3+ 4가 대입되어 평가 되어서 최종 (1+2) + (3 + 4)  가 되는 것이 call-by-name이다.
 
 Scala 에서 parameter를 call-by-name으로 할 수 있게 하는 방법은 2가지 표현이 있다.
+
 a:() => A 인 명시적 thunk 표현식 ,a: => A 인 표현이 있다.
 
 참고로 class parameter는 => A 표현이 안된다.
@@ -43,7 +42,14 @@ a:() => A 인 명시적 thunk 표현식 ,a: => A 인 표현이 있다.
 {% highlight scala %}
 sealed case class Cons[+A](head:() => A,tail:() => Stream[A]) extends Stream[A]
 {% endhighlight %}
-
+{% highlight scala %}
+def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
+    lazy val head = h
+    lazy val tail = t
+    
+    Cons(() => head,() => tail)
+  }
+{% endhighlight %}
 # Simple codeblock with long lines
 
     function myFunction() {
