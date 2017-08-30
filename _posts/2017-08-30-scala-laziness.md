@@ -44,7 +44,6 @@ a:() => A 인 명시적 thunk 표현식 ,a: => A 인 표현이 있다.
 sealed case class Cons[+A](head:() => A,tail:() => Stream[A]) extends Stream[A]
 {% endhighlight %}
 
-{% highlight scala %}
 # Simple codeblock with long lines
 
     function myFunction() {
