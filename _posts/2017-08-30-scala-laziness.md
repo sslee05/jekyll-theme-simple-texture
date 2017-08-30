@@ -33,15 +33,15 @@ def fn(a:Int,b:Int):Int = a + b
 def clientFn:Int = fn(1+2,3+4) 의 전계은 1+2,3+4의 계산 결과인 3,7이 fn의 인자로 넘어 간다. 이것이 call-by-value
 반면 계산식 자체인 1+2, 3+4 가 넘어 가서 fn 의 body 안에 a + b를 만나는 곳에서 a = 1+ 2 가 대입되어 평가 되고 b = 3+ 4가 대입되어 평가 되어서 최종 (1+2) + (3 + 4)  가 되는 것이 call-by-name이다.
 
-Scala 에서 parameter를 call-by-name으로 할 수 있게 하는 방법은 2가지 표현이 있다.
-
-a:() => A 인 명시적 thunk 표현식 ,a: => A 인 표현이 있다.
-
-참고로 class parameter는 => A 표현이 안된다.
 () => A 로 만 해야 함.
 {% highlight scala %}
 sealed case class Cons[+A](head:() => A,tail:() => Stream[A]) extends Stream[A]
 {% endhighlight %}
+
+# laziness 표현,호출,평가
+Scala 에서 parameter를 call-by-name으로 할 수 있게 하는 방법은 2가지 표현이 있다.
+a:() => A 인 명시적 thunk 표현식 ,a: => A 인 표현이 있다.
+참고로 class parameter는 => A 표현이 안된다.
 {% highlight scala %}
 def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
     lazy val head = h
@@ -50,6 +50,18 @@ def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
     Cons(() => head,() => tail)
   }
 {% endhighlight %}
+위의 예에 cons method는 일반 생성자 함수와 다르다. 이를 smart 생성자라 하는데 관례적으로 class의 소문자로 시작한다. smart 생성자가 필요한 경우는 일반 생성자에서 call-by-name를 호출 할때 마다 실행되는데 그렇게 하지 않고 최소의 강제에만 실행하고 이를 memoization를 하여 다음 실행시는 그 결과 값을 가지고 실행되게 함을 하기 위하여다.
+
+1. () => A 형태
+* Parameter 선언 : a:() => A
+* 평가 방법 : a()
+* 호출 방법: () => A 
+
+2. a: => 형태 
+* Parameter 선언 : a: => A
+* 평가 방법: a
+* 호출 방법: a   이때 compiler가 thunk으로 둘러 쌓준다.
+
 # Simple codeblock with long lines
 
     function myFunction() {
