@@ -90,7 +90,7 @@ def map[B](f:A => B):Stream[B] =
 {% endhighlight %}
 
 위의 foldRight를 보면 재귀가 실행되지 않는다.
-f function의 B parameter 가 call-by-name 이기 때문이다.
+function의 B parameter 가 call-by-name 이기 때문이다.
 exist 를 보면 p(a)이 true이라면 foldRight의 t().foldRight(z)(f) 이 실행되지 않는다.
 map 함수 또한 cons(f(a),g) 을 보면 cons의 parameter가 call-by-name이므로 thunk으로 넘어가기 때문에 f(a)가 실행되지 않는다.
 
