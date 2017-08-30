@@ -34,14 +34,13 @@ def fn(a:Int,b:Int):Int = a + b
 def clientFn:Int = fn(1+2,3+4) 의 전계은 1+2,3+4의 계산 결과인 3,7이 fn의 인자로 넘어 간다. 이것이 call-by-value
 반면 계산식 자체인 1+2, 3+4 가 넘어 가서 fn 의 body 안에 a + b를 만나는 곳에서 a = 1+ 2 가 대입되어 평가 되고 b = 3+ 4가 대입되어 평가 되어서 최종 (1+2) + (3 + 4)  가 되는 것이 call-by-name이다.
 
-{% highlight scala %}
-sealed case class Cons[+A](head:() => A,tail:() => Stream[A]) extends Stream[A]
-{% endhighlight %}
-
 # laziness 표현,호출,평가
 Scala 에서 parameter를 call-by-name으로 할 수 있게 하는 방법은 2가지 표현이 있다.
 a:() => A 인 명시적 thunk 표현식 ,a: => A 인 표현이 있다.
 참고로 class parameter는 => A 표현이 안된다. () => A 로 만 해야 함.
+{% highlight scala %}
+sealed case class Cons[+A](head:() => A,tail:() => Stream[A]) extends Stream[A]
+{% endhighlight %}
 {% highlight scala %}
 def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
     lazy val head = h
