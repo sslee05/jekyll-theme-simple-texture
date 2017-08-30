@@ -24,7 +24,7 @@ sass:
 url: # the base hostname & protocol for your site, e.g. http://example.com
 baseurl: # the subpath of your site, e.g. /blog
 title: SSLEE Software Engineer 일지
-description: "A gem-based responsive simple texture styled Jekyll theme."
+description: "보고 듣고 접하고 파고들고 생각드는 점들에 대한 고찰"
 keywords: 'jekyll,theme,gem-based,blog'
 author:
   name:
@@ -53,7 +53,7 @@ home:
 blog:
   cc_license: # A link to CC License of your choice, e.g. http://creativecommons.org/licenses/by-sa/4.0/.
   cc_license_image: # An image of your CC License, e.g. /assets/images/theme/cc-by-sa.png
-  footer_content: A gem-based responsive simple texture styled Jekyll theme.
+  footer_content: 보고 듣고 접하고 파고들고 생각드는 점들에 대한 것들
 
 disqus:
   shortname:
