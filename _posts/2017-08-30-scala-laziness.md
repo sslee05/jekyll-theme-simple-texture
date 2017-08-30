@@ -94,8 +94,6 @@ function의 B parameter 가 call-by-name 이기 때문이다.
 exist 를 보면 p(a)이 true이라면 foldRight의 t().foldRight(z)(f) 이 실행되지 않는다.
 map 함수 또한 cons(f(a),g) 을 보면 cons의 parameter가 call-by-name이므로 thunk으로 넘어가기 때문에 f(a)가 실행되지 않는다.
 
-아래의 scanRight에서도 f:(A,=>B) => B 이기 때문에 loop가 먼저 실행 되지 않고 표현식 그대로 반환이 된다. 평가가 되는 시점에 loop가 실행되며 그때가 client가 scanRight를 호출한 시점에 넘긴 f(:a,b) => a + b 에서 b 부분을 만날때 t().foldRight(z)(f) 가 실행 된다.
-
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
