@@ -45,13 +45,6 @@ sealed case class Cons[+A](head:() => A,tail:() => Stream[A]) extends Stream[A]
 {% endhighlight %}
 
 {% highlight scala %}
-def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
-    lazy val head = h
-    lazy val tail = t
-    
-    Cons(() => head,() => tail)
-  }
-{% endhighlight %}
 # Simple codeblock with long lines
 
     function myFunction() {
