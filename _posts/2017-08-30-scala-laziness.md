@@ -2,7 +2,7 @@
 layout: post
 title: "A quick demo of Simple Texture theme's code highlighting features"
 description: "A quick demo of Simple Texture theme's code highlighting features"
-categories: [functional language]
+categories: [functional_language]
 tags: [scala]
 redirect_from:
   - /2017/08/30/
