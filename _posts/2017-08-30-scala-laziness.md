@@ -9,7 +9,7 @@ redirect_from:
 ---
 
 > scala laziness. 
-> 이 내용은 저자 폴 키우사노 가 쓴 스칼라로 배우는 함수형 프로그래밍 책을 공부하며 정리한 것 임.
+> 이 내용은 저자 폴 키우사노가 쓴 "스칼라로 배우는 함수형 프로그래밍" 책을 공부하며 정리한 것 임.
 
 * Kramdown table of contents
 {:toc .toc}
