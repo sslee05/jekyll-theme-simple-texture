@@ -69,6 +69,33 @@ def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
 
 * thunk이란 표현식이 평가되지 않은 형태를 뜻 한다.
 
+# infinite stream
+* laziness 덕분에 무한을 표기 할 수 가 있다. 마치 귀납법으로 무한의 집합을 정의 할 수 있는 거와 비슷하다고 해야 하나..
+{% highlight scala %}
+def constant[A](v:A):Stream[A] = cons(v,constant(v))
+{% endhighlight %}
+
+{% highlight scala %}
+def foldRight[B](z: => B)(f:(A, => B) => B):B = {
+    this match {
+      case Empty => z
+      case Cons(h,t) => f(h(),t().foldRight(z)(f))
+    }
+  }
+  
+def exist(p:A => Boolean):Boolean = 
+    foldRight(false)((a,g) => p(a) || g)
+    
+def map[B](f:A => B):Stream[B] = 
+    foldRight(empty:Stream[B])((a,g) => cons(f(a),g))
+{% endhighlight %}
+
+위의 foldRight를 보면 재귀가 실행되지 않는다.
+f function의 B parameter 가 call-by-name 이기 때문이다.
+exist 를 보면 p(a)이 true이라면 foldRight의 t().foldRight(z)(f) 이 실행되지 않는다.
+map 함수 또한 cons(f(a),g) 을 보면 cons의 parameter가 call-by-name이므로 thunk으로 넘어가기 때문에 f(a)가 실행되지 않는다.
+
+아래의 scanRight에서도 f:(A,=>B) => B 이기 때문에 loop가 먼저 실행 되지 않고 표현식 그대로 반환이 된다. 평가가 되는 시점에 loop가 실행되며 그때가 client가 scanRight를 호출한 시점에 넘긴 f(:a,b) => a + b 에서 b 부분을 만날때 t().foldRight(z)(f) 가 실행 된다.
 
 [^1]: This is a footnote.
 
