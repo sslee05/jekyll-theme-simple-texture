@@ -55,58 +55,20 @@ def cons[A](h: => A, t: => Stream[A]):Stream[A]= {
 1. () => A 형태
 * Parameter 선언 : a:() => A
 * 평가 방법 : a()
-* 호출 방법: () => A 
+* 호출 방법: () => A
 
-2. a: => 형태 
+2. a: => 형태
 * Parameter 선언 : a: => A
 * 평가 방법: a
 * 호출 방법: a   이때 compiler가 thunk으로 둘러 쌓준다.
 
-# Simple codeblock with long lines
+# scala에서 laziness 특징
+* Scala laziness 표기는 사실 Function0 의 instance이다. 즉 인자가 없는 function instance인 것 이다.
 
-    function myFunction() {
-        alert("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    }
+* call-by-name은 실행시 마다 평가 된다. 따라서 한번만 평가 하고 이후에 평가의 결과를 사용하기 위한 방법으로 lazy keyword를 이용할 수 있다.
 
-# Language of Code Blocks
+* thunk이란 표현식이 평가되지 않은 형태를 뜻 한다.
 
-~~~ ruby
-def what?
-  42
-end
-~~~
-
-# Highlighted
-
-## External Gist
-
-<script src="https://gist.github.com/yizeng/9b871ad619e6dcdcc0545cac3101f361.js"></script>
-
-## Simple Highlight
-
-{% highlight ruby %}
-def foo
-  puts 'foo'
-end
-{% endhighlight %}
-
-## Highlight with long lines
-
-{% highlight c# %}
-public class Hello {
-    public static void Main() {
-        Console.WriteLine("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    }
-}
-{% endhighlight %}
-
-## Highlight with line numbers and long lines
-
-{% highlight javascript linenos=table %}
-function myFunction() {
-    alert("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-}
-{% endhighlight %}
 
 [^1]: This is a footnote.
 
