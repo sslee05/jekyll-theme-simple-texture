@@ -11,6 +11,7 @@ redirect_from:
 > scala design lib.
 >
 > 이 내용은 저자 Paul Chiusano가 쓴 "Functional Programming in scala" 책을 공부하며 정리한 것 임.
+> (잘 못 이해한 것이 있을 수 있음)
 
 * Kramdown table of contents
 {:toc .toc}
