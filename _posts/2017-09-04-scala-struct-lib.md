@@ -8,7 +8,8 @@ redirect_from:
   - /2017/09/04/
 ---
 
-> scala design lib. 
+> scala design lib.
+>
 > 이 내용은 저자 Paul Chiusano가 쓴 "Functional Programming in scala" 책을 공부하며 정리한 것 임.
 
 * Kramdown table of contents
@@ -27,9 +28,9 @@ redirect_from:
 lib 를 사용하면 되지만 여기서는 lib 설계 방향을 배우는 것 임으로 만들어 가는 과정을 보자.
 여기서는 동시성 프로그램을 하는 lib를 만드는 것을 목표로 했을 경우의 예이다.
 {% highlight scala %}
-	val xs = List(1,2,3,4,5)
-    val rs = xs.foldLeft(0)((x,y) => x + y)
-    println(rs)
+val xs = List(1,2,3,4,5)
+val rs = xs.foldLeft(0)((x,y) => x + y)
+println(rs)
 {% endhighlight %}
 
 위의 예는 List의 원소의 sum을 구하는 것을 foldLeft를 이용하였다.
@@ -37,11 +38,11 @@ lib 를 사용하면 되지만 여기서는 lib 설계 방향을 배우는 것 �
 
 {% highlight scala %}
 def sum(xs: IndexedSeq[Int]): Int = {
-	if(xs.size  <= 1) xs.headOption getOrElse 0
-	else {
-		val (l,r) = xs.splitAt(xs.length / 2)
+    if(xs.size  <= 1) xs.headOption getOrElse 0
+    else {
+        val (l,r) = xs.splitAt(xs.length / 2)
         sum(l) + sum(r)
-	}
+    }
 }
 {% endhighlight %}
 
