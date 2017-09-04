@@ -118,7 +118,7 @@ def sum(xs: IndexedSeq[Int]): Par[Int] = {
 
 # 다시 문제점 찾기
 생가해 보면 map2(left,right) 에서 목록의 left가 다 소진 되어야 right가 처리됨을 알 수 있다.
-왜냐면 scala 의 function parameter는 엄격(strictness)하기 때문에 목록의 left의 depth까지 소진 map2 처리 후 최초의 left,right가 처리 될테니까.
+왜냐면 scala 의 function parameter는 엄격(strictness)하기 때문에 parameter의 결과가 목록의 인자로 넘어가기 때문에 목록의 left의 depth까지 소진 map2 처리 후 최초의 left,right가 처리 될테니까.
 
 그럼 map2의 parameter를 laziness 하게 바꾸어야 한다. 하지만 그렇게 된다면 모든 map2의 호출 client는 목록이 작은 경우에도 선택없이 항상 병렬처리 리소스를 하용해야 한다.
 
