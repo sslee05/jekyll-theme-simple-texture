@@ -55,11 +55,67 @@ def sum(xs: IndexedSeq[Int]): Int = {
 # 자료형식으로 부터 도출 되어야 하는 필요한 함수 도출
 sum(l)와 sum(r)를 보고 병렬처리를 나타내는 자료형식이 필요함을 도출 또 그에 따른 그 자료형식을 만들어 반환 하는 함수와, 병렬처리 결과를 얻는 함수가 필요함을 알 수 있다.
 {% highlight scala %}
-//병렬처리할 대상을 지연으로 받아 평가할 수 있는 계산을 돌려 준다.
-def unit[A](a: => A): Par[A] = ???
-//병렬 계산에서의 결과 값을 추출 한다.
-def get[A](par: Par[A]): A = ???
+trait Par[+A]
+
+object Par {
+  //병렬처리할 대상을 지연으로 받아 평가할 수 있는 계산을 돌려 준다.
+  def unit[A](a: => A): Par[A] = ???
+  //병렬 계산에서의 결과 값을 추출 한다.
+  def get[A](par: Par[A]): A = ???
+}
 {% endhighlight %}
+
+위의 code을 자기고 다시 sample code를 보자
+{% highlight scala %}
+def sum(xs: IndexedSeq[Int]): Int = {
+    if(xs.size  <= 1) xs.headOption getOrElse 0
+    else {
+        val (l,r) = xs.splitAt(xs.length / 2)
+        val rl = Par.unit(sum(l))
+        val rr = Par.unit(sum(r))
+
+        Par.get(lr) + Par.get(rr)
+    }
+}
+{% endhighlight %}
+
+# 문제점 찾기
+위의 sample code를 보면 Par.unit(sum(l)) 과 Par.unit(sum(r)) 로 부터 논리적으로
+(각각 병렬처리가 된다고 생각하고) 동시에 처리리는 되겠지만 get 함수에 의하여 결국 left이 결과를 얻기 위해 기다리면서 right는 대기하게 된다. 이름 참조치환으로 해보면 명백히 알 수 있다.
+{% highlight scala %}
+Par.get(Par.unit(sum(l))) + Par.get(Par.unit(sum(r)))
+{% endhighlight %}
+
+# 해결점 찾기
+get 를 호출 하지 않게 하려면 어떻게 ?
+map를 만들어 보자.
+{% highlight scala %}
+trait Par[+A]
+
+object Par {
+  //병렬처리할 대상을 지연으로 받아 평가할 수 있는 계산을 돌려 준다.
+  def unit[A](a: => A): Par[A] = ???
+  //병렬 계산에서의 결과 값을 추출 한다.
+  def get[A](par: Par[A]): A = ???
+
+  def map2[A,B,C](a: Par[A], b: Par[B])(f: (A,B) => C): Par[C] = ???
+}
+{% endhighlight %}
+
+적용해보자 이때 sum의 return type은 Par[Int]이 될 것이다.
+{% highlight scala %}
+def sum(xs: IndexedSeq[Int]): Par[Int] = {
+    if(xs.size  <= 1) xs.headOption getOrElse 0
+    else {
+        val (l,r) = xs.splitAt(xs.length / 2)
+        val rl = Par.unit(sum(l))
+        val rr = Par.unit(sum(r))
+
+        Par.map2(rl,rr)(_ + _)
+    }
+}
+{% endhighlight %}
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
