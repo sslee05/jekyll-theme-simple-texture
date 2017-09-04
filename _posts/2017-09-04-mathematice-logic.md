@@ -55,7 +55,7 @@ p => q 이 True 라고 해서 역명제가 True라 할 수 없다.
 
 ### 복합명제
 단순명제의 연결이다.
-{% highlight scala %}
+{% highlight mathematice %}
 p => q
 p와 q는 단순명제 p => q 는 복합명제 이다.
 ex) C는 까마귀다 => C는 새이다.(복합명제)
