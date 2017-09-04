@@ -151,36 +151,38 @@ def sum(xs: IndexedSeq[Int]): Par[Int] = {
 이제 map2의 left의 인자 depth 처리가 끝나지 않아도 최상위 left와 right가 동시에 처리 된다.
 
 # Practice
-1. Par (Parallel) object 만들기
-2. Par 의 type을 정의 하라(ExecutorService를 받아 병렬계산 서술을 나타내는)
-3. java.util.concurrent.Future 를 상속한 UnitFuture를 Par object에 구현하라.
-4. 상수값을 받아 병렬 계산으로 승격하는 함수를 작성하라.
+* Par (Parallel) object 만들기
+* Par 의 type을 정의 하라(ExecutorService를 받아 병렬계산 서술을 나타내는)
+* java.util.concurrent.Future 를 상속한 UnitFuture를 Par object에 구현하라.
+* 상수값을 받아 병렬 계산으로 승격하는 함수를 작성하라.
 {% highlight scala %}
 def unit[A](a: A): Par[A] = ???
 {% endhighlight %}
 
-5. 주어진 인수가 동시적으로 평가될 계산임을 표시하는 병렬분기 처리을 명시하는 함수를 작성하라
+* 주어진 인수가 동시적으로 평가될 계산임을 표시하는 병렬분기 처리을 명시하는 함수를 작성하라
 {% highlight scala %}
 def fork[A](a: => Par[A]): Par[A] = ???
 {% endhighlight %}
 
-6. 평가되지 않는 인수를 Par로 감싸고, 그것을 병렬 평가 대상으로 표시하는 다음 함수를 작성하라.
+* 평가되지 않는 인수를 Par로 감싸고, 그것을 병렬 평가 대상으로 표시하는 다음 함수를 작성하라.
 {% highlight scala %}
 def lazyUnit[A](a: => A): Par[A] = ???
 {% endhighlight %}
 
-7. 계산을 실제로 실행서 Par로 부터 값을 추출하는 다음의 함수를 작성하라.
+* 계산을 실제로 실행서 Par로 부터 값을 추출하는 다음의 함수를 작성하라.
 {% highlight scala %}
 def run[A](es:ExecutorService)(par: Par[A]): Future[A] = ???
 {% endhighlight %}
 
-8. 두 병렬처리의 결과를 받아 함수를 적용하는 다음의 함수를 작성하라.
+* 두 병렬처리의 결과를 받아 함수를 적용하는 다음의 함수를 작성하라.
 {% highlight scala %}
 def map2[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = ???
 {% endhighlight %}
 
-9. 함수 f: A => B 를 비동기적으로 평가되게 적용하는 함수를 작성하라.
-
+* 함수 f: A => B 를 비동기적으로 평가되게 적용하는 함수를 작성하라.
+{% highlight scala %}
+def asyncF[A,B](f: A => B): A => Par[B] = ???
+{% endhighlight %}
 
 
 
