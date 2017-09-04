@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "scala laziness"
+title: "scala lib 설계해 보기"
 description: "scala design lib"
 categories: [language]
 tags: [scala]
@@ -97,7 +97,7 @@ object Par {
   def unit[A](a: => A): Par[A] = ???
   //병렬 계산에서의 결과 값을 추출 한다.
   def get[A](par: Par[A]): A = ???
-
+  //처리결과를 조합한다.
   def map2[A,B,C](a: Par[A], b: Par[B])(f: (A,B) => C): Par[C] = ???
 }
 {% endhighlight %}
@@ -115,6 +115,41 @@ def sum(xs: IndexedSeq[Int]): Par[Int] = {
     }
 }
 {% endhighlight %}
+
+# 다시 문제점 찾기
+생가해 보면 map2(left,right) 에서 목록의 left가 다 소진 되어야 right가 처리됨을 알 수 있다.
+왜냐면 scala 의 function parameter는 엄격(strictness)하기 때문에 목록의 left의 depth까지 소진 map2 처리 후 최초의 left,right가 처리 될테니까.
+
+그럼 map2의 parameter를 laziness 하게 바꾸어야 한다. 하지만 그렇게 된다면 모든 map2의 호출 client는 목록이 작은 경우에도 선택없이 항상 병렬처리 리소스를 하용해야 한다.
+
+# 명시적 분기
+병렬처리의 결과들의 조합되어야 하는 것과 병렬처리 여부를 분리한다. 따라서 map2의 인자는 strictness하게 두고 명시적으로 lazy하게 인자를 받아들이는 함수를 만들자.
+{% highlight scala %}
+trait Par[+A]
+
+object Par {
+  //병렬처리할 대상을 지연으로 받아 평가할 수 있는 계산을 돌려 준다.
+  def unit[A](a: => A): Par[A] = ???
+  //병렬 계산에서의 결과 값을 추출 한다.
+  def get[A](par: Par[A]): A = ???
+  //처리결과를 조합한다.
+  def map2[A,B,C](a: Par[A], b: Par[B])(f: (A,B) => C): Par[C] = ???
+  //명시적으로 선언함으로써 clinet는 병렬처리를 처리하고 싶을때 사용할 수 있다.
+  def fork[A](a: => Par[A]): Par[A] = ???
+}
+{% endhighlight %}
+
+{% highlight scala %}
+def sum(xs: IndexedSeq[Int]): Par[Int] = {
+    if(xs.size  <= 1) xs.headOption getOrElse 0
+    else {
+        val (l,r) = xs.splitAt(xs.length / 2)
+        Par.map2(fork(sum(l)),fork(sum(r)))(_ + _)
+    }
+}
+{% endhighlight %}
+이제 map2의 left의 인자 depth 처리가 끝나지 않아도 최상위 left와 right가 동시에 처리 된다.
+
 
 [^1]: This is a footnote.
 
