@@ -135,9 +135,11 @@ C는 새이다( 단순명제)
 
 
 위의 table01, table05, table06 를 보면 
-table01 & table05 : p => q 은 ~p ∨ q 와 같다(동치) 
+table01 & table05 : p => q 은 ~p ∨ q 와 같다(동치)
+
 p => q 의 결론인 참,거짓을 떠나 p => q 로 논의 한다는 것은 ~p ∨ q 로 논의 하는 것과 같은 결론이 추론 된다는 것이다.
-table01 & table06 : p => q 와 ~q => ~p 는 동치 
+
+table01 & table06 : p => q 와 ~q => ~p 는 동치
 
 따라서 p => q 와 ~p ∨ q 과 ~q => ~p 는 모두 동치 이다.
 
