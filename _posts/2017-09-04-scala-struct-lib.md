@@ -159,30 +159,56 @@ def sum(xs: IndexedSeq[Int]): Par[Int] = {
 def unit[A](a: A): Par[A] = ???
 {% endhighlight %}
 
-* 주어진 인수가 동시적으로 평가될 계산임을 표시하는 병렬분기 처리을 명시하는 함수를 작성하라
+* Par object에 주어진 인수가 동시적으로 평가될 계산임을 표시하는 병렬분기 처리을 명시하는 함수를 작성하라
 {% highlight scala %}
 def fork[A](a: => Par[A]): Par[A] = ???
 {% endhighlight %}
 
-* 평가되지 않는 인수를 Par로 감싸고, 그것을 병렬 평가 대상으로 표시하는 다음 함수를 작성하라.
+* Par object에 평가되지 않는 인수를 Par로 감싸고, 그것을 병렬 평가 대상으로 표시하는 다음 함수를 작성하라.
 {% highlight scala %}
 def lazyUnit[A](a: => A): Par[A] = ???
 {% endhighlight %}
 
-* 계산을 실제로 실행서 Par로 부터 값을 추출하는 다음의 함수를 작성하라.
+* Par object에 계산을 실제로 실행서 Par로 부터 값을 추출하는 다음의 함수를 작성하라.
 {% highlight scala %}
 def run[A](es:ExecutorService)(par: Par[A]): Future[A] = ???
 {% endhighlight %}
 
-* 두 병렬처리의 결과를 받아 함수를 적용하는 다음의 함수를 작성하라.
+* Par object에 두 병렬처리의 결과를 받아 함수를 적용하는 다음의 함수를 작성하라.
 {% highlight scala %}
 def map2[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = ???
 {% endhighlight %}
 
-* 함수 f: A => B 를 비동기적으로 평가되게 적용하는 함수를 작성하라.
+* Par object에 함수 f: A => B 를 비동기적으로 평가되게 적용하는 함수를 작성하라.
 {% highlight scala %}
 def asyncF[A,B](f: A => B): A => Par[B] = ???
 {% endhighlight %}
+
+* Par object에 함수 다른 병렬처리를 받아 f: A => B 를 적용하여 승급시키는 함수 map를 작성하라.
+{% highlight scala %}
+def map[A,B](parA: Par[A])(f: A => B): Par[B] = ???
+{% endhighlight %}
+
+* map 함수를 이용하여 Par object에 병렬계산 목록의 결과가 정렬된게 변환하는 다음의 함수를 작성하라.
+{% highlight scala %}
+def sortPar(parList: Par[List[Int]]): Par[List[Int]] = ???
+{% endhighlight %}
+
+* Par object에 sequence 함수를 작성하라.
+{% highlight scala %}
+def sequence[A](xs: List[Par[A]]): Par[List[A]] = ???
+{% endhighlight %}
+
+* Par object에 처리대상 목록을 n개의 병렬계산으로 처리하고 그 결과를 기다렸다가 결과을 하나의 목록으로 나타내는 다음의 함수를 구현하라.
+{% highlight scala %}
+def parMap[A,B](xs: List[A])(f: A => B): Par[List[B]] = ???
+{% endhighlight %}
+
+* Par object에 목록의 요소를 병렬로 걸러내는 다음 함수를 구현하라.
+{% highlight scala %}
+def parFilter[A](xs: List[A])(p: A => Boolean): Par[List[A]] = ???
+{% endhighlight %}
+
 
 
 
