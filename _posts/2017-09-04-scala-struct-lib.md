@@ -209,7 +209,152 @@ def parMap[A,B](xs: List[A])(f: A => B): Par[List[B]] = ???
 def parFilter[A](xs: List[A])(p: A => Boolean): Par[List[A]] = ???
 {% endhighlight %}
 
+* Par object에 다음의 조건 cond: Par[Boolean] 의 결과가 true이면 t:Par[A] 를 사용하여 계산을 진행하고 false이면 f:Par[A] 를 사용하는 다음의 함수를 구현하라.
+{% highlight scala %}
+def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] = ???
+{% endhighlight %}
 
+* Par object에 위의 choice를 좀더 일반화 해서 어떤 조건에 기초해서 N개의 계산중 하나를 선택해서 계산하는 다음의 함수를 구현하라.
+{% highlight scala %}
+def choiceN[A](n: Par[Int])(xs: List[Par[A]]): Par[A] = ???
+{% endhighlight %}
+
+* Par object에 위의 choice함수를 목록이 아닌 collection 의 Map 에서 하나를 선택해서 계산하는 다음의 함수를 구현하라.
+{% highlight scala %}
+def choiceMap[K,V](key: Par[K])(choices: Map[K,Par[V]]): Par[V] = ???
+{% endhighlight %}
+
+* 위의 choice,choiceN,choiceMap를 보면 좀 더 일반화 할 수 있다. 첫 계산이 준비되기도 전에 둘째 계산이 반드시 존재할 필요가 없다.List 나 Map에 둘째 계산이 저장될 필요가 없다. 첫째 계산의 결과를 이용해서 둘째 계산를 즉시 생성할 수도 있다. 이러한 함수를 보통 flaMap으로 칭한다. Par object에 다음의 flatmap함수를 구현하라.
+{% highlight scala %}
+def flatMap[A,B](par: Par[A])(f: A => Par[B]): Par[B] = ???
+{% endhighlight %}
+
+* Par object에 choice,choiceN,choiceMap를 flatMap를 이용하여 재정의 하라.
+
+* 위의 flatMap보면 2단계로 분리 할 수 있다. f: A => Par[B] 를 적용. 그 결과 Par[Par[A]]를 flatten 하게 만든다. 이 flatten 함수를 따로 만들어 다른 대수적 lib에 사용 할 수 있다. Par object에 다음의 함수를 작성하라.
+{% highlight scala %}
+def join[A](a: Par[Par[A]]): Par[A] = ???
+{% endhighlight %}
+
+* Par object에 flatMap를 join를 이용하여 재정의 하라.
+* Par object에 join를 flatMap을 이용하여 재정의 하라.
+* Par object에 map2를 flatMap과 map를 이용하여 재정의 하라.
+
+# 문제 결과 (직접 푼 것으로 틀릴 수 있음)
+{% highlight scala %}
+package basic.parallel
+
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+
+
+object Par {
+
+  type Par[A] = ExecutorService => Future[A]
+
+  private case class UnitFuture[A](get: A) extends Future[A] {
+    def isDone = true
+    def get(timeout: Long, units: TimeUnit): A = {
+      println("unitFuture in get function")
+      get
+    }
+    def isCancelled = false
+    def cancel(evenIfRunnig: Boolean): Boolean = false
+  }
+
+  def fork[A](a: => Par[A]): Par[A] = es => {
+    es.submit(new Callable[A]{
+      def call = {
+        val f = a(es)
+        f.get
+      }
+    })
+  }
+
+  def run[A](es:ExecutorService)(par: Par[A]): Future[A] = par(es)
+
+  def unit[A](a: A): Par[A] = es => UnitFuture(a)
+
+  def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
+
+  def asyncF[A,B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
+
+  def map2[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = es => {
+    val a = parA(es)
+    val b = parB(es)
+    UnitFuture(f(a.get,b.get))
+  }
+
+  def map[A,B](parA: Par[A])(f: A => B): Par[B] = 
+    map2(parA,unit(()))((a,b) => f(a))
+
+  def sortPar(parList: Par[List[Int]]): Par[List[Int]] = 
+    map(parList)(a => a.sorted)
+
+  def sequence[A](xs: List[Par[A]]): Par[List[A]] = 
+    xs.foldRight[Par[List[A]]](unit(Nil))( (a,b) => map2(a,b)( (a1,b1) => a1 :: b1 ))
+
+  def parMap[A,B](xs: List[A])(f: A => B): Par[List[B]] = fork {
+    val rs:List[Par[B]] = xs.map(asyncF(f))
+    sequence(rs)
+  }
+
+  def parFilter[A](xs: List[A])(p: A => Boolean): Par[List[A]] = {
+    val rs:List[Par[List[A]]] = xs.map(asyncF[A,List[A]]((x:A) => if((p(x))) List(x) else Nil ))
+    map(sequence(rs))(x => x.flatten)
+  }
+
+  def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] = es => {
+    if(run(es)(cond).get) t(es)
+    else f(es)
+  }
+
+  def choiceN[A](n: Par[Int])(xs: List[Par[A]]): Par[A] = es => {
+    val rn = run(es)(n).get
+    run(es)(xs(rn))
+  }
+
+  def choiceMap[K,V](key: Par[K])(choices: Map[K,Par[V]]): Par[V] = es => {
+    val k = run(es)(key).get
+    run(es)(choices(k))
+  }
+
+  def flatMap[A,B](par: Par[A])(f: A => Par[B]): Par[B] = es => {
+    val av = run(es)(par).get
+    run(es)(f(av))
+  }
+
+  def choiceViaFlatMap[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] = 
+    flatMap(cond)(x => if(x) t else f)
+
+  def choiceMaoViaFlatMap[K,V](key: Par[K])(choices: Map[K,Par[V]]): Par[V] = 
+    flatMap(key)(x => choices(x))
+
+  def join[A](a: Par[Par[A]]): Par[A] = es => {
+    run(es)(run(es)(a).get())
+  }
+
+  def flatMapViaJoin[A,B](par: Par[A])(f: A => Par[B]): Par[B] = 
+    join(map(par)(f))
+
+  def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] = 
+    flatMap(a)(x => x)
+
+  def map2Via[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = 
+    flatMap(parA)(a => map(parB)(b => f(a,b)))
+}
+
+object ParDriver extends App {
+  import basic.parallel.Par._
+  val es = Executors.newFixedThreadPool(5)
+  val xs = List(5,4,3,6,1)
+  println(xs(2))
+  println(parFilter(xs)(x => x > 3)(es).get)
+}
+{% endhighlight %}
 
 
 [^1]: This is a footnote.
