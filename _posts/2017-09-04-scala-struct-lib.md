@@ -241,7 +241,7 @@ def join[A](a: Par[Par[A]]): Par[A] = ???
 * Par object에 join를 flatMap을 이용하여 재정의 하라.
 * Par object에 map2를 flatMap과 map를 이용하여 재정의 하라.
 
-# 문제 결과 (직접 푼 것으로 틀릴 수 있음)
+# 문제 결과 (잘못 된 것이 있을 수 있음)
 {% highlight scala %}
 package basic.parallel
 
