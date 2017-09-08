@@ -108,7 +108,7 @@ def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
 }
 {% endhighlight %}
 
-# 준동형사상
+# 준동형사상 & 동형사상 & 자기동형 사상
 
 
 
