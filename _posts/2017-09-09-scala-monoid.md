@@ -147,7 +147,11 @@ IntAddMonoid[Int] 에서 Int를 H라 생각해보자
 또 ☆ 이항연산은 String의 + , 그리고 ♤ 이항연산은 IntAddMonoid의 op(Int,Int) 이항연산 이라 생각 하자.  
 그리고 이야기 주제의 주인공인 f( 준동형사상)은 String의 length 함수이다.  
 
-
+{% highlight scala %}
+val xs = "abcd"
+val ys = "edf"
+intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
+{% endhighlight %}
 
 
 

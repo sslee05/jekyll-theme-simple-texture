@@ -35,7 +35,7 @@ author:
     - name: facebook
       url:
     - name: github
-      url: https://sslee05/github.com
+      url: https://github.com/sslee05
     - name: instagram
       url:
     - name: linkedin
@@ -48,7 +48,7 @@ author:
       url:
 home:
   section1: <h1>SSLEE blog</h1>
-  section2: <h2>SSLEE Software Engineer 일지</h2>
+  section2: <h2>상석이의 Software Engineer 일지</h2>
   section3: <div class="social-links"><a class="ico-github btn" href="https://sslee05/github.com/" title="View on GitHub"></a></div>
 blog:
   cc_license: # A link to CC License of your choice, e.g. http://creativecommons.org/licenses/by-sa/4.0/.
