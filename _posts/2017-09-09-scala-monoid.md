@@ -49,7 +49,7 @@ trait Monoid[A] {
 
 operation에 인자들은 A 유형이다.  
 a,b ∈ A 이고 zero(항등원) ∈ A 이며 (구현은 안되어 있지만, 결합법칙이 성립하는 연산) op의 이항연산이 있다.  
-이때 위의 정의 중 군의 정의에 의해 A 또는 Monoid[A]의 인스턴스를 monoid 라 한다.  
+이때 위의 군의 정의에 의해 A 또는 Monoid[A]의 인스턴스를 monoid 라 한다.  
 
 
 # scala로 Monoid를 모델링 해보자.
