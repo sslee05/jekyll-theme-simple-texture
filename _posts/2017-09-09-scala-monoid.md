@@ -113,11 +113,27 @@ def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
 
 이제 List[String] 에 접기 함수를 사용할때 (String,+) monoid 군을 적용 시킬 수 있다.  
 (String,+) 은 x,y ∈ String 이고 , String 모든 원소에 항등원 "" 이 있으며 + 이항연산의 monoid law를 가지는 군이다.  
-따라서 List[String] 집합에 (String,+) monoid를 적용시키에 접기 함수가 딱 들어 맞는다.  
+따라서 List[String] 집합 (String,+) monoid를 적용시키에 접기 함수가 딱 들어 맞는다.  
 {% highlight scala %}
-def foldMap[A,B](as: List[A], m: Monoid[B])(f: A => B): B = 
-	as.foldLeft(m.zero)((b,a) => m.op(b,f(a))) 
+def fold[A](xs: List[A])(m: Monoid[A]): A = 
+  xs.foldRight(m.zero)((a,b) => m.op(a, b)) 
 {% endhighlight %}
+
+시작과 결과의 형식이 다른 접기 일반적으로 fold 함수는 A => B 처럼 형식이 다른다.  
+이런경우 어떻게 하면 될까? 이렇경우 A => B 인 사상를 사용 하면 된다.
+{% highlight scala %}
+def foldMap[A,B](xs: List[A])(f: A => B)(m: Monoid[B]): B = 
+  xs.foldRight(m.zero)((a,b) => m.op(f(a),b))
+{% endhighlight %}
+
+한가지 더 예를 들어 보면 String 목록의 모든 글자의 갯수를 구하려면 어떻게 할까?
+{% highlight scala %}
+val xs = List("abcd","efgh","ij")
+val rs = foldMap(xs)(x => x.length)(intAddMonoid)
+{% endhighlight %}
+
+위에 예에서 String => Int 함수를 좀 생각 해보아야 할 특징이 있다.  
+위의 예에서의 함수는 준동형사상 이다.
 
 # 준동형사상 & 동형사상 & 자기동형 사상
 
