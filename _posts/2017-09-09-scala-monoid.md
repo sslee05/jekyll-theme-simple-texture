@@ -39,11 +39,11 @@ __✶__ 를 하나의 집합 G에 대한 __이항 연산__ 이라 한다면( 임
 대상의 관계에 대한 mapping, 혹은 function ( 임이의 군 __=>__ 임이의 군 )
 
 ## 모노이드(Monoid)
-✶를 하나의 집합 G에 대한 이항 연산이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G ) l-1,l-2,l-3의 성질을 가지는 군을 monoid라 한다.
+✶를 하나의 집합 G에 대한 이항 연산이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G ) l-1,l-2 성질을 가지는 군을 monoid라 한다.
 {% highlight scala %}
 trait Monoid[A] {
-	def op(a: A, b: A): A = ??? //( 결합법칙 이 성립하게 구현)
-	def zero: A = ??? //(항등원)
+  def op(a: A, b: A): A = ??? //( 결합법칙 이 성립하게 구현)
+  def zero: A = ??? //(항등원)
 }
 {% endhighlight %}
 
@@ -97,6 +97,21 @@ val rs02 = optionMonoid.op(optionMonoid.op(o1,o2),o3)
 println("rs01 :"+ rs01+ " rs02:"+rs02)
 {% endhighlight %}
 o1,o2,o3 중 어느 것에 None를 넣어도 성립된다.  
+
+ex-05) 자기함수: 인수의 형식과 반환값의 형식이 동일한 함수  
+자기함수 monoid를 만들어 보자.
+{% highlight scala %}
+def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
+  override def op(f: A => A, g: A => A): A => A = f compose g
+  override def zero: A => A = a => a
+}
+{% endhighlight %}
+위의 endoMonoid 이항연산자에 인자는 function 이다. 이는 이 function이 동형사상 일 경우에  
+결합법칙이 성립된다.  
+f(x: Int) = x + 2, g(x: Int) = x + 5 , z(x: Int) = x + 1 일때  
+op(op(f,g),z) == op(f,op(g,z)) 는 성립하나.  
+f(x: String) = x + "a", g(x: String) = x + "b" , z(x: String) = x + "c" 일때  
+op(op(f,g),z) != op(f,op(g,z)) 의 결과는 다르다.
 
 
 [^1]: This is a footnote.
