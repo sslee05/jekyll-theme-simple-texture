@@ -28,10 +28,10 @@ redirect_from:
 ## 군
 __결합법칙__, __항등법칙__ , __교환법칙__ 이 성립하는 성질을 임의의 집합으로 일반화 한 것이 군이다.  
 __✶__ 를 하나의 집합 G에 대한 __이항 연산__ 이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G )
-다음의 성질을 만족하면 __G__ 또는 __(G,✶)__ 를 군이라 한다.  
+다음의 성질을 만족하면  __(G,✶)__ 를 군이라 한다.  
    l-1  ✶에 대한 결합법칙 ) x,y,z ∈ G => x ✶ (y ✶ z) = (x ✶ y) ✶ z  
    l-2 항등원과 ✶에 대한 항등법칙) 모든 x ∈ G 에 대하여 e ✶ x = x ✶ e = x 을 만족하는 e ∈ G 가 존재한다.  
-   l-3 x는 역원를 갖는다) 각각의 x ∈ G 에 대하 x^-1 ∈ G 가 존재하며 x ✶ x^-1 = x^-1 ✶ x = e   
+   l-3 x는 역원를 갖는다) 각각의 x(모든 원소) ∈ G 에 대하 x^-1 ∈ G 가 존재하며 x ✶ x^-1 = x^-1 ✶ x = e   
 추가로 다음을 만족하면 가환군(아벨군)이라 한다.  
    l-4) x,y ∈ G => x ✶ y = y ✶ x   : ✶ 에 대한 교환법칙
 
@@ -106,12 +106,10 @@ def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
   override def zero: A => A = a => a
 }
 {% endhighlight %}
-위의 endoMonoid 이항연산자에 인자는 function 이다. 이는 이 function이 동형사상 일 경우에  
-결합법칙이 성립된다.  
-f(x: Int) = x + 2, g(x: Int) = x + 5 , z(x: Int) = x + 1 일때  
-op(op(f,g),z) == op(f,op(g,z)) 는 성립하나.  
-f(x: String) = x + "a", g(x: String) = x + "b" , z(x: String) = x + "c" 일때  
-op(op(f,g),z) != op(f,op(g,z)) 의 결과는 다르다.
+
+# 준동형사상
+
+
 
 
 [^1]: This is a footnote.
