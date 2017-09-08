@@ -344,7 +344,8 @@ object Par {
   def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] = 
     flatMap(a)(x => x)
 
-  def map2Via[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = 
+  // map2와는 달리 parA와 parB는 동시에 실행되지 않는다.
+  def map2ViaFlatMap[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = 
     flatMap(parA)(a => map(parB)(b => f(a,b)))
 }
 
