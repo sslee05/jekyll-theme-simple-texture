@@ -111,6 +111,14 @@ def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
 }
 {% endhighlight %}
 
+이제 List[String] 에 접기 함수를 사용할때 (String,+) monoid 군을 적용 시킬 수 있다.  
+(String,+) 은 x,y ∈ String 이고 , String 모든 원소에 항등원 "" 이 있으며 + 이항연산의 monoid law를 가지는 군이다.  
+따라서 List[String] 집합에 (String,+) monoid를 적용시키에 접기 함수가 딱 들어 맞는다.  
+{% highlight scala %}
+def foldMap[A,B](as: List[A], m: Monoid[B])(f: A => B): B = 
+	as.foldLeft(m.zero)((b,a) => m.op(b,f(a))) 
+{% endhighlight %}
+
 # 준동형사상 & 동형사상 & 자기동형 사상
 
 
