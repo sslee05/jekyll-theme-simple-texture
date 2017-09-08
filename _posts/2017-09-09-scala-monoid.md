@@ -10,8 +10,7 @@ redirect_from:
 
 > scala monoid.
 >
-> 이 내용은 수학책과 "Functional Programming in scala" 책을 공부하며 정리한 것 임.  
-> (잘 못 이해한 것 또는 틀린 내용이 있을 수 있음.)
+
 
 * Kramdown table of contents
 {:toc .toc}
