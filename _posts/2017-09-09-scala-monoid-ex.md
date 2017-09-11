@@ -3,7 +3,7 @@ layout: post
 title: "scala monoid practice"
 description: "scala monoid practice"
 categories: [language]
-tags: [scala]
+tags: [scala-practice]
 redirect_from:
   - /2017/09/08/
 ---

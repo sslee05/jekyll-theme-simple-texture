@@ -118,7 +118,7 @@ def fold[A](xs: List[A])(m: Monoid[A]): A =
   xs.foldRight(m.zero)((a,b) => m.op(a, b)) 
 {% endhighlight %}
 
-일반적으로 fold 함수는 A => B 처럼 형식이 다른다.  
+일반적으로 fold 함수는 A => B 처럼 형식이 다르다.  
 이런경우 어떻게 하면 될까? 이렇경우 A => B 인 사상를 사용 하면 된다.
 {% highlight scala %}
 def foldMap[A,B](xs: List[A])(f: A => B)(m: Monoid[B]): B = 
@@ -141,9 +141,6 @@ val rs = foldMap(xs)(x => x.length)(intAddMonoid)
 f(a) ♤ f(b) == f( a ☆ b ) 일때 함수 f를 준동형사상이라 한다.  
 
 이를 scala code로 다시 들여다 보면 다음과 같다.
-{% highlight scala %}
-foldMap(xs)(x => x.length)(intAddMonoid)
-{% endhighlight %}
 (G,☆) 에서 G : String  
 (H,♤) 에서 H : IntAddMonoid[Int] 에서 Int  
 ☆ 이항연산은  : String의 +  
@@ -157,10 +154,8 @@ intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
 {% endhighlight %}
 
 # Monoid 의 관찰
-위의 예제들을 보면서 느낀점은 결국 어떠한 집합에 monoid를 적용하면 집합의 원소에 결부시킨  
-monoid 군의 연산을 적용하여 monoid 군으로 변환 되는 것을 볼 수 있었다.  
-또한 이 monoid 이항연산은 결합법칙이 성립하므로 이 연산을 병렬로 실행하더라도 문제가 없음을  
-안심하고 사용 할 수 있을 듯 하다.
+위의 예제들을 보면서 느낀점은 결국 어떠한 집합에 monoid를 적용하면 집합의 원소에 결부시킨 monoid 군의 연산을 적용하여 monoid 군으로 변환 되는 것을 볼 수 있었다.  
+또한 이 monoid 이항연산은 결합법칙이 성립하므로 이 연산을 병렬로 실행하더라도 문제가 없음을 안심하고 사용 할 수 있을 듯 하다.
 
 ## Monoid 의 합성
 Monoid의 위업은 함성 compose에서 나타난다.  
@@ -178,7 +173,7 @@ def mergeOption[O](m: Monoid[O]): Monoid[Option[O]] = {
   new Monoid[Option[O]] {
 	override def zero: Option[O] = None
 	override def op(o1: Option[O], o2: Option[O]): Option[O] = 
-		o1 flatMap(a => o2 map(b => m.op(a, b)))
+	  o1 flatMap(a => o2 map(b => m.op(a, b)))
   }
 }
 
