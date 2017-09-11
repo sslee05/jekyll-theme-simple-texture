@@ -40,12 +40,12 @@ def intAddMonoid: Monoid[Int] = new Monoid[Int] = ???
 def intProductMonoid: Monoid[Int] = new Monoid[Int] = ???
 {% endhighlight %}
 
-### Boooean or 연산에 대한 Monoid를 만들어라.
+### Boolean or 연산에 대한 Monoid를 만들어라.
 {% highlight scala %}
 def booleanOr: Monoid[Boolean] = new Monoid[Boolean] = ???
 {% endhighlight %}
 
-### Boooean and 연산에 대한 Monoid를 만들어라.
+### Boolean and 연산에 대한 Monoid를 만들어라.
 {% highlight scala %}
 def booleanAnd: Monoid[Boolean] = new Monoid[Boolean] = ???
 {% endhighlight %}
