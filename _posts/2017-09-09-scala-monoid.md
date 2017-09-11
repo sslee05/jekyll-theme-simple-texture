@@ -156,8 +156,82 @@ val ys = "edf"
 intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
 {% endhighlight %}
 
+# Monoid 의 관찰
+위의 예제들을 보면서 느낀점은 결국 어떠한 집합에 monoid를 적용하면 집합의 원소에 결부시킨  
+monoid 군의 연산을 적용하여 monoid 군으로 변환 되는 것을 볼 수 있었다.  
+또한 이 monoid 이항연산은 결합법칙이 성립하므로 이 연산을 병렬로 실행하더라도 문제가 없음을  
+안심하고 사용 할 수 있을 듯 하다.
 
+## Monoid 의 함성
+Monoid의 위업은 함성 compose에서 나타난다.  
 
+{% highlight scala %}
+val o01 = Some(Some(2))
+val o02 = Some(Some(3))
+{% endhighlight %}
+위의 Option 자료구조에 다른 Option의 값을 합하려면 어떻게 해야 할까?  
+즉 결과는 Some(Some(5))  
+
+이때 Monoid의 합성의 위력을 보여 준다.
+{% highlight scala %}
+def mergeOption[O](m: Monoid[O]): Monoid[Option[O]] = {
+  new Monoid[Option[O]] {
+	override def zero: Option[O] = None
+	override def op(o1: Option[O], o2: Option[O]): Option[O] = 
+		o1 flatMap(a => o2 map(b => m.op(a, b)))
+  }
+}
+
+val o01 = Some(Some(2))
+val o002 = Some(Some(3))
+val rx080 = mergeOption(mergeOption(intAddMonoid)).op(o0801, o0802)
+println(rx08)
+{% endhighlight %}
+
+다음은 Map[String,Map[String,Int]] 일 경우  
+{% highlight scala %}
+val m1:Map[String,Map[String,Int]] = Map("map" -> Map("a" -> 1,"b" -> 2))
+val m2:Map[String,Map[String,Int]] = Map("map" -> Map("b" -> 3))
+{% endhighlight %}
+위의 m1과 m2를 병합 하려면 어떻게 해야 할까?
+그러니깐 결과는 다음 같이
+
+{% highlight scala %}
+val m3:Map[String,Map[String,Int] = Map("map" -> Map("a" -> 1, "b" -> 5))
+{% endhighlight %}
+
+이때 위에서 만든 monoid들을 합성하면 다음과 같다.
+{% highlight scala %}
+def mergeMapMonoid[K,V](m: Monoid[V]): Monoid[Map[K,V]] = {
+  new Monoid[Map[K,V]] {
+	override def zero: Map[K,V] = Map[K,V]()
+	override def op(ma: Map[K,V], mb: Map[K,V]): Map[K,V] = 
+		(ma.keySet ++ mb.keySet).foldLeft(zero) { (b1,a1) => 
+          b1.updated(a1,m.op(ma.getOrElse(a1,m.zero), mb.getOrElse(a1,m.zero)))
+    }
+  }
+}
+
+val m1:Map[String,Map[String,Int]] = Map("map" -> Map("a" -> 1, "b" -> 2))
+val m2:Map[String,Map[String,Int]] = Map("map" -> Map("b" -> 3, "c" -> 2))
+
+val mergeM: Monoid[Map[String,Map[String,Int]]] = mergeMapMonoid(mergeMapMonoid(intAddMonoid))
+val rs08: Map[String,Map[String,Int]] = mergeM.op(m1,m2)
+println(rs08)
+{% endhighlight %}
+
+위의 두 경우를 합하면 Option[Map[String,Map[String,Int]]] 인 경우는 ?
+원하는 monoid만  결합하면 된다.
+{% highlight scala %}
+val mo01 = Some(Map("map" -> Map("a" -> 1, "b" -> 2)))
+val mo02 = Some(Map("map" -> Map("b" -> 3, "c" -> 2)))
+
+val mMonoid2:Monoid[Option[Map[String,Map[String,Int]]]] =   mergeOption(mergeMapMonoid(mergeMapMonoid(intAddMonoid)))
+val rs0803 = mMonoid2.op(mo01, mo02)
+println(rs0803)
+// 결과 
+//Some(Map(map -> Map(a -> 1, b -> 5, c -> 2)))
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
