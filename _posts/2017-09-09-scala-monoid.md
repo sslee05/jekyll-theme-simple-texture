@@ -42,6 +42,9 @@ x,y,z ∈ G => x ✶ (y ✶ z) = (x ✶ y) ✶ z
 
 ## 모노이드(Monoid)
 ✶를 하나의 집합 G에 대한 이항 연산이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G ) l-1,l-2 성질을 가지는 군을 monoid라 한다.
+
+
+# scala로 Monoid를 모델링 해보자.
 {% highlight scala %}
 trait Monoid[A] {
   def op(a: A, b: A): A = ??? //( 결합법칙 이 성립하게 구현)
@@ -53,9 +56,6 @@ operation에 인자들은 A 유형이다.
 a,b ∈ A 이고 zero(항등원) ∈ A 이며 (구현은 안되어 있지만, 결합법칙이 성립하는 연산) op의 이항연산이 있다.  
 이때 위의 군의 정의에 의해 Monoid[A]의 인스턴스를 monoid 라 한다.  
 
-
-
-# scala로 Monoid를 모델링 해보자.
 이제 Monoid가 무었인지 알았으니 Monoid 에를 작성하며 연습해보자.
 
 ex-01) String monoid를 만들어 보자.
@@ -112,13 +112,13 @@ def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
 
 이제 List[String] 에 접기 함수를 사용할때 (String,+) monoid 군을 적용 시킬 수 있다.  
 (String,+) 은 x,y ∈ String 이고 , String 모든 원소에 항등원 "" 이 있으며 + 이항연산의 monoid law를 가지는 군이다.  
-따라서 List[String] 집합 (String,+) monoid를 적용시키에 접기 함수가 딱 들어 맞는다.  
+따라서 List[String] 집합 (String,+) monoid를 적용시키에 fold(접기() 함수가 딱 들어 맞는다.  
 {% highlight scala %}
 def fold[A](xs: List[A])(m: Monoid[A]): A = 
   xs.foldRight(m.zero)((a,b) => m.op(a, b)) 
 {% endhighlight %}
 
-시작과 결과의 형식이 다른 접기 일반적으로 fold 함수는 A => B 처럼 형식이 다른다.  
+일반적으로 fold 함수는 A => B 처럼 형식이 다른다.  
 이런경우 어떻게 하면 될까? 이렇경우 A => B 인 사상를 사용 하면 된다.
 {% highlight scala %}
 def foldMap[A,B](xs: List[A])(f: A => B)(m: Monoid[B]): B = 
@@ -142,9 +142,10 @@ f(a) ♤ f(b) == f( a ☆ b ) 일때 함수 f를 준동형사상이라 한다.
 
 이를 scala code로 다시 들여다 보면 다음과 같다.  
 foldMap(xs)(x => x.length)(intAddMonoid) 에서
-String를 (G,☆) 에서 G 라 생각 하고  
-IntAddMonoid[Int] 에서 Int를 H라 생각해보자 
-또 ☆ 이항연산은 String의 + , 그리고 ♤ 이항연산은 IntAddMonoid의 op(Int,Int) 이항연산 이라 생각 하자.  
+(G,☆) 에서 G : String  
+(H,♤) 에서 H : IntAddMonoid[Int] 에서 Int
+☆ 이항연산은  : String의 +  
+♤ 이항연산은  : IntAddMonoid의 op(Int,Int)  
 그리고 이야기 주제의 주인공인 f( 준동형사상)은 String의 length 함수이다.  
 
 {% highlight scala %}
@@ -152,8 +153,6 @@ val xs = "abcd"
 val ys = "edf"
 intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
 {% endhighlight %}
-
-
 
 
 
