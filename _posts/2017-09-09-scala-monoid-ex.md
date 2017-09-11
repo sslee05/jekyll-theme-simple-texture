@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "scala monoid"
-description: "scala monoid"
+title: "scala monoid practice"
+description: "scala monoid practice"
 categories: [language]
 tags: [scala]
 redirect_from:
