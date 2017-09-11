@@ -165,6 +165,39 @@ class FoldableTree extends Foldable[Tree] {
 }
 {% endhighlight %}
 
+# monoid의 합성
+### Option(Option(Int))
+2개의 Option(Option(Int)) 의 자료구조의 병합을 위의 monoide들을 합성하여 구현하라.
+{% highlight scala %}
+def mergeOption[O](m: Monoid[O]): Monoid[Option[O]] = ???
+{% endhighlight %}
+
+### Map[String,Map[String,Int]]
+ 2개의 Map[String,Map[String,Int]] 의 자료구조의 병합을 위의 monoide들을 합성하여 구현하라.
+{% highlight scala %}
+def mergeMapMonoid[K,V](m: Monoid[V]): Monoid[Map[K,V]] = ???
+ㅊ
+
+### Option[Map[String,Map[String,Int]]]
+ 2개의 Option[Map[String,Map[String,Int]]] 의 자료구조의 병합을 위의 2문제를 이용하여 작성하라.
+{% highlight scala %}
+val mMonoid2:Monoid[Option[Map[String,Map[String,Int]]]] = ???
+{% endhighlight %}
+
+### 결과가 monoid 인 함수들에 대한 monoid instance를 작성하라.
+{% highlight scala %}
+def functionMonoid[A,B](m: Monoid[B]): Monoid[A => B] = new Monoid[A => B] = ???
+{% highlight scala %}
+
+### bag라는 자료구조는 집합처럼 각 요소를 하나씩만 담되, 그 요소의 출현 횟수도 기억한다.
+구체적으로, 자루는 각 요소가 key 이고 그 요소의 출현 횟수가 값인 Map[요소,출현횟수] 으로 표현된다.  
+bag(Vector("a","rose","is","a","rose")) 일때 결과는  
+res0: Map[String,Int] = Map(a -> 2, is -> 1, rose -> 2)  가 나오도록  
+monoid들을 이용해서 IndexedSeq 로 부터 bag 를 구현하라.
+{% highlight scala %}
+def bag[A](xs: IndexedSeq[A]): Map[A,Int] = ???
+{% highlight scala %}
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
