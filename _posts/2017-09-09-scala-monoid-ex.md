@@ -86,8 +86,8 @@ def dualMonoid[A](m: Monoid[A]) = new Monoid[A] = ???
 {% endhighlight %}
 
 # 결합법칙과 병렬성 
-IndexedSeq에 대한 foldMap를 구현하라. 구현은 반드시 순차열을 둘로 분할해서 재귀적으로  
-각 절반을 처리하고 그 결과들을 monoid를 이용해서 결합해야 한다.
+### IndexedSeq에 대한 foldMap를 구현하라.
+구현은 반드시 순차열을 둘로 분할해서 재귀적으로 각 절반을 처리하고 그 결과들을 monoid를 이용해서 결합해야 한다.
 {% highlight scala %}
 def foldMapV[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B = ???
 {% endhighlight %}
@@ -107,7 +107,63 @@ Monoid를 이용할 것
 def ordered(xs: IndexedSeq[Int]): Boolean = ???
 {% endhighlight %}
 
+# 접을 수 있는 자료구조
+### 여러 자료구조에서 fold의 공통점을 뽑아 Foldable trait를 구현하라.
+앞 chapter에서 List,Option,Par,Tree 등에 접기 fold가 함수 들이 있었다 이들은 매개변수 유형만  
+다를 뿐이다 이들의 공통점을 뽑으면 다음과 같은 trait로 일반화 할수 있다. 이를 구현 하라.
+foldMap, foldRight등 서로를 이용하면 된다.
+{% highlight scala %}
+trait Foldable[F[_]] {
+  def foldRight[A,B](xs: F[A])(z: B)(f: (A,B) => B): B
+  def foldLeft[A,B](xs: F[A])(z: B)(f: (B,A) => B): B
+  def foldMap[A,B](xs: F[A])(f: A => B)(m: Monoid[B]): B
+  def concat[A](xs: F[A])(m: Monoid[A]): A 
+}
+{% endhighlight %}
 
+### Foldable[List]를 구현하라.
+foldRight,foldLeft,foldMap, toList를 구현하라
+{% highlight scala %}
+class FoldableList extends Foldable[List] {
+  override def foldRight[A,B](xs: List[A])(z: B)(f: (A,B) => B): B = ???
+  override def foldLeft[A,B](xs: List[A])(z: B)(f: (B,A) =>B): B = ???
+  override def foldMap[A,B](xs: List[A])(f: A => B)(m: Monoid[B]): B = ???
+  override def toList[A](xs: List[A]): List[A] = ???
+}
+{% endhighlight %}
+
+### Foldable[IndexedSeq] 구현하라.
+//foldRight,foldLeft,foldMap 를 구현하라.
+{% highlight scala %}
+class FoldableIndexedSeq extends Foldable[IndexedSeq]  {
+  override def foldRight[A,B](xs: IndexedSeq[A])(z: B)(f: (A,B) => B): B = ???
+  override def foldLeft[A,B](xs: IndexedSeq[A])(z: B)(f: (B,A) => B): B = ???
+  override def foldMap[A,B](xs: IndexedSeq[A])(f: A => B)(m: Monoid[B]): B = ???
+}
+{% endhighlight %}
+
+### Foldable[Stream] 구현하라.
+foldRight, foldLeft를 구현하라.
+{% highlight scala %}
+class FoldableStream extends Foldable[Stream] {
+  override def foldRight[A,B](xs: Stream[A])(z: B)(f: (A,B) => B): B = ???
+  override def foldLeft[A,B](xs: Stream[A])(z: B)(f: (B,A) => B): B = ???
+}
+{% endhighlight %}
+
+### Foldable[Tree] 구현하라.
+foldRight,foldLeft,foldMap  구현하라.
+{% highlight scala %}
+sealed trait Tree[+A]
+case class Leaf[A](v: A) extends Tree[A]
+case class Branch[A](l: Tree[A], r: Tree[A]) extends Tree[A]
+
+class FoldableTree extends Foldable[Tree] {
+  override def foldRight[A,B](t: Tree[A])(z: B)(f: (A,B) => B) : B = ???
+  override def foldLeft[A,B](t: Tree[A])(z: B)(f: (B,A) => B): B = ???
+  override def foldMap[A,B](t: Tree[A])(f: A => B)(m: Monoid[B]): B = ???
+}
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
