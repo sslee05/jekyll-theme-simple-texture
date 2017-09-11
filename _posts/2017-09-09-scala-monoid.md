@@ -154,7 +154,7 @@ intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
 {% endhighlight %}
 
 # 접을수 있는 자료구조
-위에 Monoid와 fold (접기) 함수에 잘 들어 맞는다. List, Option, Either, Tree 등 접기 자료구조를 보면 타입 매개변수가 다라지고 나머지는 거의 동일하다.  
+위에 Monoid와 fold (접기) 함수에 잘 들어 맞는다. List, Option, Either, Tree 등 접기 자료구조를 보면 타입 매개변수가 달라지고 나머지는 거의 동일하다.  
 이들을 연습 삼아 공통점을 뽑아내어 trait로 작성해보면 도움이 된다.
 이는 타입매개변수가 가변적이니 이를 형식생성자를 받도록 하면 된다.
 {% highlight scala %}
