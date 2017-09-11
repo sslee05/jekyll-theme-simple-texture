@@ -183,9 +183,10 @@ def mergeOption[O](m: Monoid[O]): Monoid[Option[O]] = {
 }
 
 val o01 = Some(Some(2))
-val o002 = Some(Some(3))
-val rx080 = mergeOption(mergeOption(intAddMonoid)).op(o0801, o0802)
+val o02 = Some(Some(3))
+val rx080 = mergeOption(mergeOption(intAddMonoid)).op(o01, o02)
 println(rx08)
+//결과: Some(Some(5))
 {% endhighlight %}
 
 다음은 Map[String,Map[String,Int]] 일 경우  
@@ -218,6 +219,7 @@ val m2:Map[String,Map[String,Int]] = Map("map" -> Map("b" -> 3, "c" -> 2))
 val mergeM: Monoid[Map[String,Map[String,Int]]] = mergeMapMonoid(mergeMapMonoid(intAddMonoid))
 val rs08: Map[String,Map[String,Int]] = mergeM.op(m1,m2)
 println(rs08)
+//결과: Map(map -> Map(a -> 1, b -> 5, c -> 2))
 {% endhighlight %}
 
 위의 두 경우를 합하면 Option[Map[String,Map[String,Int]]] 인 경우는 ?
