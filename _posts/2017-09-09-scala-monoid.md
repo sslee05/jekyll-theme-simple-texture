@@ -153,6 +153,29 @@ val ys = "edf"
 intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
 {% endhighlight %}
 
+# 접을수 있는 자료구조
+위에 Monoid와 fold (접기) 함수에 잘 들어 맞는다. List, Option, Either, Tree 등 접기 자료구조를 보면 타입 매개변수가 다라지고 나머지는 거의 동일하다.  
+이들을 연습 삼아 공통점을 뽑아내어 trait로 작성해보면 도움이 된다.
+이는 타입매개변수가 가변적이니 이를 형식매개변수 형식생성자로 두고 이를 받도록 하자.
+{% highlight scala %}
+trait Foldable[F[_]] {
+  def foldRight[A,B](xs: F[A])(z: B)(f: (A,B) => B): B =
+	foldMap(xs)(f.curried)(endoMonoid[B])(z)
+
+  def foldLeft[A,B](xs: F[A])(z: B)(f: (B,A) => B): B = 
+	foldMap(xs)(a => (b:B) => f(b,a))(dualMonoid(endoMonoid))(z)
+
+  def foldMap[A,B](xs: F[A])(f: A => B)(m: Monoid[B]): B = 
+	foldRight(xs)(m.zero)((a,b) => m.op(f(a),b))
+
+  def concat[A](xs: F[A])(m: Monoid[A]): A = 
+	foldLeft(xs)(m.zero)(m.op) 
+
+  def toList[A](s: F[A]): List[A] = 
+	foldRight(s)(List[A]())((a,b) => a::b)
+}
+{% endhighlight %}
+
 # Monoid 의 관찰
 위의 예제들을 보면서 느낀점은 결국 어떠한 집합에 monoid를 적용하면 집합의 원소에 결부시킨 monoid 군의 연산을 적용하여 monoid 군으로 변환 되는 것을 볼 수 있었다.  
 또한 이 monoid 이항연산은 결합법칙이 성립하므로 이 연산을 병렬로 실행하더라도 문제가 없음을 안심하고 사용 할 수 있을 듯 하다.
