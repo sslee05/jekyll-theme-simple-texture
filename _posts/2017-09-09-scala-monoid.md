@@ -140,10 +140,12 @@ val rs = foldMap(xs)(x => x.length)(intAddMonoid)
 군 (G,☆) 에서 군 (H,♤)로의 함수 f 가 모든 a,b ∈ G 에 대하여  
 f(a) ♤ f(b) == f( a ☆ b ) 일때 함수 f를 준동형사상이라 한다.  
 
-이를 scala code로 다시 들여다 보면 다음과 같다.  
-foldMap(xs)(x => x.length)(intAddMonoid) 에서
+이를 scala code로 다시 들여다 보면 다음과 같다.
+{% highlight scala %}
+foldMap(xs)(x => x.length)(intAddMonoid)
+{% endhighlight %}
 (G,☆) 에서 G : String  
-(H,♤) 에서 H : IntAddMonoid[Int] 에서 Int
+(H,♤) 에서 H : IntAddMonoid[Int] 에서 Int  
 ☆ 이항연산은  : String의 +  
 ♤ 이항연산은  : IntAddMonoid의 op(Int,Int)  
 그리고 이야기 주제의 주인공인 f( 준동형사상)은 String의 length 함수이다.  
