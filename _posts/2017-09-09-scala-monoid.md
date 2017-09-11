@@ -239,7 +239,7 @@ println(rs0803)
 
 ## 여러연산을 동시에 
 monoid의 compose 이외에도 접기가 가능한 어떠한 자료구조에 monoid 군을 여러게 결합하여 monoid 곱을 구할 수 가 있다.  
-이렇게 함으로써 여러 연산의 결과를 동시에 처리 할 수 있다. 한번 접기에 여러 결과를  
+이렇게 함으로써 여러 연산의 결과를 동시에 처리 할 수 있다. 한번 접기에 여러 결과를...  
 
 우선 곱은 다음과 같다. 
 {% highlight scala %}
@@ -256,7 +256,7 @@ def productMonoid[A,B](m1: Monoid[A], m2: Monoid[B]): Monoid[(A,B)] =
 {% endhighlight %}
 
 이제 목록의 길이와 제곱의 합을 동시에 구현하는 예는 다음과 같다.  
-// 목록의 길이와 원소의 합을 동시에 구할 수 있다.
+목록의 길이와 원소의 합을 동시에 구할 수 있다.
 {% highlight scala %}
 val xs09 = List(1,2,3,4,5,6,7,8,9,10)
 val m09 = productMonoid(intAddMonoid,intAddMonoid)
