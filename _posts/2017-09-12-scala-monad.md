@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "scala Monad"
+title: "scala Monad2"
 description: "scala Monad"
 categories: [language]
 tags: [scala]
