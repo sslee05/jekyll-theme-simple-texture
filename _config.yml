@@ -21,8 +21,8 @@ sass:
   style: compressed
 
 # Site Data
-url: # the base hostname & protocol for your site, e.g. http://example.com
-baseurl: # the subpath of your site, e.g. /blog
+url: https://sslee05.github.io 
+baseurl: /blog
 title: SSLEE Software Engineer 일지
 description: "보고 듣고 접하고 파고들고 생각드는 점들에 대한 고찰"
 keywords: 'jekyll,theme,gem-based,blog'
