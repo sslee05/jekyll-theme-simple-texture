@@ -23,9 +23,14 @@ redirect_from:
 # Functor(함자)
 
 ![친절한 스크린샷]({{ baseurl }}/assets/images/scala/01.png)
+
 이미지 출처:"Professor Frisby's Mostly Adequate Guide to Functional Programming"
 
-위의 그림을 보면 한 마디로 map를 가진 형식생성자라 할 수 있다.
+위의 그림을 보면 한 마디로 map를 가진 형식생성자라 할 수 있다.  
+map 함수의 sygnature 는 다음과 같다.
+{% highlight scala %}
+def map[A,B](a: F[A])(f: A => B): F[B] 
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
