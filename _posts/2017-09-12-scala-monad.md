@@ -78,7 +78,8 @@ val rx = mapStringList(xs)(twice)
 
 map은 box에 대하여 함수를 어떻게 적용해야 하는지를 알고 있다.  
 위에서 한것들을 그림으로 나타내면 다음과 같다.  
-[아래 그림들 이미지 출처:http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html]
+[아래 그림들 이미지 출처:] [link](http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html)  
+
 ![functor]({{ baseurl }}/assets/images/scala/value_apply.png)  
 유형을 function에 적용  
 ![functor]({{ baseurl }}/assets/images/scala/value_and_context.png)  
