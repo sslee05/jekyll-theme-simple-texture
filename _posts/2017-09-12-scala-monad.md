@@ -86,7 +86,7 @@ box를 function에 적용
 ![functor]({{ baseurl }}/assets/images/scala/fmap_apply.png)  
 box를 map에 적용  
 ![functor]({{ baseurl }}/assets/images/scala/fmap_just.png)  
-functor가 한 것  
+map이 한 것  
 [이미지 출처:http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html]  
 
 예제는 List[Int], List[String], Option[String], Option[Int] 등에 적용할 map를 만들 수 있음을 보여 준다.  
