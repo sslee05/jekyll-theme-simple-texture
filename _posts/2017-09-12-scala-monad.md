@@ -257,8 +257,7 @@ def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A,B,C) => D): F[D] =
 ![functor]({{ baseurl }}/assets/images/scala/monad_chain.png)  
 이를 Monad chain 이라 한다.  
 
-# 정리
-[아래 그림들 이미지 출처:] [link](http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html)  
+# 정리 
 ![functor]({{ baseurl }}/assets/images/scala/recap.png)  
 
 - Fucntor: **map함수를 이용하여 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass의 datatype이  Functor다**
