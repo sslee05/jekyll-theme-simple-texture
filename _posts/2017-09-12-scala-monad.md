@@ -41,7 +41,8 @@ val rs = double(xs) // ERROR
 {% endhighlight %}
 
 Int 유형에는 잘 적용되는 double 함수가 Int 유형을 감싼 box에는 적용되지 않는다.  
-이를 어떻게 적용할까? 새로 함수를 만들어야 하나? map함수를 생각 해보자  
+이 함수를 box에 어떻게 적용해야 하나?  
+map함수를 생각 해보자  
 {% highlight scala %}
 def mapIntList(xs: List[Int])(f: Int => Int): List[Int] = ???
 {% endhighlight %}
@@ -81,7 +82,8 @@ trait Functor[F[_]] {
 ![친절한 스크린샷]({{ baseurl }}/assets/images/scala/01.png)
 
 위의 code는 위의 그림과 같이 함수 f: a -> b 를 받고 F[A] 를 F[B]로 변환하는 함수 즉 Functor다.  
-이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass를 Functor라 한다.
+__즉 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass가 Functor다.__
+이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass다.
 
 ## Functor의 조건
 functor는 function의 조건을 만족해야 한다.  
