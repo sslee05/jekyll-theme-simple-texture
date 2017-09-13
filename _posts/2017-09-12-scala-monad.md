@@ -108,8 +108,7 @@ xs map f 는 List 역시 Functor임을 알 수 있게 해준다.
 
 한가지 더 function 이라는 box에 function을 적용 해보면  
 {% highlight scala %}
-def map[A,B,C](f: A => F[B],g: B => F[C]): A => F[C] = 
-  a => flatMap(f(a))(g)
+def map[A,B,C](f: A => B)(g: B => C): A => C = g compose f
 {% endhighlight %}
 함수의 합성이 된다. Function 또한 Functor 임을 알 수 있다.
 
