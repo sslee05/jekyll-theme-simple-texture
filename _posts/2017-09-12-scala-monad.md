@@ -128,8 +128,20 @@ def map[A,B,C](f: A => B)(g: B => C): A => C = g compose f
 
 # Monad
 ## Monad 정의
-A 는 B 이다. 라고 한마디로 정의 하는 곳 아직 보지 못 했다.  
-Monad는 Functor이며, 
+Monad는 box(context 상태)에 있는 값을 꺼내어 주어진 함수를 적용해서 box에 담는 것 이다.  
+Functor는 box(context 상태)에 있는 값을 꺼내어 주어진 함수를 적용하는 방법  
+
+위에 정의로만 보면 모든 Monad는 Functor임을 알 수 있다.  
+하지만 모든 Functor가 Monad는 아니다.  
+
+Monad는 또한 Monoid처럼 법칙을 가지고 있어야 한다. 다음은 그 법칙 이다.  
+- bind operator는 결합법칙을 만족 해야 한다.
+- left 항등법칙을 만족해야 한다.
+- right 항등법칙을 만족해야 한다.
+
+
+
+
 
 
 
