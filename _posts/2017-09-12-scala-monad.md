@@ -260,9 +260,12 @@ def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A,B,C) => D): F[D] =
 # 정리 
 ![functor]({{ baseurl }}/assets/images/scala/recap.png)  
 
-- Functor: **map함수를 이용하여 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass의 datatype이  Functor다**
-- Applicative functor:**bind 함수인 flatMap과 map 함수를 적용하여 box안의 함수를 적용하는 typeclass의 datatype이 Application Functor라 한다**
-- Monad:**Monad는 bind 함수와 map 함수를 적용하여 box안의 함수를 적용하고 다시 box를 반환하는 것이 Monand 이다.**
+- Functor: 
+**map함수를 이용하여 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass의 datatype이  Functor다**
+- Applicative functor:
+**bind 함수인 flatMap과 map 함수를 적용하여 box안의 함수를 적용하는 typeclass의 datatype이 Application Functor라 한다**
+- Monad:
+**Monad는 bind 함수와 map 함수를 적용하여 box안의 함수를 적용하고 다시 box를 반환하는 것이 Monand 이다.**
 - **그리고 이들의 operate들은 law를 가지고 있다.**
 
 
