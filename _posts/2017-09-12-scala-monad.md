@@ -94,8 +94,9 @@ trait Functor[F[_]] {
 ![친절한 스크린샷]({{ baseurl }}/assets/images/scala/01.png)  
 [이미지 출처:mostly-adequate-guide 에서]  
 위의 code는 위의 그림과 같이 함수 f: a -> b 를 받고 F[A] 를 F[B]로 변환하는 함수 즉 Functor다.  
-__즉 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass가 Functor다.__  
-이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass다.
+__즉 box에 따라 함수를 어떻게 적용하지를 알려주는 datatype이 Functor다.__  
+이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass다.  
+즉 functor는 box(context 상태)에 담긴 값을 꺼내어 function을 적용하여 다시 boxed(context 상태)에 넣어 둔다.
 
 ## Functor의 조건
 functor는 function의 조건을 만족해야 한다.  
