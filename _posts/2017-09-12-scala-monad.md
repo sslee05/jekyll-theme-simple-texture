@@ -24,7 +24,7 @@ val rx = double(2)
 //결과: 4
 {% endhighlight %}
 
-만약 List[Int],Option[Int]등 에 함수 double를 넣으면 어떻게 계산되어야 하나?
+만약 함수 double에 List[Int],Option[Int]등을 넣으면 어떻게 계산되어야 하나?  
 문제는 이것으로 부터 시작 된다.
 
 # typeclass
@@ -125,7 +125,10 @@ def map[A,B,C](f: A => B)(g: B => C): A => C = g compose f
 함수의 합성이 된다. Function 또한 Functor 임을 알 수 있다.
 
 
-
+# Monad
+## Monad 정의
+A 는 B 이다. 라고 한마디로 정의 하는 곳 아직 보지 못 했다.  
+Monad는 Functor이며, 
 
 
 
