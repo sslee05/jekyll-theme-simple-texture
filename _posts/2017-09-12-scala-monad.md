@@ -104,7 +104,7 @@ val listF = new Functor[List] {
 {% endhighlight %}
 
 xs map f 는 List 역시 Functor임을 알 수 있게 해준다.  
-즉 F[_] 또한 F[_] 에 맞는 function적용 방법을 가지고 있고 이 또한 Functor였다.
+즉 F[ _ ] 또한 F[ _ ] 에 맞는 function적용 방법을 가지고 있고 이 또한 Functor였다.
 
 한가지 더 function 이라는 box에 function을 적용 해보면  
 {% highlight scala %}
