@@ -15,6 +15,18 @@ redirect_from:
 * Kramdown table of contents
 {:toc .toc}
 
+# 이야기의 시작
+String,Int,Boolean,... 이것에 function을 적용하는 것은 아래와 같이 쉽고 직관적이다.
+{% highlight scala %}
+val a = 2
+def double(v: Int): Int = v * v
+val rx = double(2)
+//결과: 4
+{% endhighlight %}
+
+만약 List[Int],Option[Int]등 에 함수 double를 넣으면 어떻게 계산되어야 하나?
+문제는 이것으로 부터 시작 된다.
+
 # typeclass
 동작을 정의하는 일종의 인터페이스.  
 유형이 유형 클래스의 일부인 경우, 이는 유형 클래스가 설명하는 동작을 지원하고 구현 함을 뜻 한다.  
