@@ -80,9 +80,9 @@ trait Functor[F[_]] {
 
 이것이 Functor 다.  
 ![친절한 스크린샷]({{ baseurl }}/assets/images/scala/01.png)
-
+[이미지 출처:mostly-adequate-guide 에서]
 위의 code는 위의 그림과 같이 함수 f: a -> b 를 받고 F[A] 를 F[B]로 변환하는 함수 즉 Functor다.  
-__즉 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass가 Functor다.__
+__즉 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass가 Functor다.__  
 이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass다.
 
 ## Functor의 조건
@@ -92,7 +92,26 @@ functor는 function의 조건을 만족해야 한다.
 
 위의 코드에서 F[A]의 구조를 보존해야 한다는 것인데 만약 F[A]가 List[Int] 이고 F[B]가 List[String] 이라면 F[B] 의 길이는 F[A]의 길이과 같을 것이며, 해당요소들은 같은 순서로 될 것이다.  
 
-나라는 형체가 거울에 비추어 질때 projection 의 결과는 거울의 내 모습이며 이 projection를 functor라 한다. 이는 나의 형태에 모습(구조)을 그대로 반영 한다.  
+나라는 형체가 거울에 비추어 질때 projection 의 결과는 거울의 내 모습이며 이 projection를 functor라 한다.  
+이는 나의 형태에 모습(구조)을 그대로 반영 한다.  
+
+# box(가칭)
+위의 box를 List의 예로 보면 
+{% highlight scala %}
+val listF = new Functor[List] {
+	def map[A,B](xs: List[A])(f: A => B): List[A] = xs map f
+}
+{% endhighlight %}
+
+xs map f 는 List 역시 Functor임을 알 수 있게 해준다.  
+즉 F[_] 또한 F[_] 에 맞는 function적용 방법을 가지고 있고 이 또한 Functor였다.
+
+한가지 더 function 이라는 box에 function을 적용 해보면  
+{% highlight scala %}
+def map[A,B,C](f: A => F[B],g: B => F[C]): A => F[C] = 
+  a => flatMap(f(a))(g)
+{% endhighlight %}
+함수의 합성이 된다. Function 또한 Functor 임을 알 수 있다.
 
 
 
