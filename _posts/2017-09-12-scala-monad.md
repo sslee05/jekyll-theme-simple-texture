@@ -176,8 +176,42 @@ unit(x) flatMap f == f(x)
 ma flatMap unit = ma
 {% endhighlight %}
 
+## Functor와 Monad
+functor를 보면 상자에서 값을 꺼내어 function을 적용했다.  
+{% highlight scala %}
+def map[A,B](a: F[A])(f: A => B): F[B] = unit(f(a))
 
+val xs = Some(2)
+def double(v: Int): Int = v * v
 
+val rs = map(xs)(double)
+//결과: Some(4)
+{% endhighlight %}
+여기까지가 Functor에서 해왔던 것 이다.  
+그림으로 나타 내면 아래와 같이...  
+![functor]({{ baseurl }}/assets/images/scala/fmap.png)  
+이제 f 적용함수 또한 box에 있다고 하자  
+{% highlight scala %}
+def map[A,B](a: F[A])(f: A => B): F[B] = unit(f(a))
+
+val xs = Some(2)
+val fb = Some((a:Int) => a * a)
+
+//ERROR
+//val rs = map(xs)(fb)
+
+def map2[A,B](ma: Option[A])(mb: Option[A => B]): Option[B] = 
+  mb flatMap(a => mb map(b => b(a)))
+
+val rs = map2(xs,fb)
+//결과: Some(4)
+{% endhighlight %}
+
+그림으로 나타내면 다음과 같다  
+function이 box에 담김  
+![functor]({{ baseurl }}/assets/images/scala/function_and_context.png)  
+map2를 적용함.
+![functor]({{ baseurl }}/assets/images/scala/applicative_just.png)  
 
 
 
