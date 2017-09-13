@@ -76,7 +76,18 @@ val rx = mapStringList(xs)(twice)
 //결과:List("aa","bb","cc")
 {% endhighlight %}
 
-map은 box에 대하여 함수를 어떻게 적용해야 하는지를 알고 있다.
+map은 box에 대하여 함수를 어떻게 적용해야 하는지를 알고 있다.  
+![functor]({{ baseurl }}/assets/images/scala/value_apply.png)  
+유형을 function에 적용  
+![functor]({{ baseurl }}/assets/images/scala/value_and_context.png)  
+box  
+![functor]({{ baseurl }}/assets/images/scala/no_fmap_ouch.png)  
+box를 function에 적용 
+![functor]({{ baseurl }}/assets/images/scala/fmap_apply.png)  
+box를 map에 적용  
+![functor]({{ baseurl }}/assets/images/scala/fmap_just.png)  
+functor가 한 것  
+[이미지 출처:http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html]  
 
 예제는 List[Int], List[String], Option[String], Option[Int] 등에 적용할 map를 만들 수 있음을 보여 준다.  
 
@@ -91,7 +102,7 @@ trait Functor[F[_]] {
 {% endhighlight %}
 
 이것이 Functor 다.  
-![친절한 스크린샷]({{ baseurl }}/assets/images/scala/01.png)  
+![functor]({{ baseurl }}/assets/images/scala/01.png)  
 [이미지 출처:mostly-adequate-guide 에서]  
 위의 code는 위의 그림과 같이 함수 f: a -> b 를 받고 F[A] 를 F[B]로 변환하는 함수 즉 Functor다.  
 __즉 box에 따라 함수를 어떻게 적용하지를 알려주는 datatype이 Functor다.__  
@@ -134,10 +145,35 @@ Functor는 box(context 상태)에 있는 값을 꺼내어 주어진 함수를 �
 위에 정의로만 보면 모든 Monad는 Functor임을 알 수 있다.  
 하지만 모든 Functor가 Monad는 아니다.  
 
+이른 scala trait으로 모델링 하면 다음과 같다.
+{% highlight scala %}
+trait Monad[F[_]] {
+  def unit[A]:(a: => A): F[A]
+  def flatMap[A,B](ma: F[A])(f: A => F[B]): F[B]
+}
+{% endhighlight %}
+Functor와 차이점은 functor의 map f가 A => B 이였다면 monad의 f는 A => F[B] 이다.  
+이는 정의에서와 같이 box안에 원소를 꺼내어 원소에 f를 적용하여 다시 box에 담는 형태다.  
+
+## Monad law
 Monad는 또한 Monoid처럼 법칙을 가지고 있어야 한다. 다음은 그 법칙 이다.  
 - bind operator는 결합법칙을 만족 해야 한다.
 - left 항등법칙을 만족해야 한다.
 - right 항등법칙을 만족해야 한다.
+
+따라서 다음과 같은 조건을 scala 로 표현하면 다음과 같다.
+{% highlight scala %}
+//결합법칙 (m bind f) bind g == m bind (a => f(a) bind g)
+ma flatMap f flatMap g == ma flatMap(a => f(a) flatMap(g))
+
+//left 항등법칙
+unit(x) flatMap f == f(x)
+
+//right 항등법칙
+ma flatMap unit = ma
+{% endhighlight %}
+
+
 
 
 
