@@ -80,7 +80,7 @@ trait Functor[F[_]] {
 
 이것이 Functor 다.  
 ![친절한 스크린샷]({{ baseurl }}/assets/images/scala/01.png)  
-[이미지 출처:mostly-adequate-guide 에서]
+[이미지 출처:mostly-adequate-guide 에서]  
 위의 code는 위의 그림과 같이 함수 f: a -> b 를 받고 F[A] 를 F[B]로 변환하는 함수 즉 Functor다.  
 __즉 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass가 Functor다.__  
 이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass다.
