@@ -176,7 +176,7 @@ unit(x) flatMap f == f(x)
 ma flatMap unit = ma
 {% endhighlight %}
 
-## Functor와 Monad
+# Applicative Functor & Monad
 functor를 보면 상자에서 값을 꺼내어 function을 적용했다.  
 {% highlight scala %}
 def map[A,B](a: F[A])(f: A => B): F[B] = unit(f(a))
@@ -213,8 +213,29 @@ function이 box에 담김
 map2를 적용함.
 ![functor]({{ baseurl }}/assets/images/scala/applicative_just.png)  
 
+map2와 같은 함수를 Applicative fuctor(적용함수자)라 하는데 다음과 같은 형식이다.  
+모든 Applicative functor 는 functor이다.  
+모든 Monad는 Applicative functor 다.  
+하지만 역은 항상 성립하지 안는다.
 
+{% highlight scala %}
+def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C] 
+{% endhighlight %}
+이 것을 flatMap으로 정의 해보면 다음과 같다.
+{% highlight scala %}
+def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C]  = 
+  ma flatMap(a => mb map(b => f(a,b))) 
+{% endhighlight %}
+3개,4개,5개  ... n 개도 할 수 있다.  
+{% highlight scala %}
+def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A,B,C) => D): F[D] = 
+  ma flatMap(a => mb flatMap(b => mc map(c => f(a,b,c))))
+{% endhighlight %}
 
+모든 Monad는 (Applicative Functor이므로) monad flatMap monad flatMap monad ...  
+를 할 수 있다.  
+이를 그림으로 나타내면 다음과 같다.  
+![functor]({{ baseurl }}/assets/images/scala/monad_chain.png)  
 
 
 
