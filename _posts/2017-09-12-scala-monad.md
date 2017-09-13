@@ -8,8 +8,7 @@ redirect_from:
   - /2017/09/08/
 ---
 
-> scala Monad.  
-> 나도 배우는 입장에서 공부한 것을 나름 내방식으로 이해 한것이니 틀린 것 이나 잘 못 이해한 것이 있을 수 있다  
+> scala Monad.
 
 
 * Kramdown table of contents
@@ -29,8 +28,8 @@ val rx = double(2)
 
 # typeclass
 동작을 정의하는 일종의 인터페이스.  
-유형이 유형 클래스의 일부인 경우, 이는 유형 클래스가 설명하는 동작을 지원하고 구현 함을 뜻 한다.  
-자바 인터페이스라고 생각.
+유형이 유형 클래스의 일부인 경우, 이는 유형 클래스가 설명하는 동작을 지원하고 구현함을 뜻 한다.  
+java의 interface라 생각.
 
 # map 함수에 대한 고찰
 어떠한 function 이 있다고 하자.  
@@ -42,17 +41,17 @@ val rx = double(3)
 //결과: 9
 {% endhighlight %}
 
-그리고 Int 유형을 가지는 List[Int]가 있다고 하자. 이를 boxed 라 가칭하자.
+그리고 Int 유형을 가지는 List[Int]가 있다고 하자. 이를 box 라고 부르기로 하자.
 {% highlight scala %}
 val xs = List(1,2,3,4,5)
 {% endhighlight %}
 
-이제 이 boxed를 위의 double 함수를 적용해보자 
+이제 이 box를 위의 double 함수에 적용해보자 
 {% highlight scala %}
 val rs = double(xs) // ERROR
 {% endhighlight %}
 
-Int 유형에는 잘 적용되는 double 함수가 Int 유형을 감싼 box에는 적용되지 않는다.  
+Int 유형에는 잘 적용되는 double 함수가, Int 유형을 감싼 box에는 적용되지 않는다.  
 이 함수를 box에 어떻게 적용해야 하나?  
 map함수를 생각 해보자  
 {% highlight scala %}
@@ -61,7 +60,7 @@ def mapIntList(xs: List[Int])(f: Int => Int): List[Int] = ???
 
 Int 유형을 감싼 List box를 기존의 Int 유형에 적용할 수 있는 double이라는 함수를 받아 적용하고 있다.  
 
-예제 하나더
+예제 하나더...
 {% highlight scala %}
 def twice(v: String) : String = v + v
 
@@ -91,7 +90,6 @@ box를 map에 적용
 ![functor]({{ baseurl }}/assets/images/scala/fmap_just.png)  
 map이 한 것  
   
-
 예제는 List[Int], List[String], Option[String], Option[Int] 등에 적용할 map를 만들 수 있음을 보여 준다.  
 
 # Functor
@@ -107,10 +105,10 @@ trait Functor[F[_]] {
 이것이 Functor 다.  
 ![functor]({{ baseurl }}/assets/images/scala/01.png)  
 [이미지 출처:mostly-adequate-guide 에서]  
-위의 code는 위의 그림과 같이 함수 f: a -> b 를 받고 F[A] 를 F[B]로 변환하는 함수 즉 Functor다.  
-__즉 box에 따라 함수를 어떻게 적용하지를 알려주는 datatype이 Functor다.__  
-이 map은 결국  (a => b) => (F[A] => F[B]) 의 기능을 하는 typeclass다.  
-즉 functor는 box(context 상태)에 담긴 값을 꺼내어 function을 적용하여 다시 boxed(context 상태)에 넣어 둔다.
+위의 code는 위의 그림과 같이 함수 f: a => b 를 받고 F[A] 를 받아 F[B]로 변환하고 있다. 
+**즉 map함수를 이용하여 box에 따라 함수를 어떻게 적용하지를 알려주는 datatype이 Functor다.**  
+이 map의 input/output은   (a => b) => (F[A] => F[B]) 와 같다.
+즉 functor는 box(context 상태)에 담긴 값을 꺼내어 function을 적용한다.
 
 ## Functor의 조건
 functor는 function의 조건을 만족해야 한다.  
@@ -119,11 +117,13 @@ functor는 function의 조건을 만족해야 한다.
 
 위의 코드에서 F[A]의 구조를 보존해야 한다는 것인데 만약 F[A]가 List[Int] 이고 F[B]가 List[String] 이라면 F[B] 의 길이는 F[A]의 길이과 같을 것이며, 해당요소들은 같은 순서로 될 것이다.  
 
-나라는 형체가 거울에 비추어 질때 projection 의 결과는 거울의 내 모습이며 이 projection를 functor라 한다.  
-이는 나의 형태에 모습(구조)을 그대로 반영 한다.  
+거울에 비친 자신의 모습을 볼때, 거울에 보이는 모습은 나를 project하여 비추어진 결과이다.  
+이는 나의 형태에 모습(구조)을 그대로 반영 한다. 이는 Functor의 조건과 같다.
 
-# box(가칭)
-위의 box를 List의 예로 보면 
+# box 라 부르기로 한 것
+위의 box는 형식생성자를 말한다. 즉 어떤 유형의 행동을 기술하는 typeclass의 datatype을 뜻한다.  
+List,Option 등등..  
+box가 List라면  
 {% highlight scala %}
 val listF = new Functor[List] {
 	def map[A,B](xs: List[A])(f: A => B): List[A] = xs map f
@@ -133,12 +133,11 @@ val listF = new Functor[List] {
 xs map f 는 List 역시 Functor임을 알 수 있게 해준다.  
 즉 F[ _ ] 또한 F[ _ ] 에 맞는 function적용 방법을 가지고 있고 이 또한 Functor였다.
 
-한가지 더 function 이라는 box에 function을 적용 해보면  
+한가지 더 function에  function을 적용 해보면  
 {% highlight scala %}
 def map[A,B,C](f: A => B)(g: B => C): A => C = g compose f
 {% endhighlight %}
 함수의 합성이 된다. Function 또한 Functor 임을 알 수 있다.
-
 
 # Monad
 ## Monad 정의
@@ -212,26 +211,40 @@ def map2[A,B](ma: Option[A])(mb: Option[A => B]): Option[B] =
 val rs = map2(xs,fb)
 //결과: Some(4)
 {% endhighlight %}
-
-그림으로 나타내면 다음과 같다  
-function이 box에 담김  
-![functor]({{ baseurl }}/assets/images/scala/function_and_context.png)  
-map2를 적용함.
-![functor]({{ baseurl }}/assets/images/scala/applicative_just.png)  
-
-map2와 같은 함수를 Applicative fuctor(적용함수자)라 하는데 다음과 같은 형식이다.  
-모든 Applicative functor 는 functor이다.  
-모든 Monad는 Applicative functor 다.  
-하지만 역은 항상 성립하지 안는다.
-
+이를 좀더 일반화 해서 다시 작성하면 다음과 같다.  
 {% highlight scala %}
 def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C] 
 {% endhighlight %}
-이 것을 flatMap으로 정의 해보면 다음과 같다.
+이를 구현 하면 다음과 같다.  
 {% highlight scala %}
 def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C]  = 
   ma flatMap(a => mb map(b => f(a,b))) 
 {% endhighlight %}
+구현의 안을 보면 flatMap(bind 라고 함) 와 map(이건 functor 에서) 를 사용하고 있다.  
+이처럼 **bind 함수와 map 함수를 적용하여 box안의 함수를 적용하는 것을 Application Functor라 한다.**  
+그리고 **Monad는 bind 함수와 map 함수를 적용하여 box안의 함수를 적용하고 다시 box를 반환하는 것이 Monand 이다.**  
+**이때 monod law 3가지 를 지켜야 한다.**
+
+따라서 위에 scala code로 Monad를 정의한 부분에 최소한의 operation set은  
+unit,flatMap과 map이 있어야 할 것 이다. 근데 map은 Functor의 operation set이므로  
+다음과 같이 정의 할 수 있다.
+{% highlight scala %}
+trait Monad[F[_]] extends Functor[F]{
+  def unit[A]:(a: => A): F[A]
+  def flatMap[A,B](ma: F[A])(f: A => F[B]): F[B]
+  def map[A,B](ma: F[A])(f: A => B): F[B]
+}
+{% endhighlight %}
+모든 Applicative functor 는 functor이다.  
+모든 Monad는 Applicative functor 다.  
+하지만 역은 항상 성립하지 안는다.  
+
+자 이제 지금까지 한것을 그림으로 나타내면 다음과 같다  
+function이 box에 담김  
+![functor]({{ baseurl }}/assets/images/scala/function_and_context.png)  
+map2를 적용함.  
+![functor]({{ baseurl }}/assets/images/scala/applicative_just.png)  
+
 3개,4개,5개  ... n 개도 할 수 있다.  
 {% highlight scala %}
 def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A,B,C) => D): F[D] = 
@@ -242,7 +255,16 @@ def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A,B,C) => D): F[D] =
 를 할 수 있다.  
 이를 그림으로 나타내면 다음과 같다.  
 ![functor]({{ baseurl }}/assets/images/scala/monad_chain.png)  
+이를 Monad chain 이라 한다.  
 
+# 정리
+[아래 그림들 이미지 출처:] [link](http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html)  
+![functor]({{ baseurl }}/assets/images/scala/recap.png)  
+
+- Fucntor: **map함수를 이용하여 box에 따라 함수를 어떻게 적용하지를 알려주는 typeclass의 datatype이  Functor다**
+- Applicative functor:**bind 함수인 flatMap과 map 함수를 적용하여 box안의 함수를 적용하는 typeclass의 datatype이 Application Functor라 한다**
+- Monad:**Monad는 bind 함수와 map 함수를 적용하여 box안의 함수를 적용하고 다시 box를 반환하는 것이 Monand 이다.**
+- **그리고 이들의 operate들은 law를 가지고 있다.**
 
 
 [^1]: This is a footnote.
