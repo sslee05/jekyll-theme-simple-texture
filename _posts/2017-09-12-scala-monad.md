@@ -172,7 +172,7 @@ ma flatMap f flatMap g == ma flatMap(a => f(a) flatMap(g))
 unit(x) flatMap f == f(x)
 
 //right 항등법칙
-ma flatMap unit = ma
+ma flatMap unit == ma
 {% endhighlight %}
 
 # Applicative Functor & Monad
