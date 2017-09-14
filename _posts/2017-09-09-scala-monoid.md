@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "scala monoid"
-description: "scala monoid"
+title: "scala Monoid"
+description: "scala Monoid"
 categories: [language]
 tags: [scala]
 redirect_from:
   - /2017/09/08/
 ---
 
-> scala monoid.
+> scala Monoid.
 >
 
 

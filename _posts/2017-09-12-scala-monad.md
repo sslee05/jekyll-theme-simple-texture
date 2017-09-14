@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "scala Monad"
-description: "scala Monad"
+title: "scala Monad (1)"
+description: "scala Monad (1)"
 categories: [language]
 tags: [scala]
 redirect_from:
   - /2017/09/08/
 ---
 
-> scala Monad.
+> scala Monad
 
 
 * Kramdown table of contents
@@ -206,11 +206,12 @@ val xs = Some(2)
 val fb = Some((a:Int) => a * a)
 
 def map2[A,B](ma: Option[A])(mb: Option[A => B]): Option[B] = 
-  mb flatMap(a => mb map(b => b(a)))
-
-val rs = map2(xs,fb)
+  ma flatMap(a => mb map(b => b(a)))
+  
+val rs = map2(xs)(fb)
 //결과: Some(4)
 {% endhighlight %}
+
 이를 좀더 일반화 해서 다시 작성하면 다음과 같다.  
 {% highlight scala %}
 def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C] 
@@ -221,6 +222,7 @@ def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C]  =
   ma flatMap(a => mb map(b => f(a,b))) 
 {% endhighlight %}
 구현의 안을 보면 flatMap(bind 라고 함) 와 map(이건 functor 에서) 를 사용하고 있다.  
+위와 같이 flatMap은 map를 이용하여 mb box에 있는 function 혹은 값을 거내어 ma의 있는 값과 계산을 할 수 있는 point를 제공할 수 있다.  
 이처럼 **bind 함수와 map 함수를 적용하여 box안의 함수를 적용하는 것을 Application Functor라 한다.**  
 그리고 **Monad는 bind 함수와 map 함수를 적용하여 box안의 함수를 적용하고 다시 box를 반환하는 것이 Monand 이다.**  
 **이때 monod law 3가지 를 지켜야 한다.**
