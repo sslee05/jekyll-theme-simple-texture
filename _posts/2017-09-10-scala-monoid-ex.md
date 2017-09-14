@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "scala monoid practice"
-description: "scala monoid practice"
+title: "scala Monoid exercise"
+description: "scala Monoid exercise"
 categories: [language]
-tags: [scala-practice]
+tags: [scala-exercise]
 redirect_from:
   - /2017/09/08/
 ---
