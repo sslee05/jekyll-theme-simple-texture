@@ -95,9 +95,25 @@ monad는 monadic 조합기들의 최소 집합 중 하나를 결합버칙과 항
 
 # Monad Law 증명 
 ## flatMap(bind 함수) 결합법칙
-모나드의 결합법칙 정의는 다음과 같다.
+모나드의 bind 함수인 flatMap의 결합법칙 정의는 다음과 같다.  
 {% highlight scala %}
-x.flatMap(f).flatMap(b) = x.flatMap(a => f(a).flatMap(g))
+//결합법칙 
+x.flatMap(f).flatMap(g) == x.flatMap(a => f(a).flatMap(g))
+
+//Some(v) 를 x 에 대입
+Some(v).flatMap(f).flatMap(g) == Some(v).flatMap(a => f(a).flatMap(g))
+f(v).flatMap(g) == (a => f(a).flatMap(g))(v)
+f(v).flatMap(g) == f(v).flatMap(g)
+{% endhighlight %}
+
+## flatMap의 항등법칙
+### left 항등법칙
+{% highlight scala %}
+unit(x) flatMap(f) == f(x)
+{% endhighlight %}
+### right 항등법칙
+{% highlight scala %}
+ma flatMap(unit) == ma 
 {% endhighlight %}
 
 
