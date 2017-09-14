@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "scala lib 설계해 보기"
-description: "scala design lib"
+title: "scala parallel"
+description: "scala parallel"
 categories: [language]
 tags: [scala]
 redirect_from:
   - /2017/09/04/
 ---
 
-> scala design lib.
+> scala 순수함수의 병렬성.
 >
 > 이 내용은 저자 Paul Chiusano가 쓴 "Functional Programming in scala" 책을 공부하며 정리한 것 임.
 > (잘 못 이해한 것이 있을 수 있음)
