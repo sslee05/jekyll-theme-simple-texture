@@ -114,7 +114,72 @@ unit(x) flatMap(f) == f(x)
 ### right 항등법칙
 {% highlight scala %}
 ma flatMap(unit) == ma 
+{% endhighlight %} 
+
+# Identity Monad
+이는 그냥 간단한 wrapper에 해당하는 역할을 한다.  
+{% highlight scala %}
+case class Id[A](value: A) {
+  def unit(a: A): Id[A] = Id(a)
+  def map[B](f: A => B): Id[B] = Id(f(value))
+  def flatMap[B](f: A => Id[B]): Id[B] = f(value)
+}
 {% endhighlight %}
+
+# State Monad
+State Monad bind operator는 결국 상태전이 역할을 한다.  
+자 우선 위에 해왔던 Monad 를 보자.
+{% highlight scala %}
+trait Monad[F[_]] {
+ .....
+}
+{% endhighlight %}
+그리고 State 를 보자
+{% highlight scala %}
+case class State[S,A](run: S => (S,A))
+{% endhighlight %}
+State는 형식을 2개 받고 있고 Monad[State[S,A]] 라고 할 수 없다.  
+이 문제를 해결하기 위해 다음 code를 보자  
+{% highlight scala %}
+def f1(a: Int)(f: Int => Double): Double = f(a)
+val f2 = f1(3) _
+println(f2(a => a * a))
+println(f2(a => a.toDouble / (a+1)))
+{% endhighlight %}
+f2는 3을 인자로 고정된 함수 instance가 되었다.  부분적용 함수를 한 것 이다.  
+이처럼 State[S,_] 형태, 즉 State[S,_]가 고정된 가변유형 하나를 포함하는 또 다른 하나의 형태구조라 생각 하고 접근하면 된다.  
+결국 State는 run 함수를 감싼 box라 생각하면 된다. 그리고 run를 통행 box안의 값, 함수 S => (S,A)를 꺼내면 된다.  
+이 또 하나의 형태 State[S,_]는 S 유형이 고정이며 값에 따라 상태(S)가 전이가 된다.  
+이때 다음과 같이 inline 표기를 scala는 지원한다.  
+{% highlight scala %}
+def stateMonad[S] = new MonadSet01[({type f[X] = State[S,X]})#f] {
+ .....
+}
+{% endhighlight %}
+이제 stateMonad를 구현 해보자.
+{% highlight scala %}
+def stateMonad[S] = new MonadSet01[({type f[X] = State[S,X]})#f] {
+  def unit[A](a: => A): State[S,A] = State(s => (a,s))
+  def flatMap[A,B](ms: State[S,A])(f: A => State[S,B]): State[S,B] = 
+	ms flatMap f
+}
+
+//State code 부분
+case class State[S,+A](run:S => (A,S)) {
+  def flatMap[B](f: A => State[S,B]):State[S,B] = State(s => {
+    val (a,s1) = run(s)
+    f(a).run(s1)
+  })
+  
+  def unit[S,A](a:A):State[S,A] = State(s => (a,s))
+  def map[B](f:A => B):State[S,B] = 
+    flatMap(a => unit(f(a)))
+  def map2[B,C](s:State[S,B])(f:(A,B) => C):State[S,C] = 
+    flatMap(a => s.map(b => f(a,b)))
+}
+{% endhighlight %}
+위의 코드를 State를 생각하지 말고 안에 있는 function 의 변환를 생각 해보면 bind함수(flatMap)이 한 일을 좀더 쉽게 알 수 있다.  
+(s => (a,s1)) bind (a => (s1 => (b,s2)))
 
 
 [^1]: This is a footnote.
