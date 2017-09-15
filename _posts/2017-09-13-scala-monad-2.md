@@ -147,8 +147,8 @@ println(f2(a => a * a))
 println(f2(a => a.toDouble / (a+1)))
 {% endhighlight %}
 f2는 3을 인자로 고정된 함수 instance가 되었다.  부분적용 함수를 한 것 이다.  
-이처럼 State[S,_] 형태, 즉 State[S,_]가 고정된 가변유형 하나를 포함하는 또 다른 하나의 형태구조라 생각 하고 접근하면 된다.  
-결국 State는 run 함수를 감싼 box라 생각하면 된다. 그리고 run를 통행 box안의 값, 함수 S => (S,A)를 꺼내면 된다.  
+이처럼 State[S, _ ] 형태, 즉 State[S, _ ]가 고정된 가변유형 하나를 포함하는 또 다른 하나의 형태구조라 생각 하고 접근하면 된다.  
+결국 State는 run 함수를 감싼 box라 생각하면 된다. 그리고 run를 통해 box안의 값, 함수 S => (S,A)를 꺼내면 된다.  
 이 또 하나의 형태 State[S,_]는 S 유형이 고정이며 값에 따라 상태(S)가 전이가 된다.  
 이때 다음과 같이 inline 표기를 scala는 지원한다.  
 {% highlight scala %}
