@@ -120,7 +120,7 @@ ma flatMap(unit) == ma
 이는 그냥 간단한 wrapper에 해당하는 역할을 한다.  
 {% highlight scala %}
 case class Id[A](value: A) {
-  def unit(a: A): Id[A] = Id(a)
+  def unit(a: => A): Id[A] = Id(a)
   def map[B](f: A => B): Id[B] = Id(f(value))
   def flatMap[B](f: A => Id[B]): Id[B] = f(value)
 }
