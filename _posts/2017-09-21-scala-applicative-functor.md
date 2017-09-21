@@ -68,6 +68,7 @@ trait Monad[F[_]] extends Applicative[F] {
 {% endhighlight %}
 
 # Monad와 Applicative Functor의 차이점
+## 연산의 관여성
 monad는 구조를 이전의 funtion effect의 결과에 따라 동적으로 선택할 수 있다. 즉 이전의 계산결과가 그다음의 계산 결과에 영향을 미친다.  
 반면 Applicative는 두 연산이 서로 상관없이 독립적으로 실행되며 그냥 function effect를 차례로 적용할 뿐이다.  
 {% highlight scala %}
@@ -100,6 +101,20 @@ web service 에서 사용자가 입력한 form 정보의 field에 따른 모든 
 
 ### function effect
 Option,List,Map 등 형식생성자의 자료구조는 값을 포함하는 것 이외의 기능를 추가로 가진다. 이런 추가적 기능을 Function effect라 한다.  
+
+## compose 
+Applicative functor는 F[G[_]] 처럼 합성을 추상화 시킬 수 있지만,Monad는 그렇게 할 수 없고 Moand마다의 특징에 맞는 만들어야 한다.
+{% highlight scala %}
+def compose[G[_]](G: Applicative[G]): Applicative[({type f[X] = F[G[X]]})#f] = {
+  val self = this
+  new Applicative[({type f[X] = F[G[X]]})#f] {
+    def unit[A](a: => A): F[G[A]] = self.unit(G.unit(a))
+    override def map2[A,B,C](ma: F[G[A]], mb: F[G[B]])(f: (A,B) => C): F[G[C]] = {
+      self.map2(ma,mb)((a,b) => G.map2(a,b)(f(_,_)))
+    }
+  }
+}
+{% endhighlight %}
 
 # Applicative Functor law
 ## 항등법칙
