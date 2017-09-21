@@ -147,7 +147,33 @@ val rx05 = usePhone02(user map(_.name), phone map(_.name))
 위의 usePhone01은 User와 MobilePhone class를 알고 있어야 한다.  
 하지만 usePhone02처럼 User 와 MobilePhone에서 조회 한 결과를 인자로 넣으므로써 userPhone02함수는 User와 MobilePhone class를 몰라도 적용이 된다.  
 
-이는 상황에 따라 좀더 맞게 적용하면 되는 것으로 위처럼 값들을 결합하기 전에 변환을 해서 적용할때와 결합한 후에 적용할 경우와의 결과가 같아야 함을 의미한다.
+이는 상황에 따라 좀더 맞게 적용하면 되는 것으로 위처럼 값들을 결합하기 전에 변환을 해서 적용할때와 결합한 후에 적용할 경우와의 결과가 같아야 함을 의미한다.  
+
+이를 증명하기위해 다음의 함수 2개를 받아서 각각의 함수 input의 곱을 받아 output의 곱을 반환하는 함수를 작성한다.  
+{% highlight scala %}
+def productF[I,O,I2,O2](f: I => O, g: I2 => O2): (I,I2) => (O,O2) = 
+  (i,i2) => (o1,o2)
+{% endhighlight %}
+
+{% highlight scala %}
+map2(a,b)(productF(f,g)) == product(map(a)(f),map(b)(g))
+{% endhighlight %}
+
+{% highlight scala %}
+val opa = new Applicative[Option] {
+  def apply[A,B](fab: Option[A => B])(fa: Option[A]): Option[B] = fa match {
+    case Some(a) => fab map(atob => atob(a))
+    case None => None
+  }
+  def unit[A](a: => A): Option[A] = Some(a)
+  override def map2[A,B,C](ma: Option[A], mb: Option[B])(f: (A,B) => C):   Option[C] = (ma,mb) match {
+    case (Some(a), Some(b)) => Some(f(a,b))
+    case (_,_) => None
+  }
+}
+  
+val rs04 = opa.map2(Some(2), Some(3))(opa.productF(a => a * 2, b => b * 3)) == opa.product(opa.map(Some(2))(a => a * 2), opa.map(Some(3))(b => b * 3))
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
