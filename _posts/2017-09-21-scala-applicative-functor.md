@@ -92,6 +92,8 @@ flatMap의 결과 조차 없다면 이후 작업은 가지도 않는다.
 rs03의 map2는 lectures 조회와, dates 조회가 각각 독립적으로 실행이 된다.  
 즉 lectures 의 실행은 dates의 실행에 아무런 영향을 주지 않는다.  
 
+monad는 두 function effect간에 호환, 연관되어 다음의 작업을 해야만 할때, 처음의 function effect에 따라 동적으로 다음의 function effect를 할 수 있는 장점이 있다.  
+
 위의 이런 Applicative Functor의 특징은 validation 에 적합한 예를 가진다.  
 web service 에서 사용자가 입력한 form 정보의 field에 따른 모든 검증결과를 담을 수 있기 때문이다.  
 반면 Monad인 flatMap으로 한다면 1번째 검증이 성공해야만 다음 검증을 실행할 수 있다.  
@@ -99,10 +101,34 @@ web service 에서 사용자가 입력한 form 정보의 field에 따른 모든 
 ### function effect
 Option,List,Map 등 형식생성자의 자료구조는 값을 포함하는 것 이외의 기능를 추가로 가진다. 이런 추가적 기능을 Function effect라 한다.  
 
+# Applicative Functor law
+## 항등법칙
+{% highlight scala %}
+//left 항등법칙
+map2(unit(()), fa)((_,a) => a) == fa
+//right 항등법칙
+map2(fa,unit(()))((a,_) => a) == fa
+{% endhighlight %}
 
+## 결합법칙 
+우선 monoid 의 이진연산 처럼  
+op(a, op(b,c)) == op(op(a,b),c) 처럼 알아 보기 쉽게 하기 위해 추가적 함수를 map2와 unit을 기본으로한 추가적 함수를 작성해서 검증해보자.  
+{% highlight scala %}
+def product[A,B](fa: F[A], fb: F[B]): F[(A,B)] = 
+  map2(fa,fb)((a,b) => (a,b))
+  
+def assoc[A,B,C](a: (A,(B,C))):((A,B),C) = a match { 
+  case (a,(b,c)) => ((a,b),c)
+}
+{% endhighlight %}
+그리고 다음처럼 해보면 쉽게 보인다.
+{% highlight scala %}
+product(product(fa,fb),fc) == map(product(fa,product(fb,fc)))(assoc) 
+{% endhighlight %}
 
-
-
+## 곱의 자연성 법칙
+map2의 parameter 인자의 값들을 결합하기 전에 변환을 해서 적용할때와 결합한 후에 적용할경우와 결과가 같아야 한다는 것이다.  
+예는 
 
 [^1]: This is a footnote.
 
