@@ -84,6 +84,44 @@ trait Traverse[F[_]] extends Functor[F] {
 }
 {% endhighlight %}
 
+# Traversable Functor & Foldable
+이전에 monoid 에서 접기자료구조를 추상화 한 적이 있다.  
+Traversable functor가 Foldable의 접기자료구조 처럼 연산처리가 비슷하다.  
+이는 Traverable이 Folable을 구현 할 수 있음을 암시한다.  
+근대 Foldalbe은 monoid를 받아 monoid의 이항연산의 결과를 사용하기 때문에 monoid가 필요한 반면 Traversable은 Applicative Functor가 필요하다.  
+따라서 Monoid 를 받아 Monoid의 이항연산을 이용한 Applicative functor 를 만들어 주는 것이  있으면 Traversable Functor 가 Folable 이게 할 수 있다.  
+{% highlight scala %}
+trait Traverse[F[_]] extends Functor[F] with Foldable {
+  def traverse[G[_]: Applicative, A, B](xs: F[A])(f: A => G[B]): G[F[B]]
+  def sequence[G[_]: Applicative, A](xs: F[G[A]]): G[F[A]] =
+    traverse(xs)(a => a)
+
+  type Id[A] = A
+  val idMonad = new Monad[Id] {
+    def unit[A](a: => A) = a
+    override def flatMap[A, B](ma: Id[A])(f: A => Id[B]): Id[B] = f(ma)
+  }
+
+  def map[A, B](ma: F[A])(f: A => B): F[B] =
+    traverse[Id, A, B](ma)(f)(idMonad)
+    
+    
+  type Const[M,B] = M // 자신이 감싸는 형식인수를 무조건 M으로만 돌려 준다.
+  implicit def monoidApplicative[M](mo: Monoid[M]) = {
+    new Applicative[({type f[x] = Const[M,x]})#f] {
+      def unit[A](a: => A): M = mo.zero
+      def map2[A,B,C](m1: M, m2: M)(f: (A,B) => C): M = mo.op(m1,m2)
+    }
+  }
+  
+  override def foldMap[A, M](xs: F[A])(f: A => M)(mb: Monoid[M]): M =
+    traverse[({ type f[x] = Const[M, x] })#f, A, Nothing](xs)(a => f(a))(monoidApplicative(mb))
+}
+
+{% endhighlight %}
+
+
+
 
 [^1]: This is a footnote.
 
