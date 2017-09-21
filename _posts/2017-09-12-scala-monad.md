@@ -14,6 +14,9 @@ redirect_from:
 * Kramdown table of contents
 {:toc .toc}
 
+# 추상화
+함수적 프로그램밍에 나오는 공통의 패턴을 추상화 함으로써 코드의 중복을 줄이고 개념적 통합을 이룰 수 있다. 이는 서로 다른 문맥의 서로 다른 해법들에서 공통구조를 인식 할 수 있다.  
+
 # 이야기의 시작
 String,Int,Boolean,... 이것에 function을 적용하는 것은 아래와 같이 쉽고 직관적이다.
 {% highlight scala %}
