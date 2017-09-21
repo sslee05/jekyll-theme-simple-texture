@@ -20,6 +20,7 @@ Monad가 flatMap으로 대표 된다면, Applicative Functor는 map2라는 것�
 이들은 각각 장단점이 있으며 그 차이점들을 찾아가 보자.
 
 # Applicative Functor trait
+## Applicative Functor trait 정의 
 Applicative functor는 다음의 함수 unit 항등함수와 map2의 함수를 가진다.  
 또한 map함수를 map2와 unit으로 구현함으로써 Applicative functor 또한 Functor의 하위 구조가 될 수 있음을 알 수 있다.  
 따라서 Applicative functor도 Functor의 성질인 구조적 보존의 법칙을 지켜야 한다.  
@@ -35,7 +36,21 @@ trait Applicative[F[_]] extends Functor[F] {
 }
 {% endhighlight %}
 
+## Applicative Functor trait의 또다른 표현 
+Applicative Functor는 map2를 apply(적용하다) 함수를 기본수단하여 구현 할 수 있다.
+{% highlight scala %}
+trait Applicative[F[_]] extends Functor[F] {
+  // 기본수단 
+  def unit[A](a: => A): F[A]
+  def apply[A,B](fab: F[A => B])(fa: F[A]): F[B]
 
+  //파생조합기 
+  def map[A,B](fa: F[A])(f: A => B): F[B] = 
+	apply(unit(f))(fa)
+  def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C] = 
+	apply(map(fa)(f.curried))(fb)
+}
+{% endhighlight %}
 
 
 [^1]: This is a footnote.
