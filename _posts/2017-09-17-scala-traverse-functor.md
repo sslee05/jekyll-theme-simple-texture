@@ -27,8 +27,30 @@ def sequence[F[_],A](xs: List[A]): F[List[A]] =
 
 이를 Map에도 적용해보자.
 {% highlight scala %}
-
+def sequenceMap[K, V](xs: Map[K, F[V]]): F[Map[K, V]] =
+  xs.foldLeft[F[Map[K, V]]](unit(Map.empty)) {
+    case (b, (k, v)) => map2(b, v)((b1, v1) => b1 + (k -> v1))
+}
 {% endhighlight %}
+위의 내용을 보면 구현형태가 비슷하다. 다만 해당 자료구조에 따라 달라진다.  
+이들의 공통점을 추상화 하면 traversable functor라는 것을 만날 수 있다.
+
+# traversable Functor의 추상화
+{% highlight scala %}
+trait Traverse[F[_]] {
+  def traverse[G[_]: Applicative, A, B](xs: F[A])(f: A => G[B]): G[F[B]]
+  def sequence[G[_]: Applicative, A](xs: F[G[A]]): G[F[A]] = 
+    traverse(xs)(a => a)
+}
+{% endhighlight %}
+
+자료구조와 함수를 받고 자료구조에 담긴 원소들을 함수에 적용해서 결과를 도출하는 면에서 fold 연산과 비슷하지만, 이는 결과가 원래의 자료구조를 보존하는 하지만 foldMap은 구조를 페기하고 Monoid의 이항연산으로 대처된다.(아래의 Foldable의 foldMap code 참조)
+{% highlight scala %}
+def foldMap[A,B](xs: F[A])(f: A => B)(m: Monoid[B]): B = 
+  foldRight(xs)(m.zero)((a,b) => m.op(f(a),b))
+{% endhighlight %}
+
+
 
 [^1]: This is a footnote.
 
