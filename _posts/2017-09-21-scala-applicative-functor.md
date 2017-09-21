@@ -90,10 +90,11 @@ val rs03 = AF.map2(lectures get "이상석" , dates get "이상석")((l,d) => {
 {% endhighlight %}
 rs01 의 flatMap에서는 users 정보에 결과가 있을 경우에만 이후의 작업인 AF.map2 가 실행된다.  
 flatMap의 결과 조차 없다면 이후 작업은 가지도 않는다.  
-rs03의 map2는 lectures 조회와, dates 조회가 각각 독립적으로 실행이 된다.  
-즉 lectures 의 실행은 dates의 실행에 아무런 영향을 주지 않는다.  
 
 monad는 두 function effect간에 호환, 연관되어 다음의 작업을 해야만 할때, 처음의 function effect에 따라 동적으로 다음의 function effect를 할 수 있는 장점이 있다.  
+
+반면 rs03의 map2는 lectures 조회와, dates 조회가 각각 독립적으로 실행이 된다.  
+즉 lectures 의 실행은 dates의 실행에 아무런 영향을 주지 않는다.  
 
 위의 이런 Applicative Functor의 특징은 validation 에 적합한 예를 가진다.  
 web service 에서 사용자가 입력한 form 정보의 field에 따른 모든 검증결과를 담을 수 있기 때문이다.  

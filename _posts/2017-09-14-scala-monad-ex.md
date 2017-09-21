@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "scala Monad exercise 01"
-description: "scala exercise 01"
+title: "scala Monad exercise"
+description: "scala exercise"
 categories: [language]
 tags: [scala-exercise]
 redirect_from:
