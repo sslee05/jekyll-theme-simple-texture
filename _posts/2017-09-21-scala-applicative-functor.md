@@ -112,7 +112,7 @@ map2(fa,unit(()))((a,_) => a) == fa
 
 ## 결합법칙 
 우선 monoid 의 이진연산 처럼  
-op(a, op(b,c)) == op(op(a,b),c) 처럼 알아 보기 쉽게 하기 위해 추가적 함수를 map2와 unit을 기본으로한 추가적 함수를 작성해서 검증해보자.  
+op(a, op(b,c)) == op(op(a,b),c) 처럼 알아 보기 쉽게 하기 위해 map2와 unit을 기본으로한 추가적 함수를 작성해서 검증해보자.  
 {% highlight scala %}
 def product[A,B](fa: F[A], fb: F[B]): F[(A,B)] = 
   map2(fa,fb)((a,b) => (a,b))
@@ -128,7 +128,26 @@ product(product(fa,fb),fc) == map(product(fa,product(fb,fc)))(assoc)
 
 ## 곱의 자연성 법칙
 map2의 parameter 인자의 값들을 결합하기 전에 변환을 해서 적용할때와 결합한 후에 적용할경우와 결과가 같아야 한다는 것이다.  
-예는 
+{% highlight scala %}
+case class User(id: String, name: String, age: Int)
+case class MobilePhone(name: String, os: String)
+  
+def usePhone01(user: Option[User], phone: Option[MobilePhone]): Option[String] = 
+  AF.map2(user, phone)((u,f) => s"${u.name} 회원님은 ${f.name} 핸드폰을 사용하고 계십니다.")
+    
+def usePhone02(user: Option[String], phone: Option[String]): Option[String] = 
+  AF.map2(user,phone)((u,f) => s"$u 회원님은 $f 핸드폰을 사용하고 계십니다.")
+
+val user = Some(User("sslee","sslee",10))
+val phone = Some(MobilePhone("iPhone","iOS"))
+val rx04 = usePhone01(user,phone)
+val rx05 = usePhone02(user map(_.name), phone map(_.name))
+
+{% endhighlight %}
+위의 usePhone01은 User와 MobilePhone class를 알고 있어야 한다.  
+하지만 usePhone02처럼 User 와 MobilePhone에서 조회 한 결과를 인자로 넣으므로써 userPhone02함수는 User와 MobilePhone class를 몰라도 적용이 된다.  
+
+이는 상황에 따라 좀더 맞게 적용하면 되는 것으로 위처럼 값들을 결합하기 전에 변환을 해서 적용할때와 결합한 후에 적용할 경우와의 결과가 같아야 함을 의미한다.
 
 [^1]: This is a footnote.
 
