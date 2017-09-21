@@ -50,6 +50,39 @@ def foldMap[A,B](xs: F[A])(f: A => B)(m: Monoid[B]): B =
   foldRight(xs)(m.zero)((a,b) => m.op(f(a),b))
 {% endhighlight %}
 
+# Traversable Functor & Functor
+traversable functor가 Functor 이게 하려면 map을 traverse로 구현할 수 있어야 한다.  
+이는 값만 감싸는 일명 IdMonad(monad는 Applicative Functor이므로)를 가지고 할 수 있다.
+
+{% highlight scala %}
+// 이렇게 implicit로 Applicative functor의 unit과 map2를 이용하여 변환
+val listTraverse = new Traverse[List] {
+  def traverse[G[_], A, B](xs: List[A])(f: A => G[B])(implicit G: Applicative[G]): G[List[B]] =
+    xs.foldRight[G[List[B]]](G.unit(List()))((a, b) => G.map2(f(a), b)((a1, b1) => a1 :: b1))
+}
+{% endhighlight %}
+위의 code처럼 Applicative functor의 unit 과 map2를 가지고 traverse를 구현하므로 아래처럼 IdMonad(Applicative functor)를 이용하면 됨.
+
+{% highlight scala %}
+trait Moand[F[_]] extends Applicative {
+ ...
+}
+
+trait Traverse[F[_]] extends Functor[F] {
+  def traverse[G[_]: Applicative, A, B](xs: F[A])(f: A => G[B]): G[F[B]]
+  def sequence[G[_]: Applicative, A](xs: F[G[A]]): G[F[A]] =
+    traverse(xs)(a => a)
+
+  type Id[A] = A
+  val idMonad = new Monad[Id] {
+    def unit[A](a: => A) = a
+    override def flatMap[A, B](ma: Id[A])(f: A => Id[B]): Id[B] = f(ma)
+  }
+
+  def map[A, B](ma: F[A])(f: A => B): F[B] =
+    traverse[Id, A, B](ma)(f)(idMonad)
+}
+{% endhighlight %}
 
 
 [^1]: This is a footnote.
