@@ -154,7 +154,7 @@ def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] 
 }
 {% endhighlight %}
 
-# Monad composite with Traversal Functor
+# Monad transformer (모나드 조합기)
 ## Monad는 Monad composite 되지 않는다.
 Applicative Functor는 합성이 된다. 즉 G[F[_]] 처럼 말이다.  
 아래 Applicative Functor의 합성코들 보면 다음과 같다.
@@ -209,14 +209,11 @@ def composeM2[F[_],G[_]](implicit F: Monad[F], G: Monad[G], T: Traverse[G]): Mon
 {% endhighlight %}
 위의 Monad 합성은 G에 대한 Traversable Functor가 있을때 가능 하다.  
 
-## List 의 flatMap 고찰
-다음의 코드를 보자.
-{% highlight scala %}
-val list = List(Some(1),Some(2),Some(3))
-val rs09 = list flatMap(a => a map(x => x + 1))
-//결과 : List(2, 3, 4)
-{% endhighlight %}
-된다...  
+Monad의 합성을 공통화 하여 추상으로 만들기 어렵다.  
+따라서 Moand마다 합성을 위해 특별하게 작성된 버전을 이용해서 해결하기도 한다. 이를 Moand Transfomer라 고 한다.  
+위의 Traversable를 이용한 것도 하나의 Monad transformer 이다.  
+
+
 
 
 [^1]: This is a footnote.
