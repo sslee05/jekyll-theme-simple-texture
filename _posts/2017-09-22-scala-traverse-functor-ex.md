@@ -104,6 +104,7 @@ override def foldMap[A, M](xs: F[A])(f: A => M)(mb: Monoid[M]): M = ???
 {% endhighlight %}
 
 ### trait Traverse 에 stateMonad instance를 반환하는 함수를 만들어라.
+{% highlight scala %}
 import basic.state.State
 import basic.state.State._
 def stateMonad[S] = new Monad[({ type StateS[A] = State[S, A] })#StateS] {
@@ -164,6 +165,11 @@ def fuse[G[_], H[_], A, B](fa: F[A])(f: A => G[B], g: A => H[B])(implicit G: App
 ### trait Traverse 에 traverse functor를 합성하는 다음의 함수를 구현하라.
 {% highlight scala %}
 def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] = ???
+{% endhighlight %}
+
+### Monad object를 만들고 그 곳에 monad합성을 하는 다음을 구현하라.
+{% highlight scala %}
+def composeM[F[_],G[_]](implicit F: Monad[F], G: Monad[G], T: Traverse[G]): Monad[({type f[x] = F[G[x]]})#f] = ???
 {% endhighlight %}
 
 [^1]: This is a footnote.
