@@ -120,8 +120,80 @@ trait Traverse[F[_]] extends Functor[F] with Foldable {
 
 {% endhighlight %}
 
+# Traversable Functor의 융합
+lazy 로 인한 자료구조의 한번순회로 여러연산을 할 수 있었고, Monoid에서는 Monoid 합성으로 한번의 순회로 여러연산의 결과를 얻을 수 있었다.  
+Traversable Functor또한 한번의 순회로 Application Functor을 중첩하여 적용할 수 있다.  
+Application Functor의 중첩 함수를 추가 만들면 된다.
+{% highlight scala %}
+trait Applicative extends Functor {
+  ...
+  
+  def compose[G[_]](G: Applicative[G]): Applicative[({type f[x] = (F[x],G[x])})#f] = {
+    val self = this
+    new Applicative[({ type f[x] = (F[x],G[x])})#f] {
+      def unit[A](a: => A): (F[A],G[A]) = (self.unit(a),G.unit(a))
+      override def apply[A,B](fab: (F[A => B],G[A => B]))(p: (F[A],G[A])) = 
+        (self.apply(fab._1)(p._1),G.apply(fab._2)(p._2) )
+    }
+  }
+}
 
+//traverse trait 에서 
+def fuse[G[_], H[_], A, B](fa: F[A])(f: A => G[B], g: A => H[B])
+  (implicit G: Applicative[G], H: Applicative[H]): (G[F[B]], H[F[B]]) = 
+  traverse[({type f[x] = (G[x],H[x])})#f,A,B](fa)(a => (f(a),g(a)))(G compose H)
+{% endhighlight %}
+위의 코드는 F[A]를 한번만 순회하여 함수 f, g를 적용한 결과를 Applicative 의 합성으로 적용할 수 있다.  
 
+위의 코드에서 G 와 H가 Traversable Functor라면 다음과 같이 Traversable Functor자체를 중첩 시킬 수 있다.  
+{% highlight scala %}
+def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] = 
+  new Traverse[({type f[x] = F[G[x]]})#f] {
+    def traverse[M[_]: Applicative, A, B](fa: F[G[A]])(f: A => M[B]) = 
+      self.traverse(fa)((ga: G[A]) => G.traverse(ga)(f))
+}
+{% endhighlight %}
+
+# Monad composite with Traversal Functor
+## Monad는 Monad composite 되지 않는다.
+Applicative Functor는 합성이 된다. 즉 G[F[_]] 처럼 말이다.  
+아래 Applicative Functor의 함성코들 보면 다음과 같다.
+{% highlight scala %}
+def map2[F: Applicative[F], G: Applicative[G],A,B,C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C): F[G[c]] =
+  F.map2(fga, fgb)(G.map2(_,_)(f))
+{% endhighlight %}
+아지만 monad를 보면 그렇지 못하다. 아래는 Monad code이다.
+{% highlight scala %}
+def flatMap[F: Monad[F],G: Monad[G],A,B](fga: F[G[A]])(f: A => F[G[B]]): F[G[B]] = 
+  F.flatMap(fga)(ga => G.flatMap(ga)(a => f(a):??? ))
+  //f(a)를 하면 F[G[B]] 가 된다. 이는 type dismatch 가 된다.
+{% endhighlight %}
+위의 flatMap을 보면 f(a)를 하면 F[G[B]] 가 된다. 이는 G monad의 type과 맞지 않다.  
+G[F[B]]가 되야 G.flatMap compile이 된다.  
+또한 G[F[B]] 가 되었다 하더라도 F monad의 flatMap의 type과 dismatch가 된다.  
+F.flatMap은 A => F[G[B]] 가 되어야 하기 때문이다.  
+
+traversal functor의 traverse 과 Monad의 join를 생각해보자.  
+먼저 traverse
+{% highlight scala %}
+def traverse[G[_]: Applicative, A, B](xs: F[A])(f: A => G[B]): G[F[B]]
+{% endhighlight %}
+input -> ouput 을 보면 F[A] + G[B] -> G[F[B]] 로 변환한다.  
+이것은 위의 flatMap 에서 a => f(a) 부분을 F[G[B]] 이것을 G[F[B]] 로 변환 할 수 있는 방법이 있다는 것이다.  
+G의 유형에 Traversable Functor가 있다고 하고 G.flatMap(ga)(a => f(a)) 을 다음과 같이 바꾸어 보자.  
+{% highlight scala %}
+//G.flatMap(ga)(a => f(a)) 을 다음과 같이 
+F.map(G.traverse(ga)(f))(???)
+
+//G.traverse(ga)(f) : F[G[G[B]]]
+//F[G[G[B]]] G의 중첩을 제거하는 것은 Monad의 기본 조합기 set중 join 이있다.
+F.map(G.traverse(ga)(f))(ggb => G.join(ggb)) // F[G[B]]
+{% endhighlight %}
+위의 코드를 보면 G.traverse(ga)(f)의 결과는 F[G[G[B]]] 이다. 이는 G가 중첩이므로 중첩을 제거해야 한다.  
+근데 Monad의 기본 조합기 set 중에 join이 있으며 이는 중첩을 제거한다. 따라서 이를 이용하면 되겠다. 그럼 F[G[G[B]]] 은 F[G[B]] 가되고 최종 소스를 보면 다음과 같이 된다.
+{% highlight scala %}
+F.flatMap(fga)(ga => F.map(G.traverse(ga)(f))(ggb => G.join(ggb)))
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
