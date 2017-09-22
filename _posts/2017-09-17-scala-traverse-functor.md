@@ -157,7 +157,7 @@ def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] 
 # Monad composite with Traversal Functor
 ## Monad는 Monad composite 되지 않는다.
 Applicative Functor는 합성이 된다. 즉 G[F[_]] 처럼 말이다.  
-아래 Applicative Functor의 함성코들 보면 다음과 같다.
+아래 Applicative Functor의 합성코들 보면 다음과 같다.
 {% highlight scala %}
 def map2[F: Applicative[F], G: Applicative[G],A,B,C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C): F[G[c]] =
   F.map2(fga, fgb)(G.map2(_,_)(f))
@@ -173,6 +173,7 @@ G[F[B]]가 되야 G.flatMap compile이 된다.
 또한 G[F[B]] 가 되었다 하더라도 F monad의 flatMap의 type과 dismatch가 된다.  
 F.flatMap은 A => F[G[B]] 가 되어야 하기 때문이다.  
 
+## Traversable Functor로 Monad 합성하기
 traversal functor의 traverse 과 Monad의 join를 생각해보자.  
 먼저 traverse
 {% highlight scala %}
@@ -194,6 +195,29 @@ F.map(G.traverse(ga)(f))(ggb => G.join(ggb)) // F[G[B]]
 {% highlight scala %}
 F.flatMap(fga)(ga => F.map(G.traverse(ga)(f))(ggb => G.join(ggb)))
 {% endhighlight %}
+
+위의 Monad의 composite 조합기를 다음과 같이 만들 수 있다.
+{% highlight scala %}
+def composeM2[F[_],G[_]](implicit F: Monad[F], G: Monad[G], T: Traverse[G]): Monad[({type f[x] = F[G[x]]})#f] = new Monad[({type f[x] = F[G[x]]})#f] {
+  def unit[A](a: => A): F[G[A]] = F.unit(G.unit(a))
+  override def flatMap[A,B](fga: F[G[A]])(f: A => F[G[B]]): F[G[B]] = 
+    F.flatMap(fga)(ga => F.map(T.traverse(ga)(f))(gga => G.join(gga)))
+    //T.traverse(ga)(A => F[G[B]]) -> F[G[G[B]]]
+    //G.map(F[G[G[B]]]])(G.join)   -> F[G[B]] 
+    //reuslt                       -> F.flatMap(F[G[A]])(ga => F[G[B]]) 
+}
+{% endhighlight %}
+위의 Monad 합성은 G에 대한 Traversable Functor가 있을때 가능 하다.  
+
+## List 의 flatMap 고찰
+다음의 코드를 보자.
+{% highlight scala %}
+val list = List(Some(1),Some(2),Some(3))
+val rs09 = list flatMap(a => a map(x => x + 1))
+//결과 : List(2, 3, 4)
+{% endhighlight %}
+된다...  
+
 
 [^1]: This is a footnote.
 
