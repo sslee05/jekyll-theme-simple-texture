@@ -214,7 +214,7 @@ Monad의 합성을 공통화 하여 추상으로 만들기 어렵다.
 위의 Traversable를 이용한 것도 하나의 Monad transformer 이다.  
 
 # Applicative Functor, Traversable Functor
-monad의 한 일반화인 Applicative Functor는 표현력은 Monad보다 덜 하지만 합성능력이 좋다.  
+Applicative Functor는 표현력은 Monad보다 덜 하지만 합성능력이 좋다.  
 unit, map을 이용하면 값과 함수들을 승급시킬 수 있으며, map2와 apply를 이용하면 함수를 인수가 더 많은 함수로 승급시킬 수 있다.  
 Traversable functor는 간단한 요소들만으로 복잡하게 중첩된 병렬 순회를 할 수 있다.
 
