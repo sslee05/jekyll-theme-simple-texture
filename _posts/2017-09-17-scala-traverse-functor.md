@@ -87,7 +87,7 @@ trait Traverse[F[_]] extends Functor[F] {
 # Traversable Functor & Foldable
 이전에 monoid 에서 접기자료구조를 추상화 한 적이 있다.  
 Traversable functor가 Foldable의 접기자료구조 처럼 연산처리가 비슷하다.  
-이는 Traverable이 Folable을 구현 할 수 있음을 암시한다.  
+이는 Traverable이 Foldable을 구현 할 수 있음을 암시한다.  
 근대 Foldalbe은 monoid를 받아 monoid의 이항연산의 결과를 사용하기 때문에 monoid가 필요한 반면 Traversable은 Applicative Functor가 필요하다.  
 따라서 Monoid 를 받아 Monoid의 이항연산을 이용한 Applicative functor 를 만들어 주는 것이  있으면 Traversable Functor 가 Folable 이게 할 수 있다.  
 {% highlight scala %}
