@@ -123,13 +123,28 @@ functor는 function의 조건을 만족해야 한다.
 거울에 비친 자신의 모습을 볼때, 거울에 보이는 모습은 나를 project하여 비추어진 결과이다.  
 이는 나의 형태에 모습(구조)을 그대로 반영 한다. 이는 Functor의 조건과 같다.
 
+# map의 법칙 관찰
+def id(a: A): A = a 인 항등함수가 있다.  
+def unit(a: A): Option[A] = Some(a) 인 함수가 있다.  
+
+다음과 같은 법칙을 발견 할 수 있다.
+{% highlight scala %}
+map(unit(x))(f) == unit(f(x))
+//f를 항등함수로 치환하면
+map(unit(x))(id) == unit(id(x))
+map(unit(x))(id) == unit(x)
+//unit(x)를 y 로 치환하면 
+map(y)(f) == y
+{% endhighlight %}
+위의 map의 성질은 임의의(Any) 에 모두 적용이 된다.
+
 # box 라 부르기로 한 것
 위의 box는 형식생성자를 말한다. 즉 어떤 유형의 행동을 기술하는 typeclass의 datatype을 뜻한다.  
 List,Option 등등..  
 box가 List라면  
 {% highlight scala %}
 val listF = new Functor[List] {
-	def map[A,B](xs: List[A])(f: A => B): List[A] = xs map f
+  def map[A,B](xs: List[A])(f: A => B): List[A] = xs map f
 }
 {% endhighlight %}
 
