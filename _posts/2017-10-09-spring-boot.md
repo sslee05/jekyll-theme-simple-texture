@@ -2,7 +2,7 @@
 layout: post
 title: "Spring Boot 1일차"
 description: "Spring boot 로컬 환경구성"
-categories: [framework]
+categories: [spring-boot]
 tags: [spring-boot]
 redirect_from:
   - /2017/10/09/
