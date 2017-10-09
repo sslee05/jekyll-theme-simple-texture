@@ -95,7 +95,7 @@ org.springframework.boot:spring-boot-starter-web
 이것이 자동화 처럼 해주는 것이 었음.
 SpringBootApplication = @SpringBootConfiguration(@Configuration) + @EnableAutoConfiguration
 
-이곳 attribute에 원하는 속성을 넣고 빼고 하면 될 듯 해보임..
+이곳에 attribute에 원하는 속성을 넣고 빼고, 원하는 기능들을 추가 하면 될 듯 해보임..
 
 
 [^1]: This is a footnote.
