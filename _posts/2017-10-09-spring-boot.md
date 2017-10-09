@@ -43,14 +43,32 @@ ssleehome:~ sslee$ brew install springboot
 # spring-boot project 생성
 ## 생성방법 3가지
 - CLI 로 생성
-- https://start.spring.io/ 에서 생성
+- spring initalizer 로 생성
 - STS 나 eclipse(+ STS plugin)에서 생성
 
 ### CLI 로 생성
 {% highlight console %}
-ssleehome:~ sslee$ spring 
-ssleehome:~ sslee$ brew install springboot
+ssleehome:bygradle sslee$ spring init -dweb,data-jpa,h2 --build gradle myapp
+Using service at https://start.spring.io
+Project extracted to '/Users/sslee/work/temp/cli/bygradle/myapp'
 {% endhighlight %}
+
+### spring initalizer 로 생성
+https://start.spring.io/ 에 접속하여 생성
+
+### STS 나 eclipse(+ STS plugin)에서 생성
+project 생성 메뉴에서 Spring Starter project로 생성
+
+## build.gradle
+- buildscript section  
+spring boot gradle plugin 정보
+- apply plugin section
+gradle task 추가
+- repositories
+dependency repository
+- dependencies
+project에 필요한 depenedency 정보 
+
 
 [^1]: This is a footnote.
 
