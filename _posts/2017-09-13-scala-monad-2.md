@@ -2,8 +2,8 @@
 layout: post
 title: "scala Monad (2)"
 description: "scala Monad (2)"
-categories: [language]
-tags: [scala]
+categories: [scala]
+tags: [monad]
 redirect_from:
   - /2017/09/08/
 ---

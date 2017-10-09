@@ -2,8 +2,8 @@
 layout: post
 title: "scala Monoid"
 description: "scala Monoid"
-categories: [language]
-tags: [scala]
+categories: [scala]
+tags: [monoid]
 redirect_from:
   - /2017/09/08/
 ---

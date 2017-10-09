@@ -78,7 +78,7 @@ project 생성 메뉴에서 Spring Starter project로 생성
 예)spring-boot-starter-web
 
 ## pom.xml 이나 build.gradle만 받아서 확인 해볼수 있음
-{% highlight command %}
+{% highlight java %}
 ssleehome:tmp sslee$ curl https://start.spring.io/build.gradle -o build.gradle -d dependencies=web,data-jpa,h2,thymeleaf
 {% endhighlight %}
 

@@ -2,8 +2,8 @@
 layout: post
 title: "scala Applicative Functor"
 description: "Applicative Functor"
-categories: [language]
-tags: [scala]
+categories: [scala]
+tags: [applicative functor]
 redirect_from:
   - /2017/09/08/
 ---

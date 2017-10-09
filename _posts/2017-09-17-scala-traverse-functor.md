@@ -2,8 +2,8 @@
 layout: post
 title: "scala Traversable Functor"
 description: "Traversable Functor"
-categories: [language]
-tags: [scala]
+categories: [scala]
+tags: [traversable functor]
 redirect_from:
   - /2017/09/08/
 ---
