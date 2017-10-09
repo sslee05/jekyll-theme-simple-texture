@@ -22,8 +22,8 @@ spring-boot 를 할 필요가 있나? 라는 생각으로 무관심? 했다.
 # Spring-boot mac OSX 에서 설치 
 ### 필요한 것들 
 - jdk 1.6+ (난 1.8로 )
-- gradle (gradle project로 구성시: 없으면 rapper가 제공)
-- maven (maven project로 구성시: 없으면 rapper가 제공)
+- gradle (gradle project로 구성시: 없으면 wrapper가 제공)
+- maven (maven project로 구성시: 없으면 wrapper가 제공)
 - CMI
 
 ### groovy 설치(groovy 예제를 하기위해 난 설치)
@@ -78,9 +78,24 @@ project 생성 메뉴에서 Spring Starter project로 생성
 예)spring-boot-starter-web
 
 ## pom.xml 이나 build.gradle만 받아서 확인 해볼수 있음
-{% highlight java %}
+{% highlight command %}
 ssleehome:tmp sslee$ curl https://start.spring.io/build.gradle -o build.gradle -d dependencies=web,data-jpa,h2,thymeleaf
 {% endhighlight %}
+
+# starter-기술명 
+내가 사용하고자 하는 starter를 선언하면 된다.  
+그러면 start하는데 해당하는 dependency가 추가된다.  
+STS에서 gradle refresh dependency를 강제해야 되더라. 훔..   
+org.springframework.boot:spring-boot-starter-data-jpa  
+org.springframework.boot:spring-boot-starter-thymeleaf  
+org.springframework.boot:spring-boot-starter-web  
+등..  
+
+# @SpringBootApplication
+이것이 자동화 처럼 해주는 것이 었음.
+SpringBootApplication = @SpringBootConfiguration(@Configuration) + @EnableAutoConfiguration
+
+이곳 attribute에 원하는 속성을 넣고 빼고 하면 될 듯 해보임..
 
 
 [^1]: This is a footnote.
