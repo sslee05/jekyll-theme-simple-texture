@@ -60,16 +60,16 @@ https://start.spring.io/ 에 접속하여 생성
 project 생성 메뉴에서 Spring Starter project로 생성
 
 ## build.gradle
-- buildscript section  
+1. buildscript section  
   spring boot gradle plugin 정보  
   
-- apply plugin section
+2. apply plugin section
   gradle task 추가  
   
-- repositories section
+3. repositories section
   dependency repository  
   
-- dependencies section
+4. dependencies section
   project에 필요한 depenedency 정보 
 
 ## 필수 dependency
