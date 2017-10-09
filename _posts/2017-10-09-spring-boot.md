@@ -61,23 +61,23 @@ project 생성 메뉴에서 Spring Starter project로 생성
 
 ## build.gradle
 - buildscript section  
-spring boot gradle plugin 정보
+  spring boot gradle plugin 정보
 - apply plugin section
-gradle task 추가
+  gradle task 추가
 - repositories section
-dependency repository
+  dependency repository
 - dependencies section
-project에 필요한 depenedency 정보 
+  project에 필요한 depenedency 정보 
 
 ## 필수 dependency
 - spring-boot-starter-parent
-spring-core 등 spring 필수 dependency등이 선언  
+  spring-core 등 spring 필수 dependency등이 선언  
 - spring-boot-starter-기술명  
-spring-boot-start 에 필요한 dependency 등이 선언  
+  spring-boot-start 에 필요한 dependency 등이 선언  
 예)spring-boot-starter-web
 
 ## pom.xml 이나 build.gradle만 받아서 확인 해볼수 있음
-{% highlight console %}
+{% highlight command %}
 ssleehome:tmp sslee$ curl https://start.spring.io/build.gradle -o build.gradle -d dependencies=web,data-jpa,h2,thymeleaf
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
