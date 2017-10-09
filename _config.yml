@@ -23,8 +23,8 @@ sass:
 # Site Data
 url: https://sslee05.github.io 
 baseurl: #https://sslee05.github.io 
-title: SSLEE Software Engineer 일지
-description: "보고 듣고 접하고 파고들고 생각드는 점들에 대한 고찰"
+title: SSLEE 일지
+description: "software developer 로서 느낀점을 일지로 남긴것들"
 keywords: 'jekyll,theme,gem-based,blog'
 author:
   name:
