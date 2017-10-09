@@ -24,10 +24,19 @@ spring-boot 를 할 필요가 있나? 라는 생각으로 무관심? 했다.
 - jdk 1.6+ (난 1.8로 )
 - groovy
 
-{% highlight scala %}
-
+### groovy 설치
+{% highlight console %}
+ssleehome:~ sslee$ brew update
+ssleehome:~ sslee$ brew install groovy
+ssleehome:~ sslee$ groovy -version
+Groovy Version: 2.4.12 JVM: 1.8.0_111 Vendor: Oracle Corporation OS: Mac OS X
 {% endhighlight %}
 
+### CMI (Command Line Interface) 설치
+{% highlight console %}
+ssleehome:~ sslee$ brew tap pivotal/tap
+ssleehome:~ sslee$ brew install springboot
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
