@@ -22,9 +22,11 @@ spring-boot 를 할 필요가 있나? 라는 생각으로 무관심? 했다.
 # Spring-boot mac OSX 에서 설치 
 ### 필요한 것들 
 - jdk 1.6+ (난 1.8로 )
-- groovy
+- gradle (gradle project로 구성시: 없으면 rapper가 제공)
+- maven (maven project로 구성시: 없으면 rapper가 제공)
+- CMI
 
-### groovy 설치
+### groovy 설치(groovy 예제를 하기위해 난 설치)
 {% highlight console %}
 ssleehome:~ sslee$ brew update
 ssleehome:~ sslee$ brew install groovy
@@ -32,9 +34,21 @@ ssleehome:~ sslee$ groovy -version
 Groovy Version: 2.4.12 JVM: 1.8.0_111 Vendor: Oracle Corporation OS: Mac OS X
 {% endhighlight %}
 
-### CMI (Command Line Interface) 설치
+### CLI (Command Line Interface) 설치
 {% highlight console %}
 ssleehome:~ sslee$ brew tap pivotal/tap
+ssleehome:~ sslee$ brew install springboot
+{% endhighlight %}
+
+# spring-boot project 생성
+## 생성방법 3가지
+- CLI 로 생성
+- https://start.spring.io/ 에서 생성
+- STS 나 eclipse(+ STS plugin)에서 생성
+
+### CLI 로 생성
+{% highlight console %}
+ssleehome:~ sslee$ spring 
 ssleehome:~ sslee$ brew install springboot
 {% endhighlight %}
 
