@@ -93,6 +93,9 @@ application-dev.properties, application-test.properties, application-prod.proper
 처럼 application-이름.properties 로 하여 실행시 다음과 같이 하는 것이 좋겠다.  
 실행시 -Dspring.profiles.acttive=prod 처럼  
 
+default properties 를 확인 하려면 다음을 참조
+<https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html/>
+
 
 [^1]: This is a footnote.
 
