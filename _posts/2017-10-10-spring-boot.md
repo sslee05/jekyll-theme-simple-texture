@@ -203,14 +203,13 @@ public class StandaloneBoot  {
 {% endhighlight %}
 
 # spring-boot enable
-사용하고 싶은 것이 있다면 @Enable기술명을 사용하면 된다.
-예)
-@EnableJms
-@EnableCaching
-@EnableKafka
-@EnableRabbit
+사용하고 싶은 것이 있다면 @Enable기술명을 사용하면 된다.  
+예)  
+@EnableJms  
+@EnableCaching  
+@EnableKafka  
+@EnableRabbit  
 ....
-
 
 [^1]: This is a footnote.
 
