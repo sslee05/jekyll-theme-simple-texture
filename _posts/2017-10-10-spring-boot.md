@@ -94,6 +94,7 @@ application-dev.properties, application-test.properties, application-prod.proper
 실행시 -Dspring.profiles.acttive=prod 처럼  
 
 default properties 를 확인 하려면 다음을 참조  
+
 <https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html >
 
 
