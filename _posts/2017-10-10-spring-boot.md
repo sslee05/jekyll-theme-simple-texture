@@ -97,8 +97,16 @@ default properties 를 확인 하려면 다음을 참조
 
 <https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html >
 
+# CLI
+## project 생성
+아래 option이외에도 여러가지가 있음 어차피 다 왜우지 못하니 많이 쓰는 부분만 나머지는 필요할때 찾아 보기  
+아래 option 명만 봐도 짐작 가능
+{% highlight java %}
+spring init --build gradle myapp -g=com.apres.spring -a=spring-boot-test --package=com.apres.spring
+{% endhighlight %}
 
-
+# 기타 여러 명령과 option
+<https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/ >
 
 [^1]: This is a footnote.
 
