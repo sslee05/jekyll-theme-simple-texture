@@ -57,9 +57,9 @@ public static void main(String[] args) {
 {% endhighlight %}
 
 # SpringApplication arguement
-SpringAppliction.run(args) 에서 실행시 arguement를 받을 수 있다.  
+SpringAppliction.run(args) 에서 실행시 arguements 받을 수 있다.  
 args는 String[] 이것을 ApplicationArguements 의 형태로 좀더 편하게 받을 수 있는데  
-이를 @Autowired 로 받으면 이를 이용하여 arguement를 boot 전에 이용할 수 있다.  
+이를 @Autowired 로 받으면 이를 이용하여 arguements를 boot 전에 이용할 수 있다.  
 
 또는 ApplicationRunner 나 CommandLineRunner(spring batch 의 CommandLineRunner가 아님) interface의 run method 구현시 이를 받을 수 도 있다.  
 
