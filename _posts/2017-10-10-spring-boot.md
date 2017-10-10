@@ -98,15 +98,48 @@ default properties 를 확인 하려면 다음을 참조
 <https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html >
 
 # CLI
-## project 생성
+## init 생성
 아래 option이외에도 여러가지가 있음 어차피 다 왜우지 못하니 많이 쓰는 부분만 나머지는 필요할때 찾아 보기  
 아래 option 명만 봐도 짐작 가능
 {% highlight java %}
 spring init --build gradle myapp -g=com.apres.spring -a=spring-boot-test --package=com.apres.spring
 {% endhighlight %}
 
-# 기타 여러 명령과 option
-<https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/ >
+## test
+
+
+{% highlight java %}
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class MyTest {
+  //....
+}
+{% endhighlight %}
+위처럼 @SpringBootTest 인데 이때 아무런 attribute가 없을경우 해당 test java file과 같은 package에 @SpringBootApplication으로 선언된 java file이 있어야 됨.  
+위치가 다를 경우 @SpringBootTest(classes = “Application.class”) 이런식으로 지정해야 함.  
+
+예)  
+src > main > com > example > Application.java  
+src > test > com > example > MyTest.java
+
+{% highlight console %}
+spring test Test.java
+{% endhighlight %}
+
+## spring help
+1. spring CLI 도움말
+{% highlight java %}
+spring --help
+{% endhighlight %}
+
+2. 명령에 대한 option 
+{% highlight console %}
+//예 jar 에 대해서
+spring help jar
+{% endhighlight %}
+
+## 기타 여러 명령과 option
+<https://docs.spring.io/spring-boot/docs/current/reference/html/cli-using-the-cli.html >
 
 [^1]: This is a footnote.
 
