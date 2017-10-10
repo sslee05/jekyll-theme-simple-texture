@@ -120,7 +120,6 @@ ssleehome:tmp sslee$ curl https://start.spring.io/build.gradle -o build.gradle -
 # starter-기술명 
 내가 사용하고자 하는 starter를 선언하면 된다.  
 그러면 start하는데 해당하는 dependency가 추가된다.  
-STS에서 gradle refresh dependency를 강제해야 되더라. 훔..   
 org.springframework.boot:spring-boot-starter-data-jpa  
 org.springframework.boot:spring-boot-starter-thymeleaf  
 org.springframework.boot:spring-boot-starter-web  
