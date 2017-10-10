@@ -141,6 +141,77 @@ spring help jar
 ## 기타 여러 명령과 option
 <https://docs.spring.io/spring-boot/docs/current/reference/html/cli-using-the-cli.html >
 
+# CommandLineRunner
+{% highlight java %}
+package com.apres.spring;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class StandaloneBoot implements CommandLineRunner {
+
+	@Override
+	public void run(String... args) throws Exception {
+		// TODO Auto-generated method stub
+		//SpringApplication.run 호출한 이후 실행할 것들 정의 
+	}
+	
+	@Bean
+	InitializingBean beforeCommandRun() {
+		return () -> {
+			// doSomething
+			//SpringApplication.run 호출한 이후 CommandLineRunner의 run 이전에 something do 
+		};
+	}
+	
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(StandaloneBoot.class, args)
+	}
+
+}
+{% endhighlight %}
+
+# @ImportResource
+기존 xml 기반의 spring 통합시 @ImportResource({ "classpath:batch/batch-context.xml" }) 이렇게 기존처럼 import 끝
+{% highlight java %}
+package com.apres.spring;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import com.sslee.batch.helper.JobParameterHolder;
+
+@ImportResource({ "classpath:batch/batch-context.xml" })
+@SpringBootApplication
+public class StandaloneBoot  {
+
+	@Autowired
+	private JobParameterHolder paramHolder;
+
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(StandaloneBoot.class, args)
+	}
+
+}
+
+{% endhighlight %}
+
+# spring-boot enable
+사용하고 싶은 것이 있다면 @Enable기술명을 사용하면 된다.
+예)
+@EnableJms
+@EnableCaching
+@EnableKafka
+@EnableRabbit
+....
+
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
