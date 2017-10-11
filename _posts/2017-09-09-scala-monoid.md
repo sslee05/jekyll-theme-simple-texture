@@ -3,7 +3,7 @@ layout: post
 title: "scala Monoid"
 description: "scala Monoid"
 categories: [scala]
-tags: [monoid]
+tags: [monoid,scala,모노이드,스칼라]
 redirect_from:
   - /2017/09/08/
 ---

@@ -3,7 +3,7 @@ layout: post
 title: "scala Traversable Functor"
 description: "Traversable Functor"
 categories: [scala]
-tags: [traversable functor]
+tags: [traversable functor,scala,순회함수자,스칼라]
 redirect_from:
   - /2017/09/08/
 ---

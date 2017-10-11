@@ -3,7 +3,7 @@ layout: post
 title: "scala Applicative Functor"
 description: "Applicative Functor"
 categories: [scala]
-tags: [applicative functor]
+tags: [applicative functor,scala,적용함수자,스칼라]
 redirect_from:
   - /2017/09/08/
 ---
