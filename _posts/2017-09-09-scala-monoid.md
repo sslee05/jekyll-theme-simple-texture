@@ -22,7 +22,7 @@ redirect_from:
 아이디어와 기능으로 구성된 수학적 세계 중에 하나.
 
 ## 대수학 
-정수가 가지고 있는 __성질__ 의 일반화에 대한 연구이다.
+수가 가지고 있는 __성질__ 의 일반화에 대한 연구이다.
 
 ## 군
 __결합법칙__, __항등법칙__ , __교환법칙__ 이 성립하는 성질을 임의의 집합으로 일반화 한 것이 군이다.  
@@ -31,7 +31,7 @@ __✶__ 를 하나의 집합 G에 대한 __이항 연산__ 이라 한다면( 임
 ### l-1  ✶ 연산에 대한 결합법칙  
 x,y,z ∈ G => x ✶ (y ✶ z) = (x ✶ y) ✶ z  
 ### l-2 항등원과 ✶에 대한 항등법칙  
-모든원소 각각에 대하여 x ∈ G 에 대하여 e ✶ x = x ✶ e = x 을 만족하는 e ∈ G 가 존재한다.  
+모든원소 각각에 x ∈ G 에 대하여 e ✶ x = x ✶ e = x 을 만족하는 e ∈ G 가 존재한다.  
 ### l-3 x는 역원를 갖는다  
 각각의 x(모든 원소) ∈ G 에 대하 x^-1 ∈ G 가 존재하며 x ✶ x^-1 = x^-1 ✶ x = e   
 추가로 다음을 만족하면 가환군(아벨군)이라 한다.  
@@ -41,10 +41,12 @@ x,y,z ∈ G => x ✶ (y ✶ z) = (x ✶ y) ✶ z
 대상의 관계에 대한 mapping, 혹은 function ( 임이의 군 __=>__ 임이의 군 )
 
 ## 모노이드(Monoid)
-✶를 하나의 집합 G에 대한 이항 연산이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G ) l-1,l-2 성질을 가지는 군을 monoid라 한다.
+✶를 하나의 집합 G에 대한 이항 연산이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G ) 이고 l-1,l-2 성질을 가지는 군을 monoid라 한다.
 
 
 # scala로 Monoid를 모델링 해보자.
+아래는 monoid 의 typeclass 이다.  
+(A,op)를 나타낸다.
 {% highlight scala %}
 trait Monoid[A] {
   def op(a: A, b: A): A = ??? //( 결합법칙 이 성립하게 구현)
@@ -52,13 +54,14 @@ trait Monoid[A] {
 }
 {% endhighlight %}
 
-operation에 인자들은 A 유형이다.  
+operation에 인자들은 A 유형(A집합의 원소)이다.  
 a,b ∈ A 이고 zero(항등원) ∈ A 이며 (구현은 안되어 있지만, 결합법칙이 성립하는 연산) op의 이항연산이 있다.  
 이때 위의 군의 정의에 의해 Monoid[A]의 인스턴스를 monoid 라 한다.  
 
 이제 Monoid가 무었인지 알았으니 Monoid 에를 작성하며 연습해보자.
 
 ex-01) String monoid를 만들어 보자.
+아래는 (String,+) 군에 대한
 {% highlight scala %}
 def stringMonoid: Monoid[String] = new Monoid[String] {
   override def op(a: String, b: String): String = a + b
@@ -67,6 +70,7 @@ def stringMonoid: Monoid[String] = new Monoid[String] {
 {% endhighlight %}
 
 ex-02) Int 덧셈 monoid를 선언 만들어 보자.
+아래는 (Int,+) 군에 대한 
 {% highlight scala %}
 def intMonoid: Monoid[Int] = new Monoid[Int] {
   override def op(a: Int, b: Int): Int = a + b
@@ -75,6 +79,7 @@ def intMonoid: Monoid[Int] = new Monoid[Int] {
 {% endhighlight %}
 
 ex-03)Int 곱셈에 대한 Monoid를 만들어 보자.
+아래는 (Int,*) 군에 대한 
 {% highlight scala %}
 def intProductMonoid: Monoid[Int] = new Monoid[Int] {
   override def op(a: Int, b: Int): Int = a * b
@@ -83,6 +88,7 @@ def intProductMonoid: Monoid[Int] = new Monoid[Int] {
 {% endhighlight %}
 
 ex-04) Option 에 대한 Monoid를 만들어 보자.
+(Option,orElse) 군에 대한
 {% highlight scala %}
 def optionMonoid[A]: Monoid[Option[A]] = new Monoid[Option[A]] {
   override def op(o1: Option[A], o2: Option[A]): Option[A] = o1.orElse(o2)
@@ -112,6 +118,7 @@ def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
 
 이제 List[String] 에 접기 함수를 사용할때 (String,+) monoid 군을 적용 시킬 수 있다.  
 (String,+) 은 x,y ∈ String 이고 , String 모든 원소에 항등원 "" 이 있으며 + 이항연산의 monoid law를 가지는 군이다.  
+List의 fold연산은 원소를 순회 하며, 이진연산을 수행 한다.  
 따라서 List[String] 집합 (String,+) monoid를 적용시키에 fold(접기) 함수가 딱 들어 맞는다.  
 {% highlight scala %}
 def fold[A](xs: List[A])(m: Monoid[A]): A = 
@@ -155,8 +162,10 @@ intAddMoniod.op(xs.length , ys.length) == (xs + ys).length
 
 # 접을수 있는 자료구조
 위에 Monoid와 fold (접기) 함수에 잘 들어 맞는다. List, Option, Either, Tree 등 접기 자료구조를 보면 타입 매개변수가 달라지고 나머지는 거의 동일하다.  
-이들을 연습 삼아 공통점을 뽑아내어 trait로 작성해보면 도움이 된다.
-이는 타입매개변수가 가변적이니 이를 형식생성자를 받도록 하면 된다.
+이들을 연습 삼아 공통점을 뽑아내어 trait로 작성해보면 도움이 된다.  
+이는 타입매개변수가 가변적이니 이를 형식생성자를 받도록 하면 된다.  
+타입생성생성자의 타입매개변수의 F[_]은 존재 타입이라 한다.  
+F[T] forSome { type T} 라는 의미.
 {% highlight scala %}
 trait Foldable[F[_]] {
   def foldRight[A,B](xs: F[A])(z: B)(f: (A,B) => B): B =
