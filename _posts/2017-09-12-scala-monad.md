@@ -5,6 +5,7 @@ description: "scala Monad (1)"
 categories: [배움]
 tags: [scala]
 redirect_from:
+comments: true
   - /2017/09/08/
 ---
 
