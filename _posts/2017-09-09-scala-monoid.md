@@ -150,7 +150,7 @@ f(a) ♤ f(b) == f( a ☆ b ) 일때 함수 f를 준동형사상이라 한다.
 {% highlight scala %}
 val xs = "abcd"
 val ys = "edf"
-intAddMoniod.op(xs.length + ys.length) == (xs + ys).length
+intAddMoniod.op(xs.length , ys.length) == (xs + ys).length
 {% endhighlight %}
 
 # 접을수 있는 자료구조
