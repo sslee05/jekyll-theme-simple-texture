@@ -26,8 +26,7 @@ val rx = double(2)
 //결과: 4
 {% endhighlight %}
 
-만약 함수 double에 List[Int],Option[Int]등을 넣으면 어떻게 계산되어야 하나?  
-문제는 이것으로 부터 시작 된다.
+만약 함수 double에 List[Int],Option[Int]등을 넣으면 어떻게 계산되어야 할까?...  
 
 # typeclass
 동작을 정의하는 일종의 인터페이스.  
@@ -61,7 +60,7 @@ map함수를 생각 해보자
 def mapIntList(xs: List[Int])(f: Int => Int): List[Int] = ???
 {% endhighlight %}
 
-Int 유형을 감싼 List box를 기존의 Int 유형에 적용할 수 있는 double이라는 함수를 받아 적용하고 있다.  
+Int 유형을 감싼 List box를 기존의 Int 유형에 적용할 수 있는 double이라는 함수를 받아 적용할 수 있다.  
 
 예제 하나더...
 {% highlight scala %}
@@ -105,9 +104,16 @@ trait Functor[F[_]] {
 }
 {% endhighlight %}
 
-이것이 Functor 다.  
 ![functor]({{ baseurl }}/assets/images/scala/01.png)  
 [이미지 출처:mostly-adequate-guide 에서]  
+
+이것이 Functor 다.  
+이를 아래와 같이 좀 수정하여 보면 위의 그림을 좀더 쉽게 이해 할 수 있다.  
+{% highlight scala %}
+def map[A,B](f: A => B)(ma: F[A]): F[B] = ???
+val fn = map _
+{% endhighlight %}
+
 위의 code는 위의 그림과 같이 함수 f: a => b 를 받고 F[A] 를 받아 F[B]로 변환하고 있다. 
 **즉 map함수를 이용하여 box에 따라 함수를 어떻게 적용하지를 알려주는 datatype이 Functor다.**  
 이 map의 input/output은   (a => b) => (F[A] => F[B]) 와 같다.
