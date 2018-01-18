@@ -2,8 +2,8 @@
 layout: post
 title: "수학적 논리 명제"
 description: "mathematice logic"
-categories: [mathematice]
-tags: [mathematice]
+categories: [배움]
+tags: [수학]
 redirect_from:
   - /2017/09/04/
 ---

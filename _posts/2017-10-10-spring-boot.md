@@ -2,7 +2,7 @@
 layout: post
 title: "Spring Boot 2일차"
 description: "Spring boot 자동구성 및 CLI"
-categories: [spring-boot]
+categories: [배움]
 tags: [spring-boot]
 redirect_from:
   - /2017/10/10/

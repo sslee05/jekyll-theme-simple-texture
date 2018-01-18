@@ -2,8 +2,8 @@
 layout: post
 title: "scala Monoid"
 description: "scala Monoid"
-categories: [scala]
-tags: [monoid,scala,모노이드,스칼라]
+categories: [배움]
+tags: [scala]
 redirect_from:
   - /2017/09/08/
 ---

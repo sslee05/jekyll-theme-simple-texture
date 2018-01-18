@@ -2,8 +2,8 @@
 layout: post
 title: "scala Traversable Functor"
 description: "Traversable Functor"
-categories: [scala]
-tags: [traversable functor,scala,순회함수자,스칼라]
+categories: [배움]
+tags: [scala]
 redirect_from:
   - /2017/09/08/
 ---

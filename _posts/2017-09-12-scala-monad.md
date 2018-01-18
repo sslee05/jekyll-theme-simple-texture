@@ -2,8 +2,8 @@
 layout: post
 title: "scala Monad (1)"
 description: "scala Monad (1)"
-categories: [scala]
-tags: [monad,scala,모나드,스칼라]
+categories: [배움]
+tags: [scala]
 redirect_from:
   - /2017/09/08/
 ---
