@@ -164,8 +164,6 @@ intAddMoniod.op(xs.length , ys.length) == (xs + ys).length
 위에 Monoid와 fold (접기) 함수에 잘 들어 맞는다. List, Option, Either, Tree 등 접기 자료구조를 보면 타입 매개변수가 달라지고 나머지는 거의 동일하다.  
 이들을 연습 삼아 공통점을 뽑아내어 trait로 작성해보면 도움이 된다.  
 이는 타입매개변수가 가변적이니 이를 형식생성자를 받도록 하면 된다.  
-타입생성생성자의 타입매개변수의 F[_]은 존재 타입이라 한다.  
-F[T] forSome { type T} 라는 의미.
 {% highlight scala %}
 trait Foldable[F[_]] {
   def foldRight[A,B](xs: F[A])(z: B)(f: (A,B) => B): B =
