@@ -2,7 +2,7 @@
 layout: post
 title: "scala Traversable Functor"
 description: "Traversable Functor"
-categories: [monad와 친구들]
+categories: [scala-function]
 tags: [scala,스칼라,Traverse functor]
 redirect_from:
   - /2017/09/08/

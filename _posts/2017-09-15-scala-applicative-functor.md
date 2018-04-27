@@ -2,7 +2,7 @@
 layout: post
 title: "scala Applicative Functor"
 description: "Applicative Functor"
-categories: [monad와 친구들]
+categories: [scala-function]
 tags: [scala,스칼라,Applicative Functor,적용함수자]
 redirect_from:
   - /2017/09/08/

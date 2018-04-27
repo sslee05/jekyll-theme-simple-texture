@@ -2,7 +2,7 @@
 layout: post
 title: "scala Monoid"
 description: "scala Monoid"
-categories: [monad와 친구들]
+categories: [scala-function]
 tags: [scala,스칼라,Monoid, 모노이드]
 redirect_from:
   - /2017/09/08/

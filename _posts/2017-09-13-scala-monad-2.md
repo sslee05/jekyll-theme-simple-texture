@@ -2,7 +2,7 @@
 layout: post
 title: "scala Monad (2)"
 description: "scala Monad (2)"
-categories: [monad와 친구들]
+categories: [scala-function]
 tags: [scala,스칼라,Monad,모나드]
 redirect_from:
   - /2017/09/08/
