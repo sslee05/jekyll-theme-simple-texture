@@ -23,8 +23,8 @@ sass:
 # Site Data
 url: https://sslee05.github.io 
 baseurl: #https://sslee05.github.io 
-title: SSLEE 일지
-description: "software developer 로서 느낀점을 일지로 남긴것들"
+title: SSLEE 생각의 조각들
+description: "SSLEE 생각의 조각들"
 keywords: 'jekyll,theme,gem-based,blog'
 author:
   name:
@@ -48,7 +48,7 @@ author:
       url:
 home:
   section1: <h1>SSLEE blog</h1>
-  section2: <h2>SSLEE 일지</h2>
+  section2: <h2>SSLEE 생각의 조각들</h2>
   section3: <div class="social-links"><a class="ico-github btn" href="https://github.com/sslee05" title="View on GitHub"></a></div>
 blog:
   cc_license: # A link to CC License of your choice, e.g. http://creativecommons.org/licenses/by-sa/4.0/.
