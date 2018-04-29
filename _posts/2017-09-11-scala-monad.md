@@ -72,9 +72,6 @@ scala> flatMap(unit(x))(f) == f(x)
 res0: Boolean = true
 {% endhighlight %}
 
-Monad 의 적용 결과는 모나드의 입력으로 그결과는 또다른 입력으로 Monad chain이 가능하다.  
-Monad는 행간의 무었이 일어나느지 명시하는 것이 아닌, 단지 어떤 일이 일어나더라도 그것이 결합법칙과 항등법칙을 만족함을 명시할 뿐이다.
-
 ## Right 항등법칙
 {% highlight scala %}
 f(x) flatMap (unit) == f(x)
@@ -120,7 +117,8 @@ f: Int => Option[Int] = $$Lambda$1051/994712181@65bad087
 scala> (ma flatMap f flatMap g) == (ma flatMap(a => f(a) flatMap g))
 res5: Boolean = true
 {% endhighlight %}
-
+Monad 의 적용 결과는 모나드의 입력으로 그결과는 또다른 입력으로 Monad chain이 가능하다.  
+Monad는 행간의 무었이 일어나느지 명시하는 것이 아닌, 단지 어떤 일이 일어나더라도 그것이 결합법칙과 항등법칙을 만족함을 명시할 뿐이다.
 
 # Monad 의 다른 조합 유형
 ## compose
