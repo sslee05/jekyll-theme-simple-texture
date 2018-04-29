@@ -18,7 +18,7 @@ redirect_from:
 # 들어가기 앞서
 현장에서 프로젝트에 투입되면 spring 기반의 architecture로 일을 했다. 주로 batch 쪽을 담당했는데 업무팀의 요구사항에 연계되어 들어온 file format이 제각각이라 때에 따라서는 기존의 String batch Reader에 기능을 추가 구현하여 제공해주어야 할때가 더러 있다.  
 
-spring batch framework의 ItemReader 부분은 Template method pattern으로 구성되어 있어 file format에 따라 data atrribute 부분를 쉽게 구성해서 기존 기능에 넣기만 하면 되는.. 참 spring-framework은 고마운 존재인 듯 하다.  
+spring batch framework의 ItemReader 부분은 Template method 와 Strategy pattern으로 구성되어 있어 file format에 따라 data atrribute 부분를 쉽게 구성해서 기존 기능에 넣기만 하면 되는.. 참 spring-framework은 고마운 존재인 듯 하다.  
 
 물론 그것 뿐이겠냐만은 java의 design pattern을 이용하며 OOP 언어의 SOLID 법칙으로 설계 하는데 도움이 된다.  
 
@@ -53,7 +53,7 @@ scala> plusThree(xs)
 plusThree 는 Int => Int 으로 Int을 받아 3을 더하는 함수이다. 2을 넣으면 5가 결과로 나온다.  
 하지만 위에서 보는 것과 같이 List(1,2,3,4,5)은 error 가 발생한다.  
 그럼 List(1,2,3,4,5) 에 대한 3을 더하는 연산은 어떻게 해야 할까?  
-(List[Int] 와 같이 존제 type F[_] 를 앞으로 이야기 편하게 box라 부르기로 하자)  
+(List[Int] 와 같이 higher-kined type F[_] 를 앞으로 이야기 편하게 box라 부르기로 하자)  
 
 ## 잠깐! higher-kinded type(고계type) & existential type(존재 type)
 사실 위에 언급한 box라고 부르기로 한 것은 scala에서 지원하는 higher-kined type이다.  
