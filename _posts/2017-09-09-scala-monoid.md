@@ -15,281 +15,117 @@ redirect_from:
 * Kramdown table of contents
 {:toc .toc}
 
-# 수학적 기본 지식
+# 들어가기 앞서
+처음 scala 를 공부할때 새로운 언어를 배운는 것 보다 함수형으로 생각하는 것 자체가 낮설었다.  
+그때 당시 Monad와 Functor, Application Functor, Traversable Functor 등 이들과 시름했던 기역들이 생각난다.  
+누구나 그러하듯 바쁜 삶의 현장속에 특히나 나 같이 공공 SI를 하는 사람(애 아빠)에게는 더더욱 blog를 남긴다는 것은 웬만해선 생각 조차 들지 않는다.  
+주저리는 이제 여기서 그만하고 내가 배우고 알게 된 것들을 blog에 남기기로 결심을 했다는 것이다.  
+남들도 하는데 나도 한번 남겨나 보자..  
 
-## 대수란
-정수나 유리수와 같이 우리에게 익숙한 수들의 기본 __성질__ 들을 추상화, 일반화하는 것을 포함하는 
-아이디어와 기능으로 구성된 수학적 세계 중에 하나.
+먼저  Monoid을 시작으로 앞으로 Functor 와 Monad, Applicative Functor, Traversable Functor로 작성 하겠다.
 
-## 대수학 
-수가 가지고 있는 __성질__ 의 일반화에 대한 연구이다.
+# 어렵풋한 아주 작은 수학적 이야기
+우리가 고등학교때 정석 책을 보면 항상 제일 먼저나오는 집합 과 명제 부분에서 집합부분을 보면 (아주 간단한)  
 
-## 군
-__결합법칙__, __항등법칙__ , __교환법칙__ 이 성립하는 성질을 임의의 집합으로 일반화 한 것이 군이다.  
-__✶__ 를 하나의 집합 G에 대한 __이항 연산__ 이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G )
-다음의 성질을 만족하면  __(G,✶)__ 를 군이라 한다.  
-### l-1  ✶ 연산에 대한 결합법칙  
-x,y,z ∈ G => x ✶ (y ✶ z) = (x ✶ y) ✶ z  
-### l-2 항등원과 ✶에 대한 항등법칙  
-모든원소 각각에 x ∈ G 에 대하여 e ✶ x = x ✶ e = x 을 만족하는 e ∈ G 가 존재한다.  
-### l-3 x는 역원를 갖는다  
-각각의 x(모든 원소) ∈ G 에 대하 x^-1 ∈ G 가 존재하며 x ✶ x^-1 = x^-1 ✶ x = e   
-추가로 다음을 만족하면 가환군(아벨군)이라 한다.  
-### l-4) x,y ∈ G => x ✶ y = y ✶ x     (✶ 에 대한 교환법칙)
+어떤 원소 a 가 집합 A의 원소 일때 다음과 같이 표기 했던 것? 같다.  
+a ∈  A  이렇게 ..  
+그래서 자연수 집합의 어떤 원소 a 라 할때 이를 a ∈  N , 또는 정수의 집합의 어떤 원소 a라 할때  a ∈  Z 이렇게  
+불르곤 했던거 같다.  
 
-## 사상
-대상의 관계에 대한 mapping, 혹은 function ( 임이의 군 __=>__ 임이의 군 )
+그럼 이제 "정수의 집합의 어떤 원소"를 프로그램언어 (여기서는 scala)로 어떻게 표현하지....  
+{% highlight scala %}
+a  :  Int  
+//a ∈  Z 이 것과 위치 지정이 들어 맞네... 참고로 java는 집합 원소 라고 생각해도...
 
-## 모노이드(Monoid)
-✶를 하나의 집합 G에 대한 이항 연산이라 한다면( 임이의 x,y ∈ G => x ✶ y ∈ G ) 이고 l-1,l-2 성질을 가지는 군을 monoid라 한다.
+val a: String // String type(집합)의 a(원소)
+val b: Option // Option type(집합)의 b(원소)
+val c: MyType // MyType type(집합)의 c(원소)
+.......
+{% endhighlight %}
 
+자.. 이제 어떤 집합에 대한 원소들과 이 원소들의 어떤 연산을 생각 해보자. 음...  
+정수 집합 Z의 원소 2개를 더하는 연산 +  에 대하여 생각 해보면...  
+1 + 2 = 3, 2 + 3 = 5 , 3 + 4 = 7 등 + 연산의 결과도 정수 이다.  이를 기호를 빌려 일반화로 나타내면 다음과 같이 나타낼 수 있다 .  
 
-# scala로 Monoid를 모델링 해보자.
-아래는 monoid 의 typeclass 이다.  
-(A,op)를 나타낸다.
+집합 F에 대하여  ✶ 의 이항 연산이 있을때 F의 원소에  ✶ 이항연산의 결과 또한 F의 원소라면 (F,  ✶)라 하고 이를 군이라 한다.  
+
+근데 이런 군중에 Monoid 군이라는 것이 있다는데 그건 다음과 같은 조건을 만족 한다면 이를 Monoid 군이라고 한다.  
+
+<span style="color:blue">1.* ✶ 연산에 대한 항등원이 존재: x ✶ e = x , e ✶ x = x*</span>  
+<span style="color:blue">2.* ✶ 연산에 대한 결합법칙이 성립: (x ✶ y) ✶ z = x ✶ (y ✶ z) *</span>
+
+# 이제 scala Monoid로 들어가 보자
 {% highlight scala %}
 trait Monoid[A] {
-  def op(a: A, b: A): A = ??? //( 결합법칙 이 성립하게 구현)
-  def zero: A = ??? //(항등원)
+  def zero: A
+  def op(a: A, b: A): A
 }
 {% endhighlight %}
-
-operation에 인자들은 A 유형(A집합의 원소)이다.  
+위의 code 는 Monoid type class를 나타내며, operation에 인자들은 A 유형(A집합의 원소)이다.  
 a,b ∈ A 이고 zero(항등원) ∈ A 이며 (구현은 안되어 있지만, 결합법칙이 성립하는 연산) op의 이항연산이 있다.  
+
 이때 위의 군의 정의에 의해 Monoid[A]의 인스턴스를 monoid 라 한다.  
 
-이제 Monoid가 무었인지 알았으니 Monoid 에를 작성하며 연습해보자.
-
-ex-01) String monoid를 만들어 보자.
-아래는 (String,+) 군에 대한
+그럼 예를 만들어 보자.  
+Int 의 (집합) + 이항연산에 대한 Monoid를 만들어 보면  
 {% highlight scala %}
-def stringMonoid: Monoid[String] = new Monoid[String] {
-  override def op(a: String, b: String): String = a + b
-  override def zero: String = ""
+val intAddMonoid: Monoid[Int] = new Monoid[Int] {
+  // 0 + 1 = 1 , 2 + 0 = 2
+   def zero:Int = 0 
+
+  // 1 + ( 2 + 3) = (1 + 2) + 3
+  def op(a: Int, b: Int) = a + b 
+}
+{% endhighlight %}
+String 의 + 연산에 대하여  
+{% highlight scala %}
+val stringappendMonoid: Monoid[String]  = new Monoid[String] {
+   //"" + "a" = "a" , "b" + "" = b
+   def zero: String = ""
+
+   // ("a" + "b") + "c" = "a" +( "b" + "c")
+   def op(a: String, b: String): String = a + b
 }
 {% endhighlight %}
 
-ex-02) Int 덧셈 monoid를 선언 만들어 보자.
-아래는 (Int,+) 군에 대한 
-{% highlight scala %}
-def intMonoid: Monoid[Int] = new Monoid[Int] {
-  override def op(a: Int, b: Int): Int = a + b
-  override def zero: Int = 0
-}
-{% endhighlight %}
-
-ex-03)Int 곱셈에 대한 Monoid를 만들어 보자.
-아래는 (Int,*) 군에 대한 
-{% highlight scala %}
-def intProductMonoid: Monoid[Int] = new Monoid[Int] {
-  override def op(a: Int, b: Int): Int = a * b
-  override def zero: Int = 1
-}
-{% endhighlight %}
-
-ex-04) Option 에 대한 Monoid를 만들어 보자.
-(Option,orElse) 군에 대한
+Option 값의 조합연산에 대한 Monoid  
 {% highlight scala %}
 def optionMonoid[A]: Monoid[Option[A]] = new Monoid[Option[A]] {
-  override def op(o1: Option[A], o2: Option[A]): Option[A] = o1.orElse(o2)
-  override def zero: Option[A] = None
-}
-{% endhighlight %}
-위의 optionMonoid.op도 결합법칙이 성립된다.
-{% highlight scala %}
-val o1 = Some("a")
-val o2 = Some("b")
-val o3 = Some("c")
-//Option[String] 에 대한 결합법칙 
-val rs01 = optionMonoid.op(o1,optionMonoid.op(o2,o3))
-val rs02 = optionMonoid.op(optionMonoid.op(o1,o2),o3)
-println("rs01 :"+ rs01+ " rs02:"+rs02)
-{% endhighlight %}
-o1,o2,o3 중 어느 것에 None를 넣어도 성립된다.  
+  // op(None, Some("a")) = Some(a) , op(Some("a"), None) = Some("a")
+  def zero:Option[A] = None
 
-ex-05) 자기함수: 인수의 형식과 반환값의 형식이 동일한 함수  
-자기함수 monoid를 만들어 보자.
-{% highlight scala %}
-def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
-  override def op(f: A => A, g: A => A): A => A = f compose g
-  override def zero: A => A = a => a
+  //op(op(Some("a"), None), Some("b")) == op(Some("a"),op(Some("None"), Some("b")))
+  def op(a: Option[A], b: Option[A]): Option[A] = a orElse b
 }
 {% endhighlight %}
 
-이제 List[String] 에 접기 함수를 사용할때 (String,+) monoid 군을 적용 시킬 수 있다.  
-(String,+) 은 x,y ∈ String 이고 , String 모든 원소에 항등원 "" 이 있으며 + 이항연산의 monoid law를 가지는 군이다.  
-List의 fold연산은 원소를 순회 하며, 이진연산을 수행 한다.  
-따라서 List[String] 집합 (String,+) monoid를 적용시키에 fold(접기) 함수가 딱 들어 맞는다.  
+마지막으로 하나만 더보자 f: A => A 집합에 대한  compose 연산 Monoid  
 {% highlight scala %}
-def fold[A](xs: List[A])(m: Monoid[A]): A = 
-  xs.foldRight(m.zero)((a,b) => m.op(a, b)) 
-{% endhighlight %}
+def fnMonoid [A] : Monoid[A => A] = new Monoid[A => A] {
 
-일반적으로 fold 함수는 A => B 처럼 형식이 다르다.  
-이런경우 어떻게 하면 될까? 이렇경우 A => B 인 사상를 사용 하면 된다.
-{% highlight scala %}
-def foldMap[A,B](xs: List[A])(f: A => B)(m: Monoid[B]): B = 
-  xs.foldRight(m.zero)((a,b) => m.op(f(a),b))
-{% endhighlight %}
+  //op(zero, a => a) = a => a, op(a => a, zero) = a => a
+  def zero: A => A = a => a
 
-한가지 더 예를 들어 보면 String 목록의 모든 글자의 갯수를 구하려면 어떻게 할까?
-{% highlight scala %}
-val xs = List("abcd","efgh","ij")
-val rs = foldMap(xs)(x => x.length)(intAddMonoid)
-{% endhighlight %}
-
-위에 예에서 String => Int 함수를 좀 생각 해보아야 할 특징이 있다.  
-위의 예에서의 함수는 준동형사상 이다.
-
-# 준동형사상 & 동형사상 & 자기동형 사상
-## 준동형사상
-정의부터 말하자면 다음과 같다.  
-군 (G,☆) 에서 군 (H,♤)로의 함수 f 가 모든 a,b ∈ G 에 대하여  
-f(a) ♤ f(b) == f( a ☆ b ) 일때 함수 f를 준동형사상이라 한다.  
-
-이를 scala code로 다시 들여다 보면 다음과 같다.
-(G,☆) 에서 G : String  
-(H,♤) 에서 H : IntAddMonoid[Int] 에서 Int  
-☆ 이항연산은  : String의 +  
-♤ 이항연산은  : IntAddMonoid의 op(Int,Int)  
-그리고 이야기 주제의 주인공인 f( 준동형사상)은 String의 length 함수이다.  
-
-{% highlight scala %}
-val xs = "abcd"
-val ys = "edf"
-intAddMoniod.op(xs.length , ys.length) == (xs + ys).length
-{% endhighlight %}
-
-# 접을수 있는 자료구조
-위에 Monoid와 fold (접기) 함수에 잘 들어 맞는다. List, Option, Either, Tree 등 접기 자료구조를 보면 타입 매개변수가 달라지고 나머지는 거의 동일하다.  
-이들을 연습 삼아 공통점을 뽑아내어 trait로 작성해보면 도움이 된다.  
-이는 타입매개변수가 가변적이니 이를 형식생성자를 받도록 하면 된다.  
-{% highlight scala %}
-trait Foldable[F[_]] {
-  def foldRight[A,B](xs: F[A])(z: B)(f: (A,B) => B): B =
-	foldMap(xs)(f.curried)(endoMonoid[B])(z)
-
-  def foldLeft[A,B](xs: F[A])(z: B)(f: (B,A) => B): B = 
-	foldMap(xs)(a => (b:B) => f(b,a))(dualMonoid(endoMonoid))(z)
-
-  def foldMap[A,B](xs: F[A])(f: A => B)(m: Monoid[B]): B = 
-	foldRight(xs)(m.zero)((a,b) => m.op(f(a),b))
-
-  def concat[A](xs: F[A])(m: Monoid[A]): A = 
-	foldLeft(xs)(m.zero)(m.op) 
-
-  def toList[A](s: F[A]): List[A] = 
-	foldRight(s)(List[A]())((a,b) => a::b)
+  //op(op(f,g),h) = op(f, op(g, h))
+  def op(f: A => A, g: A => A) : A => A = f compose g
 }
 {% endhighlight %}
 
-# Monoid 의 관찰
-위의 예제들을 보면서 느낀점은 결국 어떠한 집합에 monoid를 적용하면 집합의 원소에 결부시킨 monoid 군의 연산을 적용하여 monoid 군으로 변환 되는 것을 볼 수 있었다.  
-또한 이 monoid 이항연산은 결합법칙이 성립하므로 이 연산을 병렬로 실행하더라도 문제가 없음을 안심하고 사용 할 수 있을 듯 하다.
-
-## Monoid 의 합성
-Monoid의 위업은 함성 compose에서 나타난다.  
-
+# Monoid와 fold 연산이 만날때
+List의 fold연산은 다음과 같은 Signature를 가진다.  
 {% highlight scala %}
-val o01 = Some(Some(2))
-val o02 = Some(Some(3))
-{% endhighlight %}
-위의 Option 자료구조에 다른 Option의 값을 합하려면 어떻게 해야 할까?  
-즉 결과는 Some(Some(5))  
-
-이때 Monoid의 합성의 위력을 보여 준다.
-{% highlight scala %}
-def mergeOption[O](m: Monoid[O]): Monoid[Option[O]] = {
-  new Monoid[Option[O]] {
-	override def zero: Option[O] = None
-	override def op(o1: Option[O], o2: Option[O]): Option[O] = 
-	  o1 flatMap(a => o2 map(b => m.op(a, b)))
-  }
-}
-
-val o01 = Some(Some(2))
-val o02 = Some(Some(3))
-val rx080 = mergeOption(mergeOption(intAddMonoid)).op(o01, o02)
-println(rx08)
-//결과: Some(Some(5))
+// List의  fold는 내부적으로 foldLeft를 이용한다.
+def fold[A1 >: A](z: A1)(op: (A1, A1) ⇒ A1): A1
 {% endhighlight %}
 
-다음은 Map[String,Map[String,Int]] 일 경우  
-{% highlight scala %}
-val m1:Map[String,Map[String,Int]] = Map("map" -> Map("a" -> 1,"b" -> 2))
-val m2:Map[String,Map[String,Int]] = Map("map" -> Map("b" -> 3))
-{% endhighlight %}
-위의 m1과 m2를 병합 하려면 어떻게 해야 할까?
-그러니깐 결과는 다음 같이
+이는 내부적으로 foldLeft를 이용하는데 왼쪽의 원소부터 초기값 z와 이진연산 op를 적용하며 오른쪽으로 연산을 진행한다.  
+따라서 List ("a", "b","c", "d") 인경우 op(op(op(z,a),b),c) 인 형태가 된다.  
+A라는 유형의 집합에 원소들의 이진 연산 op....  
+웬지 Monoid 와 잘 맞을 것 같은 느낌이 든다.  
 
-{% highlight scala %}
-val m3:Map[String,Map[String,Int] = Map("map" -> Map("a" -> 1, "b" -> 5))
-{% endhighlight %}
-
-이때 위에서 만든 monoid들을 합성하면 다음과 같다.
-{% highlight scala %}
-def mergeMapMonoid[K,V](m: Monoid[V]): Monoid[Map[K,V]] = {
-  new Monoid[Map[K,V]] {
-	override def zero: Map[K,V] = Map[K,V]()
-	override def op(ma: Map[K,V], mb: Map[K,V]): Map[K,V] = 
-		(ma.keySet ++ mb.keySet).foldLeft(zero) { (b1,a1) => 
-          b1.updated(a1,m.op(ma.getOrElse(a1,m.zero), mb.getOrElse(a1,m.zero)))
-    }
-  }
-}
-
-val m1:Map[String,Map[String,Int]] = Map("map" -> Map("a" -> 1, "b" -> 2))
-val m2:Map[String,Map[String,Int]] = Map("map" -> Map("b" -> 3, "c" -> 2))
-
-val mergeM: Monoid[Map[String,Map[String,Int]]] = mergeMapMonoid(mergeMapMonoid(intAddMonoid))
-val rs08: Map[String,Map[String,Int]] = mergeM.op(m1,m2)
-println(rs08)
-//결과: Map(map -> Map(a -> 1, b -> 5, c -> 2))
-{% endhighlight %}
-
-위의 두 경우를 합하면 Option[Map[String,Map[String,Int]]] 인 경우는 ?
-원하는 monoid만  결합하면 된다.
-{% highlight scala %}
-val mo01 = Some(Map("map" -> Map("a" -> 1, "b" -> 2)))
-val mo02 = Some(Map("map" -> Map("b" -> 3, "c" -> 2)))
-
-val mMonoid2:Monoid[Option[Map[String,Map[String,Int]]]] =   mergeOption(mergeMapMonoid(mergeMapMonoid(intAddMonoid)))
-val rs0803 = mMonoid2.op(mo01, mo02)
-println(rs0803)
-// 결과 
-//Some(Map(map -> Map(a -> 1, b -> 5, c -> 2)))
-{% endhighlight %}
-위의 예제들과 같이 접을 수 있는 자료구조안에 접을 수 있는 자료구조가 또 있을 경우 위와 같이  
-해당하는 자료구조에 원하는 연산을 가지고 있는 monoid 군을 합성하여 활용을 극대화 할 수 있다.  
-
-## 여러연산을 동시에 
-monoid의 compose 이외에도 접기가 가능한 어떠한 자료구조에 monoid 군을 여러게 결합하여 monoid 곱을 구할 수 가 있다.  
-이렇게 함으로써 여러 연산의 결과를 동시에 처리 할 수 있다. 한번 접기에 여러 결과를...  
-
-우선 곱은 다음과 같다. 
-{% highlight scala %}
-def productMonoid[A,B](m1: Monoid[A], m2: Monoid[B]): Monoid[(A,B)] = ???
-{% endhighlight %}
-
-구현 해볼까?
-{% highlight scala %}
-def productMonoid[A,B](m1: Monoid[A], m2: Monoid[B]): Monoid[(A,B)] = 
-  new Monoid[(A,B)] {
-    override zero: (A,B) = (m1.zero,z2.zero)
-    override op(a: (A,B), b: (A,B)))  = (m1.op(a._1,b._1),m2.op(a._2,b._2))
-  }
-{% endhighlight %}
-
-이제 목록의 길이와 제곱의 합을 동시에 구현하는 예는 다음과 같다.  
-목록의 길이와 원소의 합을 동시에 구할 수 있다.
-{% highlight scala %}
-val xs09 = List(1,2,3,4,5,6,7,8,9,10)
-val m09 = productMonoid(intAddMonoid,intAddMonoid)
-val rs09 = foldMap(xs09)(a => (1,a))(m09)
   
-println(rs09)
-//결과:(10,55)
-{% endhighlight %}
+
+List[String] 에 대한 + 연산 즉 (String, +) Monoid 군을 이용하여 List 을 pattern match 를 이용하지 않고 List안에 있는 값에 +  연산을 적용하면 다음과 같이 할 수 있다.  
 
 [^1]: This is a footnote.
 
