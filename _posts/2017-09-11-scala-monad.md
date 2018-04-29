@@ -181,7 +181,7 @@ def composeMonad[F[_],G[_])(implicit F[_]: Monad[F], G[_]: Monad[G]): Monad[({ty
 }
 {% endhighlight %}
 위에  G.map(ga)(f)의 결과는 G[F[G[B]]]이다....  
-이를 위해서는 sequence[A](ma: F[G[A]]):G[F[A]]가 필요하다.. 이는 추후 Traverse 순회적용함수자에서 보고 여기서 Monad post를 마친다.  
+이를 위해서는 sequence\[A\](ma: F[G[A]]):G[F[A]]가 필요하다.. 이는 추후 Traverse 순회적용함수자에서 보고 여기서 Monad post를 마친다.  
 
 
 
