@@ -57,8 +57,8 @@ plusThree 는 Int => Int 으로 Int을 받아 3을 더하는 함수이다. 2을 
 
 ## 잠깐! higher-kinded type(고계type) & existential type(존재 type)
 사실 위에 언급한 box라고 부르기로 한 것은 scala에서 지원하는 higher-kined type이다.  
-F[_] 이런 유형을 Higher-kinded type(고계타입)이라 한다. 이는 매개변수화한 타입 (여기서는 F)을 추상화 한 것 이다. 따라서 Higher-kinded type을 통해 매개변수화한 타입 자체를 추상화 할 수 있다. 이는 Functor, Monad, Applicative Functor, Traversable 등에 필히 등장 한다. 추후 람다 타입도 등장한다. 이는 추후에   
-반면 Seq[_] 은 existentail type으로 Seq[T] forSome { type T }으로 Seq안의 매개변수 타입 추상화 한 것 이다.  
+F[\_] 이런 유형을 Higher-kinded type(고계타입)이라 한다. 이는 매개변수화한 타입 (여기서는 F)을 추상화 한 것 이다. 따라서 Higher-kinded type을 통해 매개변수화한 타입 자체를 추상화 할 수 있다. 이는 Functor, Monad, Applicative Functor, Traversable 등에 필히 등장 한다. 추후 람다 타입도 등장한다. 이는 추후에   
+반면 Seq[\_] 은 existentail type으로 Seq[T] forSome { type T }으로 Seq안의 매개변수 타입 추상화 한 것 이다.  
 
 다시 본론을 이어서  
 {% highlight scala %}
