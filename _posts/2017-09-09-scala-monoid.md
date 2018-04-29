@@ -224,6 +224,25 @@ println(rs02)
 //Some(Map(a -> Map(a -> 2, b -> 4, c -> 3)))
 {% endhighlight %}
 
+# 참고(준동형사상)
+정의부터 말하자면 다음과 같다.  
+군 (G,☆) 에서 군 (H,♤)로의 함수 f 가 모든 a,b ∈ G 에 대하여  
+f(a) ♤ f(b) == f( a ☆ b ) 일때 함수 f를 준동형사상이라 한다.  
+
+이를 scala code로 다시 들여다 보면 다음과 같다.
+(G,☆) 에서 G : String  
+(H,♤) 에서 H : IntAddMonoid[Int] 에서 Int  
+☆ 이항연산은  : String의 +  
+♤ 이항연산은  : IntAddMonoid의 op(Int,Int)  
+그리고 이야기 주제의 주인공인 f( 준동형사상)은 String의 length 함수이다.  
+
+{% highlight scala %}
+val xs = "abcd"
+val ys = "edf"
+intAddMoniod.op(xs.length , ys.length) == (xs + ys).length
+{% endhighlight %}
+
+
 다음 글에 Functor와 Monad에 대해서 작성하겠다.
 
 
