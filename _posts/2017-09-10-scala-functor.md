@@ -117,7 +117,7 @@ map(ma)(id) == ma
 {% highlight scala %}
 f1: A => B
 f2: B => C
-map(map)(f2 compose f1) == map(map(ma)(f1))(f2)
+map(ma)(f2 compose f1) == map(map(ma)(f1))(f2)
 {% endhighlight %}
 
 3의 법칙은 map(List[A])(f) 의 결과는 List[A]의 구조를 변경해서는 안된다. 이는 List[A]의 길이가 같고, 해당 요소들은 같은 순서대어야 한다. 예를 들어 예외를 던지거나, 요소를 제거하는 등은 안 된다.  
