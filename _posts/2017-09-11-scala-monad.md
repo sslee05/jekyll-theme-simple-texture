@@ -125,7 +125,7 @@ res5: Boolean = true
 # Monad 의 다른 조합 유형
 ## compose
 어떤 higher-kinded type이 위의 Monad법칙을 만족시키고 다음과 같은 bind operator를 가진다면 Monad라 할 수 있다.  
-flatMap[B](f: A => F[B]): F[B]  
+flatMap\[B\](f: A => F\[B\]): F[B]  
 
 그럼 또 하나의 아래와 같은 signatuer를 보자 
 {% highlight scala %}
@@ -183,7 +183,7 @@ def composeMonad[F[_],G[_])(implicit F[_]: Monad[F], G[_]: Monad[G]): Monad[({ty
     //F.flatMap(mga)(ga => G.map(ga)(f)) ??? F[G[F[G[B]]]] ?????
 }
 {% endhighlight %}
-위에  G.map(ga)(f)의 결과는 G[F[G[B]]]이다....  
+위에  G.map(ga)(f)의 결과는 G\[F\[G\[B\]\]\]이다....  
 이를 위해서는 sequence\[A\](ma: F\[G\[A\]\]):G\[F\[A\]\]가 필요하다.. 이는 추후 Traverse 순회적용함수자에서 보고 여기서 Monad post를 마친다.  
 
 
