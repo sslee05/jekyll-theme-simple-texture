@@ -172,7 +172,7 @@ Monad의 합성을 해볼까?  즉 Monad F 와 Monad G의 합성으로 된  F[G[
 될까? 안될까?  
 무작정 시도 해보자  
 
-- 여기에 나오는 context bound 및 람다type(#f는 f[x]에 대한 type project, f[x]는 type F[G[x]] 를 나타 낸다.)은 나중에..)  
+- 여기에 나오는 context bound 및 람다type(#f는 f[x]에 대한 type project, f[x]는 type F[G[x]] 를 나타 낸다.)은 나중에..  
 
   
 
