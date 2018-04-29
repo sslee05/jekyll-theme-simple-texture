@@ -103,8 +103,8 @@ Int => Int 을 받아 List[Int] => List[Int] 로 function Int => Int 이 functio
 
 # Functon law
 <span style="color:red">1.*Functor에 항등함수를 적용하면 원래의 Functor와 같다.*</span>  
-<span style="color:red">1.*두함수가 있을때 두함수의 합성을 한후 Functor에 적용한 것은 Functor에 한 함수를 적용하고 난 후의 Functor에  나머지 함수를 적용한 것과 같다.*</span>  
-<span style="color:red">1.*구조를 보존해야 한다.*</span>  
+<span style="color:red">2.*두함수가 있을때 두함수의 합성을 한후 Functor에 적용한 것은 Functor에 한 함수를 적용하고 난 후의 Functor에  나머지 함수를 적용한 것과 같다.*</span>  
+<span style="color:red">3.*구조를 보존해야 한다.*</span>  
 
 1의 법칙을 코드로 표현하면 아래와 같다. 
 {% highlight scala %}
