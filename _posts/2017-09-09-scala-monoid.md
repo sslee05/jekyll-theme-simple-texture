@@ -63,7 +63,6 @@ trait Monoid[A] {
 {% endhighlight %}
 위의 code 는 Monoid type class를 나타내며, operation에 인자들은 A 유형(A집합의 원소)이다.  
 a,b ∈ A 이고 zero(항등원) ∈ A 이며 (구현은 안되어 있지만, 결합법칙이 성립하는 연산) op의 이항연산이 있다.  
-
 이때 위의 군의 정의에 의해 Monoid[A]의 인스턴스를 monoid 라 한다.  
 
 그럼 예를 만들어 보자.  
@@ -172,7 +171,7 @@ foldLeft와 foldRight의 결과  op(op(z,a),b) == op((op(b,z),a) 가 되었다. 
 
 이 Monoid는 앞으로 이야기 할 Monad, Applicative Functor, Traversable Functor 등 특정 유형의 원소들에 대한 이항 연산 적용시에 사용된다.  
 
-# 코드를 보며 생각해보자
+# 코드를 보며 생각해 보자
 {% highlight scala %}
 //foldLeft나 foldRight처럼 A => B 인 경우 Monoid로 구현하려면 
 //다음과 같이 f: A => B 변환 함수를 주면 된다.
