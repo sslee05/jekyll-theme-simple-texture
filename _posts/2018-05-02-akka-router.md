@@ -3,7 +3,7 @@ layout: post
 title: "akka message channel"
 description: "akka message channel"
 categories: [scala-akka]
-tags: [#scala,#스칼라,#akka,#아카,#channel,채널]
+tags: [scala,스칼라,akka,아카,channel,채널]
 redirect_from:
   - /2018/05/02/
 ---
