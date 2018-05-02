@@ -19,14 +19,14 @@ redirect_from:
 Functor는 어떤 box(higher-kinded type)에 함수를 적용 할 수 있는 방법을 가진 녀석이라고 했다.  
 그리고 Functor에 항등함수(Id)를 적용하면 원래의 Functor와 같으며, 두 함수를 합성한 후 Functor를 적용한 것은 한 함수에 Functor를 적용한 후의 Functor에 나머지 함수를 적용한 것과 같다고 했다.  
 
-scala 를 하면서 모나드, 모나드 무지 많이 사용하기 때문일 것 이다. 이를 사용하면 코드 중복를 피하는 것 뿐아니라 for comprehension 표현으로 가능 함을 제공한다. 이제 Monad와 Monad를 구성하는 함수set들을 살펴 보자.
+scala 를 하면서 모나드, 모나드 무지 이야기가 나오는 것은 아마도 그만큼 중요 하기 때문일 것 이다. 이를 사용하면 코드 중복를 피하는 것 뿐아니라 for comprehension 표현으로 가능 함을 제공한다. 이제 Monad와 Monad를 구성하는 함수set들을 살펴 보자.
 (함수와 메소드는 다르지만 설명을 위해 구분을 따로 하지 않고 함수라 표현 했다.)
 
 # Monad
 Functor가 어떤 box에 함수적용을 알고 있는 것이라면 Monad는 함수를 적용하고 다시 box에 담는 것이라 할 수 있다. 따라서 결과를 다시 모나드로 보낼 수 있다.  
 위의 정의만 봐서는 Monad는 Functor이기도 함을 알 수 있다. 아래에 flatMap과 unit( 함수 이름을 unit보다는 pure로 많이 표현함.)로 map을 구현 할 수 있다. 추후 적용함수도 구현 가능 하다.  
 
-우선 box에 값을 꺼내어 함수를 적용하는 것을 Function 라 했고 표현을 아래와 같이 했다.
+우선 box에 값을 꺼내어 함수를 적용하는 것을 Functor 라 했고 표현을 아래와 같이 했다.
 {% highlight scala %}
 def map[A,B](ma: F[A])(f: A => B): F[B]
 {% endhighlight %}
