@@ -22,7 +22,7 @@ Actor간의 message 전달은 message channel을 통해 이루어 진다.
 # 점대점 채널 (Point-to-Point channel)
 대부분의 ActorRef의 기본 channel이며, 한 번에 한 수신자만이 메시지를 받을 수 있다. 심지어 router라 하더라도 routee에 어떤 message에 대해서 처리는 한 routee만이 한다. 또한 message 처리 순서도 보장 된다.  
 
-### 발행-구독 채널 (Publish-Subscribe channel)
+# 발행-구독 채널 (Publish-Subscribe channel)
 이름에서 알수 있듯이 발신자에 대한 message를 여러 수신자가 수신한다는 것이고 발행한 message의 처리를 한 수신자가 하는 것이 아닌 여러 수신자가 처리를 한다.  
 신문을 구독하는 것과 같다.  
 그런데 점대점 channel 에서는 송신자가 message를 어디로 보낼지를 알고 있지만, 발생구독에서는 송신자는 누가 message에 관심이 있는지 알지 못한다. 수신자는 해당 구독할 정보를 channel에 등록해야 한다.  
