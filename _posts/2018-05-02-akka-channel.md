@@ -265,7 +265,8 @@ system.eventStream.subscribe(
   deadLetterReciveActor, // 실패한 message에 대하여 구독하려는 ActorRef
   classOf[DeadLetter] //  고정
 )
-{% endhighlight %}
+아래는 test code 이다.  
+{% highlight scala %}
 val deadLetterMonitor = TestProbe()
 system.eventStream.subscribe(deadLetterMonitor.ref,classOf[DeadLetter])
 
@@ -284,7 +285,8 @@ println(s"recipient ${dead.recipient}")
 dead.message must be(Order(4))
 dead.sender must be(testActor)
 dead.recipient must be(echoActor)
-{% highlight scala %}
+{% endhighlight %}
+
 위의 test코드 를 보면 수신 actor에 PoisonPill로 actor를 정지 시키고 message 를 보낸 경우  
 deadLetter 구독자가 받게 된다. 이때 받은message type은 DeadLetter이기때문에 이를 통해 원본 message 여기서는 Order(4) 발신자 여기서는 testActor(이는 TestKit에 ImplicitSender를 mix-in해야 발신자가 암묵적으로 testActor가 된다.) 수신자 정보 echoActor를 얻을 수 있다.  
 
