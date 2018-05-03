@@ -296,7 +296,6 @@ deadLetter 구독자가 받게 된다. 이때 받은message type은 DeadLetter�
 이때 주의 점은 DeadLetter형태로 보내지 않으면 원래의 발신자 정보가 지금 현재 발신하고 있는 deadLetterMonitor로 변경이 되어 원래의 발신자 정보를 얻을 수 없게 된다. 하지만 DeadLetter로 감싸서 보내거나 새로 DeadLetter를 만들어 원래의 발신자 정보를 넣어 보내면 정보를 그대로 다시 deadLetter queue에 넣을 수 있다.
 
 
-{% endhighlight %}
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
