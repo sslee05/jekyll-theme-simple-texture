@@ -202,7 +202,24 @@ class MsgBusViaSubchannelClassification extends EventBus
 }
 {% endhighlight %}
 위의 코드를 보면 Event 유형은 News type, 구독자의 판별 구분 분류자 유형은 String, 구독자는 ActorRef라 선언 했다.  
-subclassification 값은 Classifier의 분류기준으로 여기서는 String의 startsWith에 따른 계층여부를 판단하는 기준이 되는 값이다. 이는 Subclassification안에 subscribe method에서 이를 가지고 SubclassifiedIndex의 계층구조를 담는데 사용 된다.
+subclassification 값은 Classifier의 분류기준으로 여기서는 String의 startsWith에 따른 계층여부를 판단하는 기준이 되는 값이다. 이는 Subclassification안에 subscribe method에서 이를 가지고 SubclassifiedIndex의 계층구조를 담는데 사용 된다.  
+test code 는 아래와 같다.  
+{% highlight scala %}
+val resultActor = TestProbe()
+
+val bus = new MsgBusViaSubchannelClassification()
+bus.subscribe(resultActor.ref, "abc")
+
+bus publish News("abc", "hellow")
+resultActor expectMsg "hellow"
+
+bus publish News("bc", "hellow")
+resultActor expectNoMessage (3 seconds)
+
+bus publish News("abcdefg","hellow")
+resultActor expectMsg "hellow"
+{% endhighlight %}
+
 
 ## ScanningClassification
 구독자의 분류기준이 특정 한개의 기준이 아닌 여러 기준에 중복되서 분류 구독자가 판별될 수 있다.  
