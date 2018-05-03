@@ -173,7 +173,126 @@ val musicSubscriber = TestProbe()
   recipeSubscriber.expectMsg("Kimchi helthy food and delicious")
 {% endhighlight %}
 
+## SubchannelClassification
+분류자를 계층구조를 가져지며 계층구조의 하위까지 구독자로 판단 하는 구조이다.  
+아래의 예는 event type의 특정 field, String의 startsWith로 하위구조를 판별하는 예이다.  
+{% highlight scala %}
+class MsgBusViaSubchannelClassification extends EventBus 
+	with SubchannelClassification {
 
+  type Event = News
+  type Classifier = String
+  type Subscriber = ActorRef
+
+  //SubchannelClassification 의 abstract method
+  //SubchannelClassification의 subscribe method 시 SubclassifiedIndex에서 
+  //사용 하는 것으로  계층구조를 판별하는데 사용됨.
+  //topic 의 String 의 startsWith로 구별 함.
+  override protected val subclassification: Subclassification[Classifier] =
+  	new Subclassification[String] {
+    def isEqual(x: String, y: String): Boolean = x == y
+    def isSubclass(x: String, y: String): Boolean = x startsWith y
+  }
+
+  override protected def classify(event: Event): Classifier = event.topic
+
+  //이벤트의 해당 classifier에  등록된 모든 가입자에 대해 각 이벤트를 발행
+  override protected def publish(event: Event, subscriber: Subscriber): Unit = 
+    subscriber ! event.description
+}
+{% endhighlight %}
+위의 코드를 보면 Event 유형은 News type, 구독자의 판별 구분 분류자 유형은 String, 구독자는 ActorRef라 선언 했다.  
+subclassification 값은 Classifier의 분류기준으로 여기서는 String의 startsWith에 따른 계층여부를 판단하는 기준이 되는 값이다. 이는 Subclassification안에 subscribe method에서 이를 가지고 SubclassifiedIndex의 계층구조를 담는데 사용 된다.
+
+## ScanningClassification
+구독자의 분류기준이 특정 한개의 기준이 아닌 여러 기준에 중복되서 분류 구독자가 판별될 수 있다.  
+예를 들어 북 온라인 스토어에서 책을 2권이상 사면 책갈피를 주고 10권이상 이면 쿠폰을 준다면, 11권 이상구입은 2권 이상를 주문에 관한 구독자와 10이상 주문에 관한 구독자 모두가 구독자가 되어야 한다.
+{% highlight scala %}
+class MsgViaScanningClassification extends EventBus 
+  with ScanningClassification {
+
+  type Event = Order
+  type Classifier = Int
+  type Subscriber = ActorRef
+
+  //10권 이상 구입에 대한 Classifier는 2권 구입한 Classifier 분류에도 속해야 한다.
+  //따라서 비교 결과가 크면 minus 값을 해야 한다.
+  protected def compareClassifiers(a: Classifier, b: Classifier): Int =
+    if (a > b) -1 else if (a == b) 0 else 1
+
+  protected def compareSubscribers(a: Subscriber, b: Subscriber): Int =
+    a.compareTo(b) 
+
+  protected def matches(classifier: Classifier, event: Event): Boolean =
+    event.number >= classifier
+
+  override protected def publish(event: Event, subscriber: Subscriber): Unit = 
+    subscriber ! event
+}
+{% endhighlight %}
+10권이상이면 2권이상일때도 구독되어야 하므로 compareClassifiers 에서 값을 reverse시켰다.  
+test 코드는 아래와 같다.
+{% highlight scala %}
+val twoOrderedActor = TestProbe()
+val tenOrderedActor = TestProbe()
+
+val bus = new MsgViaScanningClassification()
+
+bus.subscribe(twoOrderedActor.ref, 2)
+bus.subscribe(tenOrderedActor.ref, 10)
+
+bus.publish(Order(2))
+twoOrderedActor expectMsg Order(2)
+tenOrderedActor expectNoMessage (3 seconds)
+
+bus.publish(Order(11))
+twoOrderedActor expectMsg Order(11)
+tenOrderedActor expectMsg Order(11)
+
+{% endhighlight %}
+위의 test code에서는  2권을 구입했을때 구독하는 구독자, 10권이상 구입했을때 event를 구독하는 구독자가 있다. 11권의 구매 event 발생시 2권을 구매에 대한 구독자, 10권이상의 구매에 대한 구독자 모두 event를 받음을 알 수 있다.
+
+# 특수 channel
+## deadLetter channel
+deadLetter channel 혹은 deadLetter Queue 라고도 부른다.  
+이 channel은 실패한 message만 전달 한다. 실패의 상황을 생각 해보면 종료된 actor의 mailbox에 쌓여 있는 message나 이미 종료된 actor에게  message를 보내는 경우 이다.  
+
+deadLetter channel로 부터 받는 Message  유형은 DeadLetter 유형이며 발신자, 수신자, 해당 message정보가 들어 있다. 따라서 이 channel을 통해 실패 message에대한 대응을 할 수 있다.  
+
+deadLetter channel을 통해 전송 실패한 message들에 대하여 수신을 하고 싶다면 다음과 같이 한다.  
+{% highlight scala %}
+system.eventStream.subscribe(
+  deadLetterReciveActor, // 실패한 message에 대하여 구독하려는 ActorRef
+  classOf[DeadLetter] //  고정
+)
+{% endhighlight %}
+val deadLetterMonitor = TestProbe()
+system.eventStream.subscribe(deadLetterMonitor.ref,classOf[DeadLetter])
+
+val echoActor = system.actorOf(Props(new EchoActor),"echoActor")
+echoActor ! Order(2)
+deadLetterMonitor expectNoMessage (3 seconds)
+
+echoActor ! PoisonPill
+echoActor ! Order(4)
+
+val dead = deadLetterMonitor.expectMsgType[DeadLetter]
+println(s"msg ${dead.message}")
+println(s"sender ${dead.sender}")
+println(s"recipient ${dead.recipient}")
+
+dead.message must be(Order(4))
+dead.sender must be(testActor)
+dead.recipient must be(echoActor)
+{% highlight scala %}
+위의 test코드 를 보면 수신 actor에 PoisonPill로 actor를 정지 시키고 message 를 보낸 경우  
+deadLetter 구독자가 받게 된다. 이때 받은message type은 DeadLetter이기때문에 이를 통해 원본 message 여기서는 Order(4) 발신자 여기서는 testActor(이는 TestKit에 ImplicitSender를 mix-in해야 발신자가 암묵적으로 testActor가 된다.) 수신자 정보 echoActor를 얻을 수 있다.  
+
+실패한 message에 대한 처리를 자신이 처리하지 않고 다시 deadletter queue에 보내고 싶다면 ActorSystem에 deadletters Actor가 있는데 이에게 보내면 된다.  
+이때 주의 점은 DeadLetter형태로 보내지 않으면 원래의 발신자 정보가 지금 현재 발신하고 있는 deadLetterMonitor로 변경이 되어 원래의 발신자 정보를 얻을 수 없게 된다. 하지만 DeadLetter로 감싸서 보내거나 새로 DeadLetter를 만들어 원래의 발신자 정보를 넣어 보내면 정보를 그대로 다시 deadLetter queue에 넣을 수 있다.
+
+
+{% endhighlight %}
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
