@@ -310,7 +310,9 @@ dead.recipient must be(echoActor)
 deadLetter 구독자가 받게 된다. 이때 받은message type은 DeadLetter이기때문에 이를 통해 원본 message 여기서는 Order(4) 발신자 여기서는 testActor(이는 TestKit에 ImplicitSender를 mix-in해야 발신자가 암묵적으로 testActor가 된다.) 수신자 정보 echoActor를 얻을 수 있다.  
 
 실패한 message에 대한 처리를 자신이 처리하지 않고 다시 deadletter queue에 보내고 싶다면 ActorSystem에 deadletters Actor가 있는데 이에게 보내면 된다.  
-이때 주의 점은 DeadLetter형태로 보내지 않으면 원래의 발신자 정보가 지금 현재 발신하고 있는 deadLetterMonitor로 변경이 되어 원래의 발신자 정보를 얻을 수 없게 된다. 하지만 DeadLetter로 감싸서 보내거나 새로 DeadLetter를 만들어 원래의 발신자 정보를 넣어 보내면 정보를 그대로 다시 deadLetter queue에 넣을 수 있다.
+이때 주의 점은 DeadLetter형태로 보내지 않으면 원래의 발신자 정보가 지금 현재 발신하고 있는 deadLetterMonitor로 변경이 되어 원래의 발신자 정보를 얻을 수 없게 된다. 하지만 DeadLetter로 감싸서 보내거나 새로 DeadLetter를 만들어 원래의 발신자 정보를 넣어 보내면 정보를 그대로 다시 deadLetter queue에 넣을 수 있다.  
+
+이것으로 akka channel post를 마무리 한다.
 
 
 [^1]: This is a footnote.
