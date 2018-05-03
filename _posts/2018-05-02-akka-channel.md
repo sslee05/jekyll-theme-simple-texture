@@ -265,6 +265,8 @@ system.eventStream.subscribe(
   deadLetterReciveActor, // 실패한 message에 대하여 구독하려는 ActorRef
   classOf[DeadLetter] //  고정
 )
+{% endhighlight %}
+
 아래는 test code 이다.  
 {% highlight scala %}
 val deadLetterMonitor = TestProbe()
