@@ -108,7 +108,131 @@ onTransition {
     publisher ! RequestPublisher
 {% endhighlight %}
 es -> WaitRequest는 Tuple이며 es는 천이전 상태, WaitRequest는 천이 후 상태를 나타낸다.  
-따라서 위의 case es -> WaitRequest는 전 상태가 어떤 상태였던 WaitRequest로 천이시 진입해위를 표현 한다.
+따라서 위의 case es -> WaitRequest는 전 상태가 어떤 상태였던 WaitRequest로 천이시 진입해위를 표현 한다.  
+nextStateData를 통해 when에서 다음 상태로 천이시 StateData를 넘긴 정보를 얻를 수 있다.  
+이전 StateData는 stateData라는 변수로 얻을 수 있다.  
+
+# whenUnhandled
+whenUnHandled는 상태함수가 이벤트를 처리하지 않는 경우에 호출 된다. 따라서 when 에 기제된 상태마다 상태를 천이시키는 Event정보에 case에 일치 되지 않을 경우에 호출됨.  
+{% highlight scala %}
+
+when(WaitRequest) {
+  case Event(event: RequestBook, stateData: StateData) =>...
+  case Event(PenddingRequests, stateData: StateData) => ...
+}
+
+when(WaitPublisher,stateTimeout = 4 seconds) {
+  case Event(event: BookSupply, stateData: StateData) => ...
+  case Event(BookSoldOut, stateData: StateData) =>...
+  case Event(StateTimeout, _) => ...
+}
+
+when(ProcessRequest) {
+  case Event(Done, stateData: StateData) => ...
+}
+
+when(SoldOut) {
+  case Event(Done, stateData: StateData) => ...
+}
+
+whenUnhandled {
+  case Event(event: RequestBook, stateData: StateData) =>
+    log.debug(s"whenUnhandled event $event stateData $stateData")
+    stay using stateData.copy(
+      penddingRequest = stateData.penddingRequest :+ event)
+
+  case Event(e, s) =>
+    log.debug(s" skip event event is $e stateData $s")
+    stay
+}
+{% endhighlight %}
+위의 경우에는 whenUnhandled가 호출 될때는 WaitPublisher,ProcessRequest,
+ProcessRequest,SoldOut 상태에 있을 경우 RequestBook 이벤트 발생시 whenUnhandled의 case  Event(event: REquestBook ... 절이 호출 될 것 이다.  
+
+# FSM shutdown hock
+FSM가 종료시 hock method를 제공하는데 이는 다음과 같다.  
+{% highlight scala %}
+onTermination {
+  //일반적인 종료, FSM 내부에서 stop()을 호출 한 경우 
+  case StopEvent(FSM.Normal, state, data) => 
+    log.debug(s"#####stopEvent Normal state:$state data:$data")
+  //ㄹ느 이 중단됐을 때, FSM외부에서 system.stop(fsm)를 호출 한 경우 
+  case StopEvent(FSM.Shutdown, state, data) =>
+    log.debug(s"#####stopEvent Shutdown state:$state data:$data")
+  // system 실패로 FSM이 종료 되었을 때
+  case StopEvent(FSM.Failure(cause), state, data) =>
+    log.debug(s"#####stopEvent Failure $cause state:$state data:$data")
+}
+{% endhighlight %}
+
+# FSM 의 초기화 
+FSM가 시작시 초기 상태를 지정해야 하는데 이는 startWith를 이용하고, 시작시 initialize로 초기화 한다.
+{% highlight scala %}
+startWith(WaitRequest, new StateData(0, Seq()))
+initialize
+{% endhighlight %}
+
+따라서 FSM 의 사용은 다음과 같다.
+{% highlight scala %}
+class BookStore(publisher: ActorRef) extends Actor with FSM[State, StateData] {
+  startWith(WaitRequest, new StateData(0, Seq()))
+  when ...
+  when ...
+  when ...
+  whenUnHandled ... //option 사항 
+  onTransition ...
+  initialize
+  onTermination ... //option 사항 
+}
+{% endhighlight %}
+
+# FSM test
+상태의 천이에 대한 이벤트를 구독하여 예상대로 이벤트 천이가 되었는지 알아 보려면 해당 FSM에 SubscribeTransitionCallBack(monitor: ActorRef)의 message를 보내야 한다.
+그리고 예상되는 상태를 기술 하면 된다.  
+구독에 대한 응답은 FSM object에 기술 되어있다. 코드는 아래와 같다.  
+{% highlight scala %}
+/**
+   * Message type which is sent directly to the subscribed actor in
+   * [[akka.actor.FSM.SubscribeTransitionCallBack]] before sending any
+   * [[akka.actor.FSM.Transition]] messages.
+   */
+  final case class CurrentState[S](fsmRef: ActorRef, state: S)
+
+  /**
+   * Message type which is used to communicate transitions between states to
+   * all subscribed listeners (use [[akka.actor.FSM.SubscribeTransitionCallBack]]).
+   */
+  final case class Transition[S](fsmRef: ActorRef, from: S, to: S)
+{% endhighlight %}
+
+test하는 코드 예제는 아래와 같다.  
+{% highlight scala %}
+"BookStoreApp" must {
+
+  "RequestBook state" in {
+    val publisher = system.actorOf(Props(new Publisher(2,2)))
+    val monitorProbe = TestProbe()
+    val requestProbe = TestProbe()
+
+    val bookStore = system.actorOf(Props(new BookStore(publisher)))
+    //구독 신청  
+    bookStore ! SubscribeTransitionCallBack(monitorProbe.ref)
+    //초기 상태 응답예상 
+    monitorProbe expectMsg(CurrentState(bookStore, WaitRequest))
+
+    bookStore ! RequestBook(1, requestProbe.ref)
+
+    //천이 상태 응답예상 
+    monitorProbe expectMsg (new Transition(bookStore, WaitRequest,
+  	  WaitPublisher))
+    monitorProbe expectMsg (new Transition(bookStore, WaitPublisher,
+  	  ProcessRequest))
+    monitorProbe expectMsg (new Transition(bookStore, ProcessRequest,
+  	  WaitRequest))
+    requestProbe expectMsg BookReply(1,Right(1))
+  }
+}
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
