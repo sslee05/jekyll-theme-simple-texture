@@ -24,7 +24,7 @@ redirect_from:
 # Endpoint
 타 system의 application 으로 mesasge를 보내고 받는 역할을 하는 것을 Endpoint라 한다.  
 이 Endpoint는 message 전송방법과 message에 변환을 통하여 application내의 service에서는 mesage가 외부로 부터 온 것인지 내부로 부터 온것인지 알 필요가 없게 해야 한다.  
-##Endpoint 역할에 따른 분류
+Endpoint 역할에 따른 분류를 하면 다음과 같다.  
 - consumer Endpoint
   외부로 부터 message를 받는 Endpoint
 - producer Endpoint
@@ -56,7 +56,7 @@ akka-camel 을 사용하려면 Consumer Endpoint는 Consumer를, Producer Endpoi
 
 # akka-camel Consumer
 외부 시스템으로 부터 메시지를 소비하는(수신하는) Consumer Endpoint를 작성해 보자.  
-예전에는 Actor를 확장했는데 여기서는 akka.camel.Consumer를 확장해야 한다.  
+Actor를 확장하는 대신 여기서는 akka.camel.Consumer를 확장해야 한다.  
 {% highlight scala %}
 class FileConsumerEndPoint(uri: String, processor: ActorRef) extends Consumer
 {% endhighlight %}
@@ -100,23 +100,26 @@ val camelExtension = CamelExtension(system)
 {% highlight scala %}
 val camelExtension = CamelExtension(system)
 val activated: Future[ActorRef] = 
-	camelExtension.activationFutureFor(myConsumerEndPoint)(timeout = 10 seconds, executor = system.dispatcher)
+	camelExtension.activationFutureFor(myConsumerEndPoint)
 {% endhighlight %}
 
 ## Test 해보기
 commons-io를 이용해서 xml file를 local file system에 저장하게 되면 위의 code의 FileConsumerEndPoint가 이를 받아게 된다.  
 code는 아래와 같다.  
 {% highlight scala %}
+
+//camelExtension.activationFutureFor에서 필요한 항목들
 implicit val executionContext = system.dispatcher
-      
+implicit val timeout:Timeout = 10 seconds
+
 val probe = TestProbe()
 val camelUri = "file:/Users/sslee/temp/"
-val consumer = 
-	system.actorOf(Props(new FileConsumerEndPoint(camelUri, probe.ref)))
+val consumer = system.actorOf(Props(
+	new ConsumerEndPoint(camelUri, probe.ref)))
 
 val camelExtension = CamelExtension(system)
-val activated = camelExtension.activationFutureFor(consumer)
-	(timeout = 10 seconds, executor = system.dispatcher)
+val activated: Future[ActorRef] = camelExtension.activationFutureFor(consumer)
+
 
 val msg = Order("sslee", "Akka in Action", 10)
 val xml = 
@@ -126,16 +129,49 @@ val xml =
     <number>{msg.number}</number>
   </order>
 
+
 val msgFile = new File("/Users/sslee/temp/","order-20180512.xml")
 FileUtils.write(msgFile, xml.toString.replace("\n",""))
 
-//test대상 Consumer의 확장 Endpoint가 비동기로 생성되므로 준비가 될때까지 기다린다.
 Await.ready(activated, 5 seconds)
 
 probe.expectMsg(msg)
 {% endhighlight %}
 
+## 통신 protocol 변경에 따른 영향도
+위의 예제에서 file 에서 TCP 통신으로 변경을 한다면 어떻게 될까?  
+akka-camel를 이용하면 간단하게 endpointUri 정보만 변경하면 된다.  
+protocol 에다른 설정 정보는 ['apache camel site'](http://camel.apache.org/components.html/){: .btn.btn-default target="_blank" } 를 참조한다.  
+{% highlight scala %}
+implicit val executionContext = system.dispatcher
+implicit val timeout:Timeout = 10 seconds
 
+val probe = TestProbe()
+val camelUri = "mina2:tcp://localhost:8080?textline=true&sync=false"
+val consumer = system.actorOf(Props(new ConsumerEndPoint(camelUri, probe.ref)))
+
+val activated = CamelExtension(system).activationFutureFor(consumer)
+Await.ready(activated, 5 seconds)
+
+val msg = Order("sslee", "Akka in Action", 10)
+val xml = 
+  <order>
+	<customerId>{msg.customerId}</customerId>
+	<productId>{msg.productId}</productId>
+	<number>{msg.number}</number>
+  </order>
+
+val xmlStr = xml.toString.replace("\n","")
+val socket = new Socket("localhost",8080)
+val outputWriter = new PrintWriter(socket.getOutputStream,true)
+outputWriter.println(xmlStr)
+outputWriter.flush()
+
+probe.expectMsg(msg)
+
+outputWriter.close()
+{% endhighlight %}
+위의 test code 를 보면 기존 Consumer EndPoint의 수정은 message 유형만 같다면 변경하지 않아도 된다.  
 
 
 [^1]: This is a footnote.
