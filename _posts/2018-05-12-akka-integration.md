@@ -43,8 +43,7 @@ apache camel 은 이런 부분을 이미 구현하여 제공함으로써 이를 
 - 참고: 
   현재 akka 2.5.12를 사용하고 있는데 akka-camel이 이제 alpakka(akka-stream에 기반한 다양  
   한 endpoint제공)으로 인해 deprecated 되었다. 추후 이에 대해 알아봐야 겠다. alpakka에 대한 
-  자세한 정보는 아래 link 참조.  
-  ['alpakka'](https://developer.lightbend.com/docs/alpakka/current/){: .btn.btn-default target="_blank" }
+  자세한 정보는 ['alpakka'](https://developer.lightbend.com/docs/alpakka/current/){: .btn.btn-default target="_blank" } 참조.  
 
 ## camel의 지원 전송계층
 HTTP, SOAP, TCP, FTP, SMTP, JMS등이 있으며 apache camel에서 지원가능한 전송계층에 따르는 지원 component와 API가 있는데 이는 
@@ -52,7 +51,7 @@ HTTP, SOAP, TCP, FTP, SMTP, JMS등이 있으며 apache camel에서 지원가능�
 
 ## akka-camel 장점
 akka-camel 을 사용하려면 Consumer Endpoint는 Consumer를, Producer Endpoint는 Producer를 사용하면 되며, 이들은 전송계층 구현을 감춰주기때문에 메시지와 interface messaage사이의 변환만 직접 구현 하면 된다.  
-또한 어떠한 protocal를 사용할지를 실행 시점에 결정할 수도 있게 할 수 있다.
+또한 어떠한 protocol를 사용할지를 실행 시점에 결정할 수도 있게 할 수 있다.
 
 # akka-camel Consumer
 외부 시스템으로 부터 메시지를 소비하는(수신하는) Consumer Endpoint를 작성해 보자.  
@@ -63,7 +62,7 @@ class FileConsumerEndPoint(uri: String, processor: ActorRef) extends Consumer
 위에 처럼 Consumer를 확장한 후 endpointUri를 override하고 Actor method인 receive 를 구현 하면 된다.  
 이때 응답은 CamelMessage유형으로 받게 된다.  
 
-## file protocal를 이용한 Consumer 구현
+## file를 통한 전송계층 Consumer 구현
 akka.camel.Consumer를 확장하고 endpointUri를 구현, 외부로 부터 받은 message(CamelMessage type)를 receive method에서 message를 변환한 후 다른 Actor에게 data를 전달 한다.  
 {% highlight scala %}
 class FileConsumerEndPoint(uri: String, processor: ActorRef) extends Consumer
@@ -141,7 +140,7 @@ probe.expectMsg(msg)
 ## 통신 protocol 변경에 따른 영향도
 위의 예제에서 file 에서 TCP 통신으로 변경을 한다면 어떻게 될까?  
 akka-camel를 이용하면 간단하게 endpointUri 정보만 변경하면 된다.  
-protocol 에다른 설정 정보는 ['apache camel site'](http://camel.apache.org/components.html/){: .btn.btn-default target="_blank" } 를 참조한다.  
+protocol 에 다른 설정 정보는 ['apache camel site'](http://camel.apache.org/components.html/){: .btn.btn-default target="_blank" } 를 참조한다.  
 {% highlight scala %}
 implicit val executionContext = system.dispatcher
 implicit val timeout:Timeout = 10 seconds
