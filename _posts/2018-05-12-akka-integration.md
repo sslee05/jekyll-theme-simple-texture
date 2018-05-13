@@ -43,7 +43,7 @@ apache camel 은 이런 부분을 이미 구현하여 제공함으로써 이를 
 - 참고: 
   현재 akka 2.5.12를 사용하고 있는데 akka-camel이 이제 alpakka(akka-stream에 기반한 다양  
   한 endpoint제공)으로 인해 deprecated 되었다. 추후 이에 대해 알아봐야 겠다. alpakka에 대한 
-  자세한 정보는 ['alpakka'](https://developer.lightbend.com/docs/alpakka/current/){: .btn.btn-default target="_blank" } 참조.  
+  자세한 정보는 ['alpakka'](https://developer.lightbend.com/docs/alpakka/current/){: .btn.btn-default target="_blank" } 참조.  ====
 
 ## camel의 지원 전송계층
 HTTP, SOAP, TCP, FTP, SMTP, JMS등이 있으며 apache camel에서 지원가능한 전송계층에 따르는 지원 component와 API가 있는데 이는 
@@ -171,6 +171,131 @@ probe.expectMsg(msg)
 outputWriter.close()
 {% endhighlight %}
 위의 test code 를 보면 기존 Consumer EndPoint의 수정은 message 유형만 같다면 변경하지 않아도 된다.  
+
+# akka-camel Producer
+타 시스템의 서비스를 요청하기 위해 요청 message를 만들어(생산)해서 보내야 한다.  
+이를 위해서는 akka.camel.Producer를 확장하면 된다.  
+{% highlight scala %}
+class ProducerEndPoint(uri: String) extends Producer
+{% endhighlight %}
+그리고 Actor abstract method인 receive는 Producer 에 구현이 되어 있다.  
+따라서 endpointUri만 해당 하는 것으로 override 하면 된다.  
+## 요청 message변환
+요청을 보낼 message의 유형을 변환 해야 한다면 transformOutgoingMessage를 
+override하면 된다.  
+{% highlight scala %}
+override protected def transformOutgoingMessage(message: Any): Any = ???
+{% endhighlight %}
+이 method는 message를 보내기 전에 호출 된다.  
+
+## 응답 message변환
+타 시스템의 서비스에 요청을 보내고 응답을 받아야 하는 경우와 받지 않아도 되는 경우가 있을 것이다.  
+응답을 받지 않아도 된다면 다음의 설정을 받드시 override해야 한다. 그렇게 함으로써 응답을 기다리기 위한 resource를 허비하지 않게 된다.  
+{% highlight scala %}
+override def oneway = true
+{% endhighlight %}
+위의 설정 default값은 false로 되어 있어 응답을 기다리는 것이 기본으로 된다.  
+응답을 받기로 했다면 응답은 CamelMessage 유형에 감싸여 받게 된다.  이때 해당 Application안의 service에서 받은 응답의 유형을 아마도 그대로 사용하지 않을 것이다.  
+따라서 변환 작업을 해주어야 하는데 이때 Producer에 변환을 위한 hock method를 제공 해주며 이 method는 요청을 보낸던 Actor에게 송신하기 전에 호출 된다.  
+{% highlight scala %}
+override def transformResponse(message: Any): Any = ???
+{% endhighlight %}
+만약 타 시스템의 서비스에 대한 요청응답을 ProducerEndPoint가 받아서 요청을 응답했던 Actor에게 보내 주는 것이 아닌 다른 Actor에게 보내야 한다면 routeResponse라는 method를 override하면 된다. 이때 routeResponse method안에 명시적으로 transformResponse를 호출해야 변환 message를 target actor에게 보내 줄 수 있다.  
+
+### producer 예제 
+{% highlight scala %}
+class ProducerEndPoint(uri: String) extends Producer with ActorLogging {
+  def endpointUri = uri
+  //요청에 대한 응답을 기다리겠다는 설정 , 응답을 기다리지 않는다면 true설정
+  //true시 이는 기다리기 위한 resource를 사용하지 않는다.
+  override def oneway = false
+
+  //전송시 message 변환 작업이 필요시 override한다.
+  //이는 message전송 직전에 호출 된다.
+  override protected def transformOutgoingMessage(message: Any): Any = 
+  	message match {
+    case msg: Order => {
+      val xml = 
+        <order>
+          <customerId>{msg.customerId}</customerId>
+          <productId>{msg.productId}</productId>
+          <number>{msg.number}</number>
+        </order>
+
+       xml.toString().replace("\n", "")
+    }
+
+    case other => 
+	  log.debug(s"##### not supported message typ. message is $other")
+  }
+
+  //요청에 요청했던 송신자에게 전송하기 전에 호출된다.
+  //이를 통해 응답을 Application안에서 사용하는 type으로 변환 한다.
+  override def transformResponse(message: Any): Any = message match {
+    case msg: CamelMessage => 
+      try {
+        log.debug(s"##### ProducerEndPoint receive message $msg")
+        val content = msg.bodyAs[String]
+        val xml = XML.loadString(content)
+        val res = (xml \\ "confirm").text
+        res
+      }
+      catch {
+        case e: Exception =>
+          s"TransformException ${e.getMessage}"
+      }
+  }
+
+}
+{% endhighlight %}
+
+## test code
+요청을 받아 서비스할 application쪽의 Consumer Endpointer를 선언하고, 요청하는 쪽의 Application쪽의  요청을 보낼 Producer Endpointer를 선언 한다.  
+Order 요청 message를 Producer에 보내고 Consumer가 응답을 받고 결과를 다시 Proceduer쪽으로 송신 한다. Proceduer 는 송신 message를 받아 요청했던 actor에게 전달 한다. 
+{% highlight scala %}
+//activationFuturFor를 위한 implicit 선언 
+implicit val ExecutionContext = system.dispatcher
+implicit val timeout: Timeout = 10 seconds
+
+"Producer EndPoint" must {
+  "using TCP request and response callback" in {
+    //결과 검증 probe
+    val probe = TestProbe()
+    //중앙 공통 interface 
+    val camelUri = "mina2:tcp://localhost:8080?textline=true"
+
+    //요청을 받아 서비스를 처리하는 system의 consumerEndPoint
+    val consumer = system.actorOf(Props(
+  	  new ResponseConsumerEndPoint(camelUri,probe.ref)))
+    //서비스 요청을 할 system의 producer EndPoint
+    val producer = system.actorOf(Props(new ProducerEndPoint(camelUri)))
+
+    //camel component를 확장한다.
+    val activatedSystem = CamelExtension(system)
+    //consumer camel을 확장한 ActorRef
+    val activatedCons: Future[ActorRef] =
+  	  activatedSystem.activationFutureFor(consumer)
+    //producer camel을 확장한 ACtorRef
+    val activatedProd: Future[ActorRef] =
+  	  activatedSystem.activationFutureFor(producer)
+
+    val camels: Future[List[ActorRef]] = 
+  	  Future.sequence(List(activatedCons, activatedProd))
+    Await.result(camels,3 seconds)
+
+    val requester = TestProbe()
+    val msg = new Order("sslee", "Akka in Action", 10)
+    requester.send(producer, msg)
+
+    probe expectMsg msg
+    requester expectMsg "OK"
+
+    system.stop(consumer)
+    system.stop(producer)
+  }
+}
+{% endhighlight %}
+
 
 
 [^1]: This is a footnote.
