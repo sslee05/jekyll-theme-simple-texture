@@ -296,6 +296,130 @@ implicit val timeout: Timeout = 10 seconds
 }
 {% endhighlight %}
 
+# akka-http를 EndPoint로 사용하기  
+camel은 다양한 전송 protocol endpoint를 제공해준다. 하지만 특정 protocol에 상세한 기능을 제공할 수 는 없다.  
+예를 들어 HTTP protocol에서 camel를 이용하여 HTTP interface를 구현할 수도 있지만 좀더 많는 기능이나 camel 만으로 안되는 경우 akka-http 를 이용 할 수 있다.  
+
+## akka-http REST endpoint 
+http route 를 만들어 요청에 대한 응답을 처리하고 결과를 반환하는 하는 endpoint를 구성한다. 이는 요청에 대하여 해당 Application 의 Actor가 처리리 할 수 있게 message를 변환한다.  
+또한 client가 key에 대한 조회 서비스를 요청하면 이때는 producer endpoint 역할로써 해당 Applicatoin의 처리 결과에 대하여 client에게 보내질 형식으로 변한를 거친후 client에게 message를 전달 하게 된다.  
+### route 생성
+이곳에서 route를 생성하고 메시지 변환을 거처 서비스를 처리할 Actor에게 요청을 처리하게 하거나, 요청응답에 대하여 서비스를 처리할 Actor에게 요청을 보낸수 결과를 client에게 전송 한다.  
+{% highlight scala %}
+trait OrderService {
+
+  implicit def timeout: Timeout
+  implicit def executionContext: ExecutionContext
+
+  //서비스를 처리할 Actor
+  //이를 추상으로 하게 함으로써 
+  //remote proxy ActorRef, local ActorRef, testProbe 과 
+  //route와의 관심사를 분리 시킨다.
+  val orderProcessor: ActorRef
+
+  def routes = getOrder ~ postOrders
+
+  def getOrder = get {
+    pathPrefix("orders" / IntNumber) { id =>
+      onSuccess(orderProcessor ask TrackingId(id) ) {
+        case result: TrackingOrder => 
+          complete(
+            <statusResponse>
+			  <id>{result.orderId}</id>
+			  <status>{result.status}</status>
+            </statusResponse>
+          )
+        case result: NoSuchOrder =>
+          complete(StatusCodes.NotFound)
+      }
+    }
+  }
+
+  def postOrders = post {
+    path("orders") {
+      entity(as[NodeSeq]) { xml =>
+        val order = toOrder(xml)
+        onSuccess(orderProcessor ask order) {
+          case result: TrackingOrder => 
+            complete(
+              <confirm>
+                <id>{result.orderId}</id>
+                <status>{result.status}</status>
+              </confirm>    
+            )
+          case result => complete(StatusCodes.BadRequest)
+        }
+      }
+    }
+  }
+}
+{% endhighlight %}
+route과 route에서 사용할 Actor를 분리하게 함으로써 local, remote, test 환경에 따른 영향도를 없앤다.  
+onSuccess는 RouteDirectives 의 method이며 OnSuccessMagnet를 parameter로 받는다.  
+OnSuccessMangent 는 OnSuccessMagnet object에 apply 적용함수를 보면 Future를 받는다.
+{% highlight scala %}
+implicit def apply[T](future: ⇒ Future[T])(implicit tupler: Tupler[T])
+{% endhighlight %}
+xml의 형변환에 사용되는 ToEntityMarshaller와 FromEntityMarshaller이 있어야 하며 이는 akka.http.scaladsl.marshallers.xml.ScalaXmlSupport._를 import 함으로써 이들에 대한 암시적 사용이 가능하다.  
+akka-http 에 대한 것은 따로 blog를 작성할 것 이다.  
+
+어찌되었든 여기서 중요한 것은 akka-http 의 route 또한 하나의 HTTP REST endpoint와 같은 역할을 하는 것을 볼 수 있다.(전송계층역할 + message 변환 역할)  
+
+# akka-http testKit
+이를 사용하면 scalatest와 별도로 build.sbt에 dependency를 추가 해야 한다.
+이를 이용하면 route를 테스할 수 있는 DSL(Domain special language)를 사용할 수 있다.
+예는 아래와 같다.
+{% highlight scala %}
+//ScalatestRouteTest를 mix-in 
+class OrderServiceTest extends WordSpecLike 
+  with MustMatchers with OrderService with ScalatestRouteTest {
+
+  implicit val executionContext = system.dispatcher
+  implicit val timeout = akka.util.Timeout(3 seconds)
+
+  val orderProcessor = system.actorOf(Props(new OrderProcessor))
+
+  "The order processor" must {
+    "return not found if trackingId not found" in {
+      Get("/orders/1") ~> routes ~> check {
+        status mustEqual StatusCodes.NotFound
+      }
+    }
+
+    "return tracking id for order that was post" in {
+      val xml = 
+        <order>
+		  <customerId>sslee</customerId>
+          <productId>akka in action</productId>
+          <number>10</number>
+        </order>
+
+      Post("/orders",xml) ~> routes ~> check {
+        status mustEqual StatusCodes.OK
+
+        val responseXml = responseAs[NodeSeq]
+        val id = (responseXml \\ "id").text.toInt
+        val orderStatus = (responseXml \\ "status").text
+        id mustEqual 1 
+        orderStatus mustEqual "created"
+      }
+
+      Get("/orders/1") ~> routes ~> check {
+        status mustEqual StatusCodes.OK
+
+        val responseXml = responseAs[NodeSeq]
+        val id = (responseXml \\ "id").text.toInt
+        val responseStatus = (responseXml \\ "status").text
+
+        id mustEqual 1
+        responseStatus mustEqual "processing"
+      }
+    }
+  }
+
+}
+{% endhighlight %}
+
 
 
 [^1]: This is a footnote.
