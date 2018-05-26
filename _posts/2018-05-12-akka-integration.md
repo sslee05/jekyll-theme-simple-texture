@@ -8,7 +8,7 @@ redirect_from:
   - /2018/05/12/
 ---
 
-> akka FSM.
+> akka Integration.
 >
 
 
