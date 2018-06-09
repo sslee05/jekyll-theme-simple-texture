@@ -156,7 +156,6 @@ trait RouterCreatorWC { this: Actor =>
 
 ## reducer 생성 
 master node에서 할 것 이며 위의 RouterCreateorWC를 통해 원격지의 routee를 배포 할 것 이다.  
-넣을 수 있게 한다.  
 {% highlight scala %}
 class WordsReducer(nrRetires: Int)
  (implicit system: ActorSystem,timeout: Timeout) 
