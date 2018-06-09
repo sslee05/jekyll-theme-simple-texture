@@ -209,7 +209,7 @@ class WordCounter extends Actor with ActorLogging {
   
 }
 {% endhighlight %}
-이는 이는 Stream Source의 한 Source 일부분으로서 호출 이 된다.
+이는 Stream Source의 한 Source 일부분으로서 호출 이 된다.
 
 ## client 
 실행 boot file 이다. console에서 명령어로 실행 하면된다.  
