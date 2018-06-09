@@ -130,9 +130,147 @@ class ClusterDomainEventListener extends Actor with ActorLogging {
 }
 {% endhighlight %}
 
-![functor]({{ baseurl }}/assets/images/akka-stream/stream07.png)
+# Cluster 예제
+seed-node node 3개(최소 1개), master-node n개 , worker-node n 개의 환경에서 
+client가 file 정보를 주면 file의 단어의 출현 빈도 갯수를 계산 하는 예이다.  
+master-node에는 WordsReduce 라는 Actor가 file를 akka-stream을 이용하여 worker-noded의 routee(단어의 출현 횟수를 계산하는)에게 RoundRobinPool 방식을 이용하여 계산후 이를 취합하는 예제 이다. 설정 정보는 생략한다. 소스는 github에 app-seed.conf, app-master.conf, app-worker.conf 에 있음.  
 
+## router 생성
+router생성은 master node에서 할 것 이며 이를 trait로 만들어 test, local등 상황에 맞게 끼어 넣을 수 있게 한다.  
+{% highlight scala %}
+trait RouterCreatorWC { this: Actor =>
+  import context._
 
+  def routerWordCount = 
+    context.actorOf(ClusterRouterPool(
+      RoundRobinPool(5),//init routee count in pool
+      ClusterRouterPoolSettings(
+        totalInstances = 1000, //모든 node의 routee갯수의 총합의 쵀대 갯 수 
+        maxInstancesPerNode = 20, // node당 routee의 최대  갯 수 
+        allowLocalRoutees = false, // 해당 node에 routee 생성 할 수 있게 허용할지 여부
+        useRole = Some("worker") // routee가 배포될 node의 role 
+      )
+    ).props(Props[WordCounter]),"wordCountRouter")
+}
+{% endhighlight %}
+
+## reducer 생성 
+master node에서 할 것 이며 위의 RouterCreateorWC를 통해 원격지의 routee를 배포 할 것 이다.  
+넣을 수 있게 한다.  
+{% highlight scala %}
+class WordsReducer(nrRetires: Int)
+ (implicit system: ActorSystem,timeout: Timeout) 
+ extends Actor with ActorLogging with RouterCreatorWC {
+
+  import context._
+
+  val wordCounter = routerWordCount
+  var mergeWC = Map.empty[String,Int]
+  implicit val mat = ActorMaterializer()
+
+  def receive = {
+    case StartCount(path, fileName) => 
+      pipe(count(path,fileName)) to sender()
+      mergeWC = Map.empty[String,Int]
+  }
+
+  def count(path: String, fileName: String): Future[Map[String,Int]] = 
+    source(path,fileName)
+        .mapAsync(parallelism = 5)(line => (wordCounter ? TaskData(line)).mapTo[WordCount])
+        .runWith(Sink.foldAsync[Map[String,Int],WordCount](Map.empty){ (ma, wc) =>
+          Future(wc.data.keys.foldLeft(ma)((b,key) => b.updated(key, b.getOrElse(key, 0) + wc.data.getOrElse(key, 0))))
+        })
+
+  def source(path: String, fileName: String): Source[String, Future[IOResult]] = {
+    FileIO.fromPath(Paths.get(path,fileName))
+      .via(Framing.delimiter(ByteString("\n"), 1024 * 1024))
+      .map(b => b.decodeString("UTF-8"))
+  }
+}
+{% endhighlight %}
+위의 코드에서 count 부분에 Source를 끝은  Routee Actor 이다.  
+따라서 최종 Source의 output는 Source[WordCount,Future[IOResult]]가 된다. 이를 Sink에서 집계한다.  
+이 집계 정보를 호출자에게 주기 위해 receive 에서 직접 하지 않고 method로 따로 분리 하여 receive 에서 pipe Future[Map[String,Int]] to sender를 사용했다.  
+
+## counter
+이는 원격지 node에서 실행되는 routee에 해당하는 Actor이다. 이는 위의 WordsReducer에 의해 원격지에 생성되며, node가 추가 될때마다 node당 최대 20개 모든 worker node의 최대 1000개 까지 routee가 생성 될 수 있다.  
+
+{% highlight scala %}
+class WordCounter extends Actor with ActorLogging {
+
+  def receive = {
+    case TaskData(text) =>
+      if(!text.isEmpty()) {
+        val xs = text.split(" ").toList
+        sender() ! WordCount(xs.foldLeft[Map[String,Int]](Map.empty)((b,a) => b.updated(a, b.getOrElse(a,0) + 1)))
+      }
+      else sender() ! WordCount(Map.empty[String,Int])
+  }
+  
+}
+{% endhighlight %}
+이는 이는 Stream Source의 한 Source 일부분으로서 호출 이 된다.
+
+## client 
+실행 boot file 이다. console에서 명령어로 실행 하면된다.  
+{% highlight scala %}
+object WordCountApp {
+  
+  def main(args: Array[String]): Unit = {
+    
+    assert(!args.isEmpty && args.size >= 2)
+    val configName = args(0)
+    val port = args(1)
+    
+    val config = ConfigFactory.parseString(s"""
+      akka.remote.netty.tcp.port=$port
+      """).withFallback(ConfigFactory.load(configName))
+      
+    implicit val system = ActorSystem("words",config)
+    implicit val ec = system.dispatcher
+    implicit val timeout = Timeout(5 seconds)
+    
+    val roles = system.settings.config.getStringList("akka.cluster.roles")
+    
+    
+    if(roles.contains("master")) {
+      Cluster(system).registerOnMemberUp {
+        val reducer = system.actorOf(Props(classOf[WordsReducer],3,system,timeout),"reducer")
+        import akka.pattern._
+        
+        var nrRetries = 0
+        
+        val result = reducer ? StartCount("/Users/sslee/temp","test.txt")
+        result onComplete {
+          case Success(data) => 
+            println(s"work count data: $data")
+          case Failure(e) =>
+            println(s"failed: ${e.getMessage}")
+        }
+      }
+    }
+  }
+  
+}
+{% endhighlight %}
+
+seed node 실행시 
+{% highlight scala %}
+sbt "runMain com.sslee.cluster.wordcountapp.pool.WordCountApp app-seed 2551"
+{% endhighlight %}
+
+worker node 실행시
+{% highlight scala %}
+sbt "runMain com.sslee.cluster.wordcountapp.pool.WordCountApp app-worker 2555"
+{% endhighlight %}
+
+master node 실행시
+{% highlight scala %}
+sbt "runMain com.sslee.cluster.wordcountapp.pool.WordCountApp app-master 2554"
+{% endhighlight %}
+
+결과  
+![functor]({{ baseurl }}/assets/images/akka-cluster/cluster01.png)
 
 [^1]: This is a footnote.
 
