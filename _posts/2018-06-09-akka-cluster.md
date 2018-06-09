@@ -188,9 +188,10 @@ class WordsReducer(nrRetires: Int)
   }
 }
 {% endhighlight %}
-위의 코드에서 count 부분에 Source를 끝은  Routee Actor 이다.  
+위의 코드에서 count 부분에 Source의 끝은  Routee Actor 이다.  
 따라서 최종 Source의 output는 Source[WordCount,Future[IOResult]]가 된다. 이를 Sink에서 집계한다.  
-이 집계 정보를 호출자에게 주기 위해 receive 에서 직접 하지 않고 method로 따로 분리 하여 receive 에서 pipe Future[Map[String,Int]] to sender를 사용했다.  
+이 집계 정보를 호출자에게 주기 위해 receive 에서 직접 하지 않고 method로 따로 분리 하여 receive 에서  
+pipe Future[Map[String,Int]] to sender를 사용했다.  
 
 ## counter
 이는 원격지 node에서 실행되는 routee에 해당하는 Actor이다. 이는 위의 WordsReducer에 의해 원격지에 생성되며, node가 추가 될때마다 node당 최대 20개 모든 worker node의 최대 1000개 까지 routee가 생성 될 수 있다.  
