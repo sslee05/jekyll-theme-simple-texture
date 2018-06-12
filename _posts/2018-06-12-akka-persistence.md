@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "akka Cluster"
+title: "akka Persistence"
 description: "akka persistence"
 categories: [scala-akka]
 tags: [scala,스칼라,akka,아카,persistence,persistent]
