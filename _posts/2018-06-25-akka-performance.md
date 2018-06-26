@@ -62,7 +62,7 @@ cpu, memory, disk 등의 자원이 여유가 있을 경우 router 기법을 적�
 
 이미 서비스 되고 있는 곳에서 block 호출등이 있는지 찾아 보고 개선여지가 있는지 검토  
 
-## dispatcher 설정
+# dispatcher 설정
 서비스시간(10ms) < 도착시간(15ms) 인데도 불구하고 mailbox에 계속해서 message가 쌓이거나, 가동률이 낮은데도 mailbox에 계속 쌓인다면, 처리할 thread의 부족함을 예상 할 수 있다.  따라서 thread갯수를 늘려 줄 수 있는데 이는 가동률이 낮으면 효과를 보기에 적격이지만 이미 cpu를 다른 곳에서 많이 사용하고 있다면 오히려 느려 질 수가 있다.
 
 # dispatcher thread pool 정적 크기 변경
@@ -111,6 +111,36 @@ dynamic-pool-dispatcher {
     allow-core-timeout = on
   }
 }
+{% endhighlight %}
+
+# thread 해제 방식 변경
+## throughput 설정
+thread들을 처리를 위해 processor는 문맥전환에 따른 overhead가 발생한다.  
+이와 비슷하게 actor가 message 처리할때 thread가 필요하다.  
+mailbox의 data가 쌓여 있다면 하나씩 처리하고 thread를 pool에 반납하고, 다시 thread 를 받아 한건 처리하는 것 보다는 batch의 chunk처리처럼 일정 갯수를 처리하고 전환하게 설정 하게 함으로써 성능을 향상 시킬 수 있다. 하지만 이것이 무조건 옳은 방법이 아닐 수 있다. 만약 chunk 단위씩 처리하는 Actor가 비싼 비용을 치러야 하는 연산을 해야 한다면, 다른 어떤 Actor의 가동률은 0가 될 수 도 있다.  
+{% highlight scala %}
+sample-pool-dispatcher {
+  fork-join-executor = {
+    ...
+  }
+
+  #actor가 thread를 pool에 돌려 주기 전에 최대 몇 개의 메시지를 처리할 수 있는지 지정
+  throughput = 5 
+}
+{% endhighlight %}
+
+## deadline-time 설정 
+위의 throughtput 설정으로 인한 부작용이 우려 될경우 일정 한계시간을 설정하게 하여 throughput 설정에 도달 하지 않더라도 thread를 pool에 반환 할 수 있게 한다. 
+{% highlight scala %}
+sample-pool-dispatcher {
+  fork-join-executor = {
+    ...
+  }
+  
+  throughput = 5 
+  throughput-deadline-time = 300ms
+}
+default값은 0ms 이다. 즉 마감 시간이 없다.
 {% endhighlight %}
 
 
