@@ -79,7 +79,39 @@ min = 2 x 3.0 = 6개 하지만 min 8  이므로 8이 된다.
 factor 생략시 가용 processor와 상관하지 않고 min, max 값 적용 한다.  
 
 ## 동적 크기
-동적크기 적용시 dispatcher executor를 변경해야 함. default는 fork-join-executor 이를 thread-pool-executor로 변경
+동적크기 적용시 dispatcher executor를 변경해야 함. default는 fork-join-executor 이를 thread-pool-executor로 변경  
+{% highlight scala %}
+dynamic-pool-dispatcher {
+  type = "Dispatcher"
+  executor = "thread-pool-executor" # 실행기를 변경 
+  
+  thread-pool-executor {
+    #fork-join-executor option과 의미가 같다.
+    core-pool-size-min = 8
+    core-pool-size-factor = 3.0
+    core-pool-size-max = 64
+    
+    # 최대 pool 크기지정
+    core-pool-size-min = 8
+    core-pool-size-factor = 3.0
+    core-pool-size-max = 64
+    
+    #대기열 유형 
+    task-queue-type = "linked"
+    
+    #thread pool 크기를 증가시 조건
+    # 2를 준다면 thread 수 보다 요청수가 2개 많을 경우 증가
+    # -1 인 경우 증가 하지 않겠다는 의미 
+    task-queue-size = -1 
+    
+    #thread 유휴상태 최대 시간, 이 시간 이후 제거
+    keep-alive-time = 60s
+    
+    #핵심 thread도 timeout를 허용하게 한다.
+    allow-core-timeout = on
+  }
+}
+{% endhighlight %}
 
 
 [^1]: This is a footnote.
