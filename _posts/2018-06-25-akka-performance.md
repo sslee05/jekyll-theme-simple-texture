@@ -58,10 +58,29 @@ thread 갯수 와 정비례하여 성능이 좋아 지는 것은 아니다.  cpu
 
 cpu, memory, disk 등의 자원이 여유가 있을 경우 router 기법을 적용하면 throughput의 향상을 쉽게 가져 올 수 있다. 만약 그러하지 못하다면 scale out 를 고려 할 수 도 있다.  
 
+처리대상의 filtering 이 있다면 이를 처리 앞단에 배치하여 설계 함으로써 처리대상 자체의 모수를 줄이게  한다.  
+
+이미 서비스 되고 있는 곳에서 block 호출등이 있는지 찾아 보고 개선여지가 있는지 검토  
+
 ## dispatcher 설정
 서비스시간(10ms) < 도착시간(15ms) 인데도 불구하고 mailbox에 계속해서 message가 쌓이거나, 가동률이 낮은데도 mailbox에 계속 쌓인다면, 처리할 thread의 부족함을 예상 할 수 있다.  따라서 thread갯수를 늘려 줄 수 있는데 이는 가동률이 낮으면 효과를 보기에 적격이지만 이미 cpu를 다른 곳에서 많이 사용하고 있다면 오히려 느려 질 수가 있다.
 
-## 
+# dispatcher thread pool 정적 크기 변경
+## 정적 크기
+{% highlight scala %}
+fork-join-executor = {
+  parallelism-min = 8 # 최소 thread 수 
+  parallelism-factor = 3.0 #가용 processor 대비 thread 수를 계산시 가중치 
+  parallelism-max = 64 # 최대 thread 수 
+}
+{% endhighlight %}
+위의 설정이고  core수가  2개 인경우 min값은  
+min = 2 x 3.0 = 6개 하지만 min 8  이므로 8이 된다.  
+factor 생략시 가용 processor와 상관하지 않고 min, max 값 적용 한다.  
+
+## 동적 크기
+동적크기 적용시 dispatcher executor를 변경해야 함. default는 fork-join-executor 이를 thread-pool-executor로 변경
+
 
 [^1]: This is a footnote.
 
