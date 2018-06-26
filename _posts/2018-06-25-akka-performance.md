@@ -45,7 +45,21 @@ service에 있어 성능에 관한 일반적인 것들과 Akka actor system에�
 
 # Akka Actor System에서 성능에 관한 고려 사항들
 ![latency]({{ baseurl }}/assets/images/akka-performance/akka-performance.png)  
-scala out이 아닌 단일 node단위의 성능에 관한 사항은 위에 그림에서 보듯이 mailbox의 대기열시간, 서비스 시간, 가동율에 따른 thread pool 의 조절이 핵심이다.
+scala out이 아닌 단일 node단위의 성능에 관한 사항은 위에 그림에서 보면 결국 mailbox의 대기열시간, 서비스 시간, 가동율에 따른 thread pool 의 조절이 핵심이다.  
+
+- cpu와 thread 상관 관계
+thread 갯수 와 정비례하여 성능이 좋아 지는 것은 아니다.  cpu core 에 해당하는  최적의 thread갯수가 존재 하며, 최적의 thread 갯수를 초과시 성능은 오히려 하락하다.  
+이는 cpu 문맥전환에 따른 overhead 및 cpu 경쟁 점유등에 따른 문제에 기인 된다.
+
+## akka system에서 성능 고려 사항
+1. router 기법처럼 service actor 증가
+2. filtering 이 가능하다면 처리대상 도착 메시지를 줄이기
+3. 실제 service 처리 시간 단축
+
+cpu, memory, disk 등의 자원이 여유가 있을 경우 router 기법을 적용하면 throughput의 향상을 쉽게 가져 올 수 있다. 만약 그러하지 못하다면 scale out 를 고려 할 수 도 있다.  
+
+## dispatcher 설정
+서비스시간(10ms) < 도착시간(15ms) 인데도 불구하고 mailbox에 계속해서 message가 쌓이거나, 가동률이 낮은데도 mailbox에 계속 쌓인다면, 처리할 thread의 부족함을 예상 할 수 있다.  따라서 thread갯수를 늘려 줄 수 있는데 이는 가동률이 낮으면 효과를 보기에 적격이지만 이미 cpu를 다른 곳에서 많이 사용하고 있다면 오히려 느려 질 수가 있다.
 
 [^1]: This is a footnote.
 
