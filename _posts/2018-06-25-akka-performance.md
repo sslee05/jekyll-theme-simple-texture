@@ -143,6 +143,110 @@ sample-pool-dispatcher {
 default값은 0ms 이다. 즉 마감 시간이 없다.
 {% endhighlight %}
 
+# 대기열시간 측정 방법
+mailbox 에 message가 들어와서 나가기까지의 시간을 측정함으로써 서비스시간에 따른 대기열의 누적을 예측할 수 있다.  
+1. 정보를 나타낼 case class
+2. MessageQueue trait 구현
+3. MailboxType trait 구현 
+4. Dispatcher에 구현한 Mailboxtype 선언
+
+아래의 예는 akka in action에 나온 예제 이다.
+{% highlight scala %}
+
+//발신자와 메시지 정보가 있다.
+import akka.dispatch.Envelope
+
+case class MonitorEnvelope(
+	queueSize: Int, //대기열 갯수 
+    receiver: String,  
+    entryTime: Long, //mailbox 수신  시간 
+    handle: Envelope)
+
+case class MailboxStatistics(
+	queueSize: Int, 
+    receiver: String, 
+    sender: String, 
+    entryTime: Long, 
+    exitTime: Long)//mailbox에 나온 시간
+    
+
+{% endhighlight %}
+
+Moniotoring할 MessageQueue의 trait는 4개의 abstract method가 있으며 이를 구현 해야한다.
+{% highlight scala %}
+trait MessageQueue {
+  def enqueue(receiver: ActorRef, handle: Envelope): Unit
+
+  def dequeue(): Envelope
+
+  def numberOfMessages: Int
+
+  def hasMessages: Boolean
+
+  def cleanUp(owner: ActorRef, deadLetters: MessageQueue): Unit
+}
+{% endhighlight %}
+- cleanUp  
+해당 mailbox가 삭제시 이가 호출됨. 주로 이때 deadLetters에 쌓여있는 message를 보낸다.  
+- enqueue
+Envelope를 이 queue에 등록시 호출 됨
+- dequeue
+다음 message를 얻을 때 호출됨
+{% highlight scala %}
+class MonitorQueue(val system: ActorSystem) extends MessageQueue 
+  with UnboundedMessageQueueSemantics with LoggerMessageQueueSemantics {
+  
+  private final val queue = new ConcurrentLinkedQueue[MonitorEnvelope]
+  
+  def enqueue(receiver: ActorRef, handle: Envelope): Unit = {
+    val envel = MonitorEnvelope(
+        queueSize = queue.size() + 1,
+        receiver = receiver.toString(),
+        entryTime = System.currentTimeMillis(),
+        handle = handle)
+        
+    queue add envel
+  }
+  
+  def dequeue() : Envelope = {
+    val monitor = queue.poll()
+    if(monitor != null ) {
+      monitor.handle.message match {
+        case stat: MailboxStatistics => //skip message
+        case _ => 
+          val stat = MailboxStatistics(
+              queueSize = monitor.queueSize,
+              receiver = monitor.receiver,
+              sender = monitor.handle.sender.toString,
+              entryTime = monitor.entryTime,
+              exitTime = System.currentTimeMillis()
+              )
+              
+          system.eventStream.publish(stat)
+      }
+      
+      monitor.handle
+    }
+    else null
+  }
+  
+  def numberOfMessages = queue.size()
+  def hasMessages = !queue.isEmpty()
+  
+  def cleanUp(owner: ActorRef, deadLetters: MessageQueue): Unit = {
+    if(hasMessages) {
+      var envel = dequeue
+      while(envel ne null) {
+        deadLetters.enqueue(owner, envel)
+        envel = dequeue
+      }
+    }
+  }
+  
+}
+{% endhighlight %}
+
+
 
 [^1]: This is a footnote.
 
