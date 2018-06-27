@@ -147,10 +147,11 @@ default값은 0ms 이다. 즉 마감 시간이 없다.
 mailbox 에 message가 들어와서 나가기까지의 시간을 측정함으로써 서비스시간에 따른 대기열의 누적을 예측할 수 있다.  
 1. 정보를 나타낼 case class
 2. MessageQueue trait 구현
-3. MailboxType trait 구현 
-4. Dispatcher에 구현한 Mailboxtype 선언
+3. MailboxType trait 구현 (MailboxType은  MessageQueue factory라 생각 하면 됨)
+4. Dispatcher에 구현한 MailboxType 선언
 
 아래의 예는 akka in action에 나온 예제 이다.
+## 정보 case class modeling
 {% highlight scala %}
 
 //발신자와 메시지 정보가 있다.
@@ -172,6 +173,7 @@ case class MailboxStatistics(
 
 {% endhighlight %}
 
+## MessageQueue 구현
 Moniotoring할 MessageQueue의 trait는 4개의 abstract method가 있으며 이를 구현 해야한다.
 {% highlight scala %}
 trait MessageQueue {
@@ -243,6 +245,50 @@ class MonitorQueue(val system: ActorSystem) extends MessageQueue
     }
   }
   
+}
+{% endhighlight %}
+
+## MailboxType 구현 
+{% highlight scala %}
+class MonitorMailboxType(settings: ActorSystem.Settings, config: Config)
+ extends MailboxType with ProducesMessageQueue[MonitorQueue] {
+  
+  final override def create(owner: Option[ActorRef], 
+    system: Option[ActorSystem]): MessageQueue = {
+    system match {
+      case Some(sys) => new MonitorQueue(sys) 
+      case _ => throw new IllegalArgumentException("requires a system")
+    }
+  }
+}
+{% endhighlight %}
+위의 코드와 같은 생성자 parameter가 있어야 한다.  
+전에 만들었던 ActorSystem를 인자로 MessageQueue를 생성한다.  
+
+## dispatcher에 mailboxType mapping 하기
+방법은 설정에 custom-dispatcher를 선언하면서 그 곳에 MailboxType를 선언해 준다.  
+그 후 code에서 Actor생성시 다음과 같은 방법으로 선언한다.
+{% highlight scala %}
+# application.conf
+custom-dispatcher {
+  mailbox-type = com.sslee.performance.MonitorMailboxType
+}
+
+//source level 
+val act = system.actorOf(Props[MyActor].withDispatcher("custom-dispatcher"))
+{% endhighlight %}
+하지만 위의 방법은 모니터링 대상 Actor생성시 위와 같이 소스 코드을 수정 해야 한다.  
+이 방법은 그리 좋아 보이지 않음..  
+
+다른 방법으로는 설정에 아예 default mailboxtype을 해당 mailboxType으로 변경하고 실행시 이 설정 file 명만 다르게 agruement로 주면 된다.  
+
+{% highlight scala %}
+akka {
+  actor {
+    default-mailbox {
+      mailbox-type = com.sslee.performance.MonitorMailboxType
+    }
+  }
 }
 {% endhighlight %}
 
