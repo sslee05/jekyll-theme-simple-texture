@@ -143,7 +143,7 @@ sample-pool-dispatcher {
 default값은 0ms 이다. 즉 마감 시간이 없다.
 {% endhighlight %}
 
-# 대기열시간 측정 방법
+# mailbox의 데이터 정보 추출
 mailbox 에 message가 들어와서 나가기까지의 시간을 측정함으로써 서비스시간에 따른 대기열의 누적을 예측할 수 있다.  
 1. 정보를 나타낼 case class
 2. MessageQueue trait 구현
@@ -289,6 +289,42 @@ akka {
       mailbox-type = com.sslee.performance.MonitorMailboxType
     }
   }
+}
+{% endhighlight %}
+
+# 서비스처리 정보 추출
+이는 template method pattern 처럼 서비스처리시 정보를 생성 -> 변경로직 -> 정보발행 의 template method를 trait Actor를 만들어 제공하고 이 trait를  실제 대상 Actor가 확장한다는 방식이다.  어쩔수 없이 Monoitoring용을 위한 코드가 실제 서비스 코드에 들어 가야 되어서 좀 그렇다...  우째든 code는 다음과 같다.  
+
+Template method를 가지는 trait
+{% highlight scala %}
+trait MyMonitorActor extends Actor {
+  
+  abstract override def receive = {
+    case msg: Any =>
+      val start = System.currentTimeMillis()
+      super.receive(msg)
+      val end = System.currentTimeMillis()
+      
+      val stat = ActorStatistics(
+          self.toString,
+          sender.toString,
+          start,
+          end)
+          
+      context.system.eventStream.publish(stat)
+  }
+}
+{% endhighlight %}
+
+대상 actor
+{% highlight scala %}
+class ServiceActor01(latencyTime: Duration) extends Actor with ActorLogging {
+  
+  def receive = {
+    case msg =>
+      Thread.sleep(latencyTime.toMillis)
+  }
+  
 }
 {% endhighlight %}
 
