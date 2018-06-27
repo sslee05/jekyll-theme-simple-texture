@@ -247,7 +247,6 @@ class MonitorQueue(val system: ActorSystem) extends MessageQueue
 {% endhighlight %}
 
 
-
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
