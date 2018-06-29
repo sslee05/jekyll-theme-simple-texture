@@ -99,6 +99,27 @@ object JsonWriterInstances {
 }
 {% endhighlight %}
 
+- type class instances를 package하는 4가지 방법.  
+1.object 를 선언해서 그곳에 모두 넣는 방법 (위의 예제 처럼)
+2.type class triat에 선언 하는 방법 
+3.type class companion object에 선언 하는 방법
+4.type class의 type parameter type의 companion object에 선언하는 방법
+
+- implicit 선언시 val or def
+주로 val 로 선언하는 것이 일반적이지만, def 로 해야 할때가 있다. 예를 들면 Option[A]에 대한 JsonWriter는 어떻게 선언해야 할까?  
+Option[String], Option[Int],.... 에 따른 모든 유형을 제공할 수 있어야 한다. 이러할 경우 val 이 아닌 def로 선언하여 A 유형에 대한 implicit를 받아 선언하면 된다.  
+{% highlight scala %}
+implicit def optionWriter[A](implicit jw: JsonWriter[A]) = 
+  new JsonWriter[Option[A]] {
+	def write(option: Option[A]): Json = option match {
+      case Some(a) => jw.write(a)
+      case None => JsNull
+    }
+}
+{% endhighlight %}
+
+1번은 import를 해야 하고, 2번은 상속을 하면 제공되며, 3,4번은 항상 제공된다.
+
 ## type class interfaces 만들기
 이제 type class interface를 만들어 보자.  
 interface 에는 JsonWriter를 이용한 다양한 기능들을 만들면 된다. 그리고 이를 client code에서 이용하면 된다.  
@@ -122,27 +143,6 @@ val person = Person("sslee","sslee@gmail.com",10)
 val jsonValue = Json toJson person
 
 {% endhighlight %}
-
-- type class instances를 package하는 4가지 방법.  
-1.object 를 선언해서 그곳에 모두 넣는 방법 (위의 예제 처럼)
-2.type class triat에 선언 하는 방법 
-3.type class companion object에 선언 하는 방법
-4.type class의 type parameter type의 companion object에 선언하는 방법
-
-- implicit 선언시 val or def
-주로 val 로 선언하는 것이 일반적이지만, def 로 해야 할때가 있다. 예를 들면 Option[A]에 대한 JsonWriter는 어떻게 선언해야 할까?  
-Option[String], Option[Int],.... 에 따른 모든 유형을 제공할 수 있어야 한다. 이러할 경우 val 이 아닌 def로 선언하여 A 유형에 대한 implicit를 받아 선언하면 된다.  
-{% highlight scala %}
-implicit def optionWriter[A](implicit jw: JsonWriter[A]) = 
-  new JsonWriter[Option[A]] {
-	def write(option: Option[A]): Json = option match {
-      case Some(a) => jw.write(a)
-      case None => JsNull
-    }
-}
-{% endhighlight %}
-
-1번은 import를 해야 하고, 2번은 상속을 하면 제공되며, 3,4번은 항상 제공된다.
 
 ### interface syntax 방식
 {% highlight scala %}
