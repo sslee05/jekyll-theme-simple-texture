@@ -36,13 +36,13 @@ Cats에는 3개의 Component 를 이루고 있다.
 2. type class instances
 3. type class interface
 
-- type class
+- type class  
 어떠한 기능 행위에 대한 표현(modeling)으로 적어도 1개의 type parameter를 가지는 trait으로 표현한다.
 
-- type class instances
+- type class instances  
 특정 유형에 대한 type class의 구현체이며 Cats는 scala standard library 및 Cats 의 자료 type에 맞는 type class에 대한 구현체를 제공하고 있다.  
 
-- type class interfaces
+- type class interfaces  
 type class를 이용한 모든 기능행위로 주로 object interfaces 방식이나 object syntax 방식으로 제공 한다.  
 
 
