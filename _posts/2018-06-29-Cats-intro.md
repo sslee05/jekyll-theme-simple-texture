@@ -105,7 +105,7 @@ object JsonWriterInstances {
 3.type class companion object에 선언 하는 방법  
 4.type class의 type parameter type의 companion object에 선언하는 방법  
 
-- implicit 선언시 val or def
+- implicit 선언시 val or def  
 주로 val 로 선언하는 것이 일반적이지만, def 로 해야 할때가 있다. 예를 들면 Option[A]에 대한 JsonWriter는 어떻게 선언해야 할까?  
 Option[String], Option[Int],.... 에 따른 모든 유형을 제공할 수 있어야 한다. 이러할 경우 val 이 아닌 def로 선언하여 A 유형에 대한 implicit를 받아 선언하면 된다.  
 {% highlight scala %}
