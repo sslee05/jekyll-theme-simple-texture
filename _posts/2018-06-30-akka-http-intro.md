@@ -53,6 +53,11 @@ object WebServer {
   }
 }
 {% endhighlight %}
+그리고 다음과 같은 명령으로 server를 띄운다.  
+{% highlight scala %}
+Macintosh:akka-http sslee$ sbt "runMain com.sslee.http.intro.WebServer"
+{% endhighlight %}
+
 그리고 command에서 다음과 같은 명령을 하면 결과는 아래와 같이 나온다. (난 httpie 를 설치한 상황이므로)
 {% highlight scala %}
 Macintosh:akka-http sslee$ http GET localhost:8080/hellow
