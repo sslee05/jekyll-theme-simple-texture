@@ -140,7 +140,7 @@ object SimpleMarshallWebServer {
 
 }
 {% endhighlight %}
-서버 띠우기  
+서버 기동  
 {% highlight scala %}
 sbt "runMain com.sslee.http.intro.SimpleMarshallWebServer"
 {% endhighlight %}
