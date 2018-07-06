@@ -66,7 +66,7 @@ import cats.implicits._
 123.show
 {% endhighlight %}
 
-# Custom type 지원 
+# Show Custom type 지원 
 Cats 는 type class의 object에 사용자 type에 해당하는 유형의 type class instances를 생서할 수 있게 해주는 helper method들이 있다.
 아래은 Show object의  method 이다.
 {% highlight scala %}
@@ -84,6 +84,65 @@ import cats.syntax.all._
 val date = new Date()
 println(date.show)
 {% endhighlight %}
+
+# Eq
+아래 code는 == 연산자에 대한 문제를 보여 준다.  
+{% highlight scala %}
+scala> val item = 1
+item: Int = 1
+
+scala> item == Some(1)
+<console>:13: warning: comparing values of types Int and Some[Int] using `==' will always yield false
+       item == Some(1)
+            ^
+res0: Boolean = false
+{% endhighlight %}
+이는 어떤 유형의 개체라도 ==가 작동하기 때문에 기술적으로 형식 오류가 아니다. 하지만 이는 programmer 오류 이다. Eq는 스칼라의 내장 == 연산자를 사용하여 타입 안전성d에 대한 == 기능을 지원할 수 있게 한다.  
+
+## package
+{% highlight scala %}
+cats.Eq             // type class
+cats.instance.all._ // type instance
+cats.syntax.Eq._    //type interface syntax
+{% endhighlight %}
+Eq syntax에는  ===, =!=  기능 method가 있다.
+이 또한 사용방법은 단순 하다. 필요한 type class, instance, interface가 필요하면 import하고 사용하면 끝.  
+{% highlight scala %}
+import cats.Eq
+import cats.instances.int._
+  
+val eqInt = Eq[Int]
+println(eqInt.eqv(123, 123))
+println(eqInt.eqv(123,234))
+{% endhighlight %}
+만약 아래와 같이 했다면 compile이 되지 않는다.
+{% highlight scala %}
+eqInt.eqv(123,"123") 
+{% endhighlight %}
+interface syntax로 할 경우 
+{% highlight scala %}
+import cats.Eq
+import cats.instances.int._
+import cats.syntax.eq._
+
+println(123 === 123)
+println(123 =!= 234)
+{% endhighlight %}
+혹은 instances 와 syntax를 묶은 것처럼 다음과 같이
+{% highlight scala %}
+import cats.Eq
+import cats.implicits._
+
+val eqInt = Eq[Int]
+println(eqInt.eqv(123, 123))
+println(eqInt.eqv(123,234))
+
+println(123 === 123)
+println(123 =!= 234)
+{% endhighlight %}
+
+
+
 
 [^1]: This is a footnote.
 
