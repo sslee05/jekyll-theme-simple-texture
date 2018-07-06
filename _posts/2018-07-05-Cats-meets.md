@@ -141,8 +141,52 @@ println(123 === 123)
 println(123 =!= 234)
 {% endhighlight %}
 
+## option
+Eq에서 다음과 같이 하면 error 가 발생한다.  
+{% highlight scala %}
+import cats.instances.int._
+import cats.instances.option._
+import cats.syntax.eq._
+Some(1) === None
+{% endhighlight %}
+== 로 했으면 compile도 되고 false를 반환 했겠지만 Eq는 type 을 check하므로 compile error가 난다. 따라서 다음과 같이 한다.  
+{% highlight scala %}
+//import cats.Eq
+import cats.instances.int._
+import cats.instances.option._
+import cats.syntax.eq._
+  
+println((Some(1): Option[Int]) === (None: Option[Int]))
+{% endhighlight %}
+option type class interface syntax 에는 some, none 기능 method가 있다. 따라서 아래처럼 하면 좀 더 깔끔하다.
+{% highlight scala %}
+import cats.syntax.option._
+println(1.some =!= none[Int])
+{% endhighlight %}
 
+## Eq custom type 
+Show 의 show 처럼 Eq object에도 custom 유형의 instance를 만들 수 있는 method를 제공한다.
+{% highlight scala %}
+def instance[A](f: (A, A) => Boolean): Eq[A] =
+  new Eq[A] { def eqv(x: A, y: A) = f(x, y)}
+{% endhighlight %}
+위의 코드는 Eq object의 instance method이다.  
+이제 아래의 예처럼 Date 유형의 type class instance를 만들어 사용할 수 있다.  
+{% highlight scala %}
+import cats.Eq
+import cats.instances.long._
+import cats.syntax.eq._
+  
+implicit val dateEq =
+	Eq.instance[Date]((date1,date2) => date1.getTime === date2.getTime)
 
+val date1 = new Date()
+Thread.sleep(1000L)
+val date2 = new Date()
+
+println(date1 =!= date2)
+println(date1 === date1)
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
