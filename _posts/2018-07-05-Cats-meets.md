@@ -113,7 +113,7 @@ import cats.instances.int._
   
 val eqInt = Eq[Int]
 println(eqInt.eqv(123, 123))
-println(eqInt.eqv(123,234))
+println(eqInt.neqv(123,234))
 {% endhighlight %}
 만약 아래와 같이 했다면 compile이 되지 않는다.
 {% highlight scala %}
@@ -135,7 +135,7 @@ import cats.implicits._
 
 val eqInt = Eq[Int]
 println(eqInt.eqv(123, 123))
-println(eqInt.eqv(123,234))
+println(eqInt.neqv(123,234))
 
 println(123 === 123)
 println(123 =!= 234)
@@ -187,6 +187,60 @@ val date2 = new Date()
 println(date1 =!= date2)
 println(date1 === date1)
 {% endhighlight %}
+
+# variant & type class instance
+type class는 type parameter를 가진다. 따라서 변성에 따른 type class instance를 선택시 고려해야 할 상항이 있다. 위의 Eq 예제에서 Option type의 subType인 Some과 None비교시 type dismatch가 발생한 이유는 Eq trait의 type parameter는 무공변 즉 invarint 이기 때문이다.  
+따라서 Eq\[Some\] 과 Eq\[None\]는 다른 type이기 때문에 Some(1) === None 이 compile error가 발생한 것이다.  
+
+## covariant
+type class의 type parameter가 공변성을 가지는 경우 Liskov Subsitution Principle(LSP)원칙에 따라 super type의 parameter 가지는 type class가 있는 곳에 하위의 type parameter를 가지는 class type가 사용 될 수 있다. 이는 super type A , sub type B 일때 type class F\[+A\] 라면, F\[B\]는 F[A]의 하위 type이 되기때문에 당현 하다.
+
+## contravariant
+type class의 type parameter가 반공변성을 가지는 경우 sub type의 parameter를 가지는 type class가 있는 곳에 super type parameter를 가지는 class type로 대처 할 수 있다.  
+이 또한 super type A , sub type B 일대 type class F\[-A\] 인경우 F\[B\]는 F\[A\]의 super type이 되기 때문에 당현하다.  
+{% highlight scala %}
+trait Shape
+case class Circle(radius: Double) extends Shape
+  
+//defined type class
+trait JsonWriter[-A] {
+  def format(a: A): Json
+}
+
+//defined type class instance Shape
+implicit val shapeWriter = new JsonWriter[Shape] {
+  def format(shape: Shape): Json = shape match {
+    case Circle(radius) => JsString(s"Circle(${radius.toString})")
+  }
+}
+  
+//defined type class interace syntax
+implicit class shapeOpts[A](a: A) {
+  def toJson(a: A)(implicit jw: JsonWriter[A]): Json = jw.format(a) 
+}
+
+// subtype Circle , super type Shape
+// JsonWriter[Circle] 은 JsonWriter[Shape]의 super type이므로 
+val circle = Circle(2.0) 
+println(circle.toJson(circle))
+{% endhighlight %}
+
+## invarint
+Cat의 type class의 대부분이 invarint 유형이며, 이는 위의 Option예제 처럼 해당하는 type으로 명기 하든지, Option.apply, Option.empty 등의 smart constructor나  some, none 등 mart method등을 이용하면 된다.  
+
+## variant & type class instance 선택 정리 
+| type class variant         | invarint   | covarint  | contravariant  |
+|----------------------------|------------|-----------|----------------|
+| super type instance used   |    NO      |  YES      |      NO        |
+|more specific type preferred|    NO      |  NO       |      YES       |
+
+# 정리
+Cats는 cats._ 에 cats 관련 type class가 있다.  
+type class 들에는 Companion object 들이 있어서 type class instance를 생성하는 helper method들이 있다.  
+cats.instances._ 에는 type clsss instance들이 있고  
+cats.syntax._  에는 type class interface들이 있다.  
+그리고 type class 와 variant에 관한 instance  type 선택을 알아 보았다.  
+
 
 [^1]: This is a footnote.
 
