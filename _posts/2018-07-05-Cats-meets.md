@@ -230,7 +230,7 @@ Cat의 type class의 대부분이 invarint 유형이며, 이는 위의 Option예
 
 ## variant & type class instance 선택 정리 
 | type class variant | invarint | covarint | contravariant |  
-|----------|:---------|:--------:|---------:|  
+|---------|---------|---------|---------|  
 | super type instance used  | NO     | YES   | NO    |  
 | more specific type preferred  | NO     | NO   | YES    |  
   
