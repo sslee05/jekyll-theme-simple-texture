@@ -42,6 +42,10 @@ trait Semigroup[A] {
 trait Monoid[A] extends Semigroup[A] {
   def empty: A
 }
+
+object Monoid {
+  def apply[A](implicit monoid: Monoid[A]) = monoid
+}
 {% endhighlight %}
 
 ## operator associativity & identity law
@@ -51,6 +55,44 @@ def associativeLaw[A](a: A, b:A, c:A)(implicit monoid: Monoid[A]): Boolean =
   
 def identityLaw[A](a:A)(implicit monoid: Monoid[A]): Boolean = 
   (monoid.combine(a,monoid.empty) == a) && (monoid.combine(monoid.empty,a) == a)
+{% endhighlight %}
+
+# Monoid 만들어 보기 
+Boolean type에 대한 and 연산자에 대한 monoid와 or연산자에 대한 monoid를 만들어 보자  
+{% highlight scala %}
+import cats._
+
+object MonoidInstances extends App {
+  
+  implicit val orMonoid = new Monoid[Boolean] {
+    def empty = false
+    def combine(a: Boolean, b: Boolean): Boolean = a || b
+  }
+  
+  implicit val andMonoid = new Monoid[Boolean] {
+    def empty = true
+    def combine(a: Boolean, b: Boolean): Boolean = a && b
+  }
+}
+{% endhighlight %}
+
+Set 에 대한 union 연산은 결합법칙이 성립하므로 다음과 같이 정의 할 수 있다.
+{% highlight scala %}
+implicit def setUnionMonoid[A] = new Monoid[Set[A]] {
+  def empty = Set.empty[A]
+  def combine(ma: Set[A], mb: Set[A]): Set[A] = ma union mb
+}
+{% endhighlight %}
+
+하지만 차집합 연산인 intersect 는 결합법칙이 성립하지 않는다.  
+그리고 empty 도 정의 할 수 없다.  
+그러나 대칭차집합인 경우 즉 (A - B) uion (B - A ) 는  결합법칙이 성립한다. 즉 (A - B) - C == A - (B - C) 이 성립한다. 따라서 다음과 같이 정의 할 수 있다.
+{% highlight scala %}
+implicit def symmetriDiffSetMonoid[A] = new Monoid[Set[A]] {
+  def empty = Set.empty[A]
+  def combine(ma: Set[A], mb: Set[A]): Set[A] = 
+    (ma diff mb) union (mb diff ma)
+}
 {% endhighlight %}
 
 
