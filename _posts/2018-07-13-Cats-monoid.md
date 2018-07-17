@@ -146,6 +146,17 @@ val ex04 = 1 |+| 2
 println(ex04)
 {% endhighlight %}
 
+type parameter 생성자를 같는 Option같은 type 인 경우는 해당하는 type과 type parameter에 해당하는 type 의 instance가 scope안에 있으면 된다.  
+{% highlight scala %}
+import cats.instances.int._
+import cats.instances.option._
+import cats.syntax.semigroup._
+val o1 = Option(10)
+val o2 = Option(5)
+val ex05 = o1 |+| o2
+println(ex05)
+{% endhighlight %}
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
