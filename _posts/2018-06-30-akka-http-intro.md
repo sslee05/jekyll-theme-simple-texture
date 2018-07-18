@@ -169,7 +169,14 @@ Content-Length: 28
 Content-Type: application/json
 Date: Sat, 30 Jun 2018 06:38:13 GMT
 Server: akka-http/10.1.1
+{
+    "id": 45,
+    "name": "akka-book"
+}
 {% endhighlight %}
+
+# akka http 와 akka-stream
+akka-http에서 akka-stream을 쉽게 이용할 수 있으며, 이를 통해 첨부파일이나 memory size를 넘는 대량의 데이터를 처리하더라도 OOM이 발생하지 않는다. 이는 reactive stream 구조의 akka-stream 덕분이다.  아래의 예제를 통해 client browser가 Sink, server에서 무한 Random 생성기가 Source로 이는 무한이지만, 절대 OOM 이 발생되지 않음을 볼 수 있으며, 이는 client의 즉 Sink쪽에서 Source쪽으로의 backpressure 를 통해 (water mark) async 로 수위를 조절한다. 이는 akka-stream에서 이야기 한 부분이다.  
 
 [^1]: This is a footnote.
 
