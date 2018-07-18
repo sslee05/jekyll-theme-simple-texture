@@ -177,6 +177,48 @@ Server: akka-http/10.1.1
 
 # akka http 와 akka-stream
 akka-http에서 akka-stream을 쉽게 이용할 수 있으며, 이를 통해 첨부파일이나 memory size를 넘는 대량의 데이터를 처리하더라도 OOM이 발생하지 않는다. 이는 reactive stream 구조의 akka-stream 덕분이다.  아래의 예제를 통해 client browser가 Sink, server에서 무한 Random 생성기가 Source로 이는 무한이지만, 절대 OOM 이 발생되지 않음을 볼 수 있으며, 이는 client의 즉 Sink쪽에서 Source쪽으로의 backpressure 를 통해 (water mark) async 로 수위를 조절한다. 이는 akka-stream에서 이야기 한 부분이다.  
+소스는 akkak-io site 에 있다.
+{% highlight scala %}
+object ExampleStreamWebServer {
+
+  def main(args: Array[String]) {
+    //route 실행에 필수, Stream
+    implicit val system = ActorSystem("ExampleStreamWebSystem")
+    implicit val mat = ActorMaterializer()
+
+    //Future 에 필요
+    implicit val ec = system.dispatcher
+
+    val randomSource = Source.fromIterator(() => Iterator.continually(Random.nextInt))
+
+    val route = path("random") {
+      get {
+        complete {
+          HttpEntity(
+            ContentTypes.`text/plain(UTF-8)`, randomSource.map(n => ByteString(s"$n\n")))
+        }
+      }
+    }
+
+    val bindFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8080)
+    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+
+    StdIn.readLine()
+    bindFuture.flatMap(serverBinding => serverBinding.unbind()).onComplete(_ => system.terminate())
+  }
+
+}
+{% endhighlight %}
+
+실행시 curl로 요청 rate 를 이용하여 요청수위를 늦춘다.  
+{% highlight scala %}
+Macintosh:akka-http sslee$ curl --limit-rate 50b 127.0.0.1:8080/random
+-1090963985
+-472554423
+193702927
+1496244304
+....중략
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
