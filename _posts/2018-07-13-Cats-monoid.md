@@ -157,6 +157,45 @@ val ex05 = o1 |+| o2
 println(ex05)
 {% endhighlight %}
 
+# exercise
+List에 담긴 항목의  add 연산자에 대한 Monoid를 작성해 보자
+{% highlight scala %}
+import cats._
+import cats.syntax.monoid._
+
+def add[A: Monoid](xs: List[A]): A = 
+  xs.foldLeft[A](Monoid.empty[A])(_ |+| _)
+  
+//Int의 add 연산 
+import cats.instances.int._
+add(List(1,2,3,4,5))
+
+//Option의 add 연산
+import cats.instances.option._
+//None 과 Some이 List의 항목이니 이는 List[Option]이다. 즉 List[Some]이 아니다.
+val xs = List(Some(1),Some(2),Some(3),Some(4),Some(5),None)
+add(xs)
+{% endhighlight %}
+위의 List[Option] 의 add연산에 대한 Monoid 예를 보면 List의 항목에 Some, None이 같이 있기 때문에 이는 최종 List[Option] 유형이 된다. 만약 한가지 즉 List(Some(1), Some(2))처럼 되어 있다면 이는 List[Some]이 되어 type dispatch가 되어 compile error가 발생한다. 왜냐면 Monoid의 type parameter가 invariant 이기 때문이다.  
+  
+
+다음은 Custom class 의 Monoid 을 작성한 예 이다.
+{% highlight scala %}
+import cats._
+import cats.instances.double._
+
+case class Order(totalCost: Double, quantiy: Double)
+implicit val orderMonoid = new Monoid[Order] {
+  def empty = Order(0,0)
+  def combine(o1: Order, o2: Order): Order = (o1,o2) match {
+    case (Order(t1,q1), Order(t2,q2)) => Order(t1 |+| t2, q1 |+| q2) 
+  }
+}
+
+val order = Order(2.0, 3.0) |+| Order(3.0, 2.0)
+
+{% endhighlight %}
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
