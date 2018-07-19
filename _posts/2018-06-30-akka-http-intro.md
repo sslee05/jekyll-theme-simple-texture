@@ -15,8 +15,6 @@ redirect_from:
 * Kramdown table of contents
 {:toc .toc}
 
-akka in action 를 공부하다 akka-http부분을 만나면서 akka-http를 따로 공부해야 겠다는 생각이 들어 akka-http에 대한 공부내용을 post하기로 했다.  
-
 # akka-http 설치
 akka-http 는  akka module에서 분리 되어 독립적인 배포 사이클을 가진다. 현제 10.1.1 version 에 akka 2.5.13, scala 2.12.6 version,  으로 진행 한다.  
 akka-http 는 akka-http-core와 akka-http 로 되어 있있는데 akka-http가 akka-http-core 를 dependency하게 되어 있으므로 akka-http 만 선언해도 된다.  
@@ -219,6 +217,69 @@ Macintosh:akka-http sslee$ curl --limit-rate 50b 127.0.0.1:8080/random
 1496244304
 ....중략
 {% endhighlight %}
+
+# akka-http 와 Actor
+akka-http  는 Actor 하고 쉽게 상화 작용할 수 있다.  이때 client에서 요청은 route 를 거처 Acotor에게 호출하고  있는 즉 Actor의 응답을 기다리지 않고 바로 client에게 응답결과를 보낸다(아래 예제의 put).  또한 Actor의 ask 요청을 하고 Future을 받으며 이 Future의 결과가 완료시 client 에게 응답이 보내진다.(아래 예제 get)  
+아래 예제는 akka.io 에 있는 예제를 약간 수정만 했다.  
+GET요청시 actor의 receive method에서 고의로 Thread.sleep 를 주어 client화면에 이의 영향을 받지 않고 바고 응답결과를 받는지 확인 할 수 있다.  
+또한 PUT의 요청을 처리하는 부분도 Thread.sleep를 주었지만, 비동기로 요청의 응답을 Future로 받기 때문에 ###### 문자열이 바로 console 에 출력됨을 알 수 있다.  
+{% highlight scala %}
+object ExampleViaActorWebServer {
+
+  case class Event(eventId: String, ticket: Int)
+  case object GetEvents
+  case class Events(xs: List[Event])
+
+  class EventActor extends Actor with ActorLogging {
+    var events = List.empty[Event]
+
+    def receive = {
+      case ev @ Event(eventId, ticket) =>
+        Thread.sleep(3000L)
+        events = ev :: events
+      case GetEvents =>
+        Thread.sleep(3000L)
+        sender() ! Events(events)
+    }
+  }
+
+  def main(args: Array[String]) = {
+
+    implicit val system = ActorSystem("ViaActorSystem")
+    implicit val mat = ActorMaterializer()
+    implicit val ec = system.dispatcher
+
+    val actor = system.actorOf(Props[EventActor], "eventActor")
+
+    implicit val eventFormater = jsonFormat2(Event)
+    implicit val eventsFormater = jsonFormat1(Events)
+
+    val route = path("event") {
+      put {
+        parameter("eventId", "ticket".as[Int]) { (eventId, ticket) =>
+          actor ! Event(eventId, ticket)
+          complete((StatusCodes.Accepted, "create event success"))
+        }
+      } ~
+        get {
+          implicit val timeout: Timeout = 5 seconds
+
+          val events: Future[Events] = (actor ? GetEvents).mapTo[Events]
+          println("########################")
+          complete(events)
+        }
+    }
+
+    val serverBind: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8080)
+    println(s"Server started host localhost port 8080, Do you want shutdown server? and then press RETURN")
+    StdIn.readLine()
+
+    serverBind.flatMap(serverB => serverB.unbind()).onComplete(_ => system.terminate())
+  }
+
+}
+{% endhighlight %}
+위의 예제에서 
 
 [^1]: This is a footnote.
 
