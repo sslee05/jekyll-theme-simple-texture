@@ -280,6 +280,47 @@ object ExampleViaActorWebServer {
 }
 {% endhighlight %}
 
+호출 
+{% highlight scala %}
+Macintosh:akka-http sslee$ http PUT localhost:8080/event eventId==Metallica ticket==10
+HTTP/1.1 202 Accepted
+Content-Length: 20
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 19 Jul 2018 14:42:28 GMT
+Server: akka-http/10.1.1
+
+create event success
+
+Macintosh:akka-http sslee$ http GET localhost:8080/event
+HTTP/1.1 200 OK
+Content-Length: 44
+Content-Type: application/json
+Date: Thu, 19 Jul 2018 14:42:40 GMT
+Server: akka-http/10.1.1
+
+{
+    "xs": [
+        {
+            "eventId": "Metallica",
+            "ticket": 10
+        }
+    ]
+}
+
+{% endhighlight %}
+
+결과 출력
+{% highlight scala %}
+[success] Total time: 78 s, completed Jul 19, 2018 11:41:58 PM
+Macintosh:akka-http sslee$ sbt "runMain com.sslee.http.intro.ExampleViaActorWebServer"
+...중략 
+ace-http/akka-http/target/scala-2.12/akka-http_2.12-0.1-SNAPSHOT.jar ...
+[info] Done packaging.
+[info] Running com.sslee.http.intro.ExampleViaActorWebServer 
+Server started host localhost port 8080, Do you want shutdown server? and then press RETURN
+########################
+
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
