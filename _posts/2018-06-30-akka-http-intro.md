@@ -279,7 +279,7 @@ object ExampleViaActorWebServer {
 
 }
 {% endhighlight %}
-위의 예제에서 
+
 
 [^1]: This is a footnote.
 
