@@ -309,7 +309,7 @@ Server: akka-http/10.1.1
 
 {% endhighlight %}
 
-결과 출력
+web server console
 {% highlight scala %}
 [success] Total time: 78 s, completed Jul 19, 2018 11:41:58 PM
 Macintosh:akka-http sslee$ sbt "runMain com.sslee.http.intro.ExampleViaActorWebServer"
