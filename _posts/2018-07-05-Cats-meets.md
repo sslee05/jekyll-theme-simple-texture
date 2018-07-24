@@ -227,15 +227,7 @@ println(circle.toJson(circle))
 
 ## invarint
 Cat의 type class의 대부분이 invarint 유형이며, 이는 위의 Option예제 처럼 해당하는 type으로 명기 하든지, Option.apply, Option.empty 등의 smart constructor나  some, none 등 mart method등을 이용하면 된다.  
-
-## variant & type class instance 선택 정리 
-|   type class variant	|  invarint 	|   covarint	|   contravariant	|
-|---	|---	|---	|---	|
-|  super type instance used 	|   NO	|   YES	|   NO	|
-|  more specific type preferred 	|  NO 	|   NO	|   YES	|
-
   
-
 
 # 정리
 Cats는 cats._ 에 cats 관련 type class가 있다.  

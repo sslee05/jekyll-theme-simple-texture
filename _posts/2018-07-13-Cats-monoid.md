@@ -179,6 +179,33 @@ add(xs)
 위의 List[Option] 의 add연산에 대한 Monoid 예를 보면 List의 항목에 Some, None이 같이 있기 때문에 이는 최종 List[Option] 유형이 된다. 만약 한가지 즉 List(Some(1), Some(2))처럼 되어 있다면 이는 List[Some]이 되어 type dispatch가 되어 compile error가 발생한다. 왜냐면 Monoid의 type parameter가 invariant 이기 때문이다.  
   
 
+Map 과 Tuple에 대한 예  
+{% highlight scala %}
+import cats.instances.map._
+import cats.instances.int._ 
+import cats.syntax.monoid._
+  
+val map01 = Map("a" -> 1, "b" -> 2)
+val map02 = Map("b" -> 1, "c" -> 3)
+val map03 = map01 |+| map02
+println(map03)
+//Map(b -> 3, c -> 3, a -> 1)
+{% endhighlight %}
+Map안에 combine 연산의 대상 type Int이므로 cats.instances.map._ 뿐 아니라 cats.instances.int._ 도 import를 해야 한다.  
+
+{% highlight scala %}
+import cats.instances.tuple._
+import cats.instances.int._
+import cats.instances.string._
+val t01 = ("a", 1)
+val t02 = ("b", 2)
+val t03 = t01 |+| t02
+println(t03)
+//(ab,3)
+{% endhighlight %}
+Tuple 의 원소 유형이 String, Int 이므로 이에 대한 combine 연산이 된다. 따라서 import cats.instances.int._ 뿐아니라 import cats.instances.string._ 도 해야 한다.  
+  
+
 다음은 Custom class 의 Monoid 을 작성한 예 이다.
 {% highlight scala %}
 import cats._
@@ -193,8 +220,14 @@ implicit val orderMonoid = new Monoid[Order] {
 }
 
 val order = Order(2.0, 3.0) |+| Order(3.0, 2.0)
-
 {% endhighlight %}
+
+# Summary
+- Semigroup 은 combine 이라는 method를 가지며 이는 결합법칙이 성립 해야 했다.  
+- Monoid는 Semigroup을 extends 하며 combine method에 대한 항등원을 제공하는 empty method를 가진다.  
+- Semigroup과 Monoid를 사용하기 위해서는 3가지를 import해야 한다. type class, instances, |+| 연산자를 사용시 interface syntax를 import 해야 했다.  
+- 특정 type에 대한 combine 연산를 위해서는 해당하는 type instance를 scope에 사용할 수 있게 import 해야 한다. Map[String,Int]라면 cats.instances.map._ 뿐아니라 cats.instances.int._ 또한 있어야 한다.  
+- Foldable에서 fold나 , foldRight, foleLeft 등에서 쉽게 |+| 연산자를 사용할 수 있었다.  
 
 [^1]: This is a footnote.
 
