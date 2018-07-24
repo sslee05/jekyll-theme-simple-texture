@@ -220,6 +220,7 @@ implicit val orderMonoid = new Monoid[Order] {
 }
 
 val order = Order(2.0, 3.0) |+| Order(3.0, 2.0)
+//Order(5.0,5.0)
 {% endhighlight %}
 
 # Summary
