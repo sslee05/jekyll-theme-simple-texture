@@ -225,9 +225,9 @@ val order = Order(2.0, 3.0) |+| Order(3.0, 2.0)
 # Summary
 - Semigroup 은 combine 이라는 method를 가지며 이는 결합법칙이 성립 해야 했다.  
 - Monoid는 Semigroup을 extends 하며 combine method에 대한 항등원을 제공하는 empty method를 가진다.  
-- Semigroup과 Monoid를 사용하기 위해서는 3가지를 import해야 한다. type class, instances, |+| 연산자를 사용시 interface syntax를 import 해야 했다.  
+- Semigroup과 Monoid를 사용하기 위해서는 3가지를 import해야 한다. type class, instances, \|+\| 연산자를 사용시 interface syntax를 import 해야 했다.  
 - 특정 type에 대한 combine 연산를 위해서는 해당하는 type instance를 scope에 사용할 수 있게 import 해야 한다. Map[String,Int]라면 cats.instances.map._ 뿐아니라 cats.instances.int._ 또한 있어야 한다.  
-- Foldable에서 fold나 , foldRight, foleLeft 등에서 쉽게 |+| 연산자를 사용할 수 있었다.  
+- Foldable에서 fold나 , foldRight, foleLeft 등에서 쉽게 \|+\| 연산자를 사용할 수 있었다.  
 
 [^1]: This is a footnote.
 
