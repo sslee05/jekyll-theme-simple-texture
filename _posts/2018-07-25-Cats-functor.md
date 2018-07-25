@@ -11,6 +11,9 @@ redirect_from:
 > Cats Functor .
 >
 
+* Kramdown table of contents
+{:toc .toc}
+
 # Functor
 functor에 관하여는 
 [Functor](https://sslee05.github.io/blog/2017/09/10/scala-functor/)를 참조  
@@ -95,12 +98,6 @@ fa.map(a => a) == fa
 //Composition
 fa.map(g(f(_))) == fa.map(f).map(g)
 {% endhighlight %}
-
-
-
-* Kramdown table of contents
-{:toc .toc}
-
 
 [^1]: This is a footnote.
 
