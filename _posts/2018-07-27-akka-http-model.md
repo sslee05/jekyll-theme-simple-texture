@@ -17,7 +17,7 @@ redirect_from:
 
 # Http Model
 akka HTTP model 은 Http Request, Response, Common Header를 case class로 modeling한 immutable 한 type 이다. 이는 akka-http-core에 있다.  
-Http Model 에 관련된 package 는 
+Http Model 에 관련된 package는 아래와 같다.
 {% highlight scala %}
 import akka.http.scaladsl.model._
 {% endhighlight %}
@@ -25,7 +25,12 @@ import akka.http.scaladsl.model._
 
 # HttpRequest
 HttpRequest 와 HttpResponse는 HttpMessage를 표현하는 기본 case class 이다.  
-사실 code는 case class로 되어 있지는 않지만, case class로 생기는 자동 method들을 구현 했으며, companion object의 apply method는 default 인자로 채워져 있다. 인자는 다음 인자로 구성되어 진다.HttpMethod,Uri,immutable.Seq[HttpHeader],RequestEntity,protocol: HttpProtocol
+사실 code는 case class로 되어 있지는 않지만, case class로 생기는 자동 method들을 구현 했으며, companion object의 apply method는 default 인자로 채워져 있다. 인자는 다음 인자로 구성되어 진다.  
+- HttpMethod  
+- Uri  
+- Seq of headers  
+- Entity body  
+- protocol  
 {% highlight scala %}
 def apply(
   method:   HttpMethod                = HttpMethods.GET,
@@ -63,6 +68,60 @@ HttpRequest(
  protocol = `HTTP/1.0`
 )
 {% endhighlight %}
+
+# HttpResponse
+HttpResponse 구성  
+- StatusCode  
+- Seq of Headers  
+- Enity body data  
+- protocol  
+
+{% highlight scala %}
+//Simple ok
+HttpResponse(200)
+import akka.http.scaladsl.model._
+import StatusCodes._
+  
+//NotFound 404
+HttpResponse(NotFound)
+//NotFound 404 with body data
+HttpResponse(NotFound, entity="Not found of Resource")
+  
+
+//response redirect by header 
+val redirect = headers.Location("http://www.domain.com/login.do")
+HttpResponse(Found, headers = List(redirect))
+{% endhighlight %}
+
+# HttpEntity
+Message 의 data byte를 수신하거나 전송에 대한 model 를 나타낸다.  
+이는 5가지의 Enity가 있다.  
+
+## HttpEntity.Strict
+data 양이 적고 이미 알려진 유형인 String,ByteString 인 경우 
+
+## HttpEntity.Default
+컨텐츠 데이터는 Source\[ByteString,_\] 로 표시
+Stream Source에 의해 data가 생성되고, 데이터 크기를 알 수 있는 경우
+
+## HttpEntity.Chunked 
+컨텐츠 데이터는 Source\[HttpEntity.ChunkStreamPart\] 로 표시
+길이가 알려지지 않은 경우의 Chunked 사용시 이때 chunk 분할전송에 대한 encoding 지원 가능시 Chunked 그렇지 않는 경우 CloseDelimited를 사용
+
+## HttpEntity.CloseDelimited
+컨텐츠 데이터는 Source\[ByteString,_\] 로 표시
+닫힌 연결인 서버에서만 사용으로 Response 에서만 사용 가능
+
+## HttpEntity.IndefiniteLength
+Multipart.BodyPart에서 사용하기 위해 지정되지 않은 길이의 스트리밍 엔터티
+
+## HttpEntity의 하위 type
+하위 유형에 따른 처리를 다르게 할 경우 하위 유형을 알아야 하지만 대부분 하위 유형에 상관하지 않고 일반 하위 method인 HttpEntity.dataBytes 를 통해 하위 유형에 관계없이 Enity data에 access할 수 있는 Source\[ByteString,_\]로 변환 할 수 있다.
+
+## Limit message entity length
+설정 파일에 max-content-length 으로 global 설정하는 할 수 있는데 이는 모든 request 요청에 대하여 적용이 된다.  
+만약 개별로 설정하고 싶은경우 HttpEntity에 withSizeLimit method를 이용하여 설정하면 된다.  
+
 
 [^1]: This is a footnote.
 
