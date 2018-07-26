@@ -116,7 +116,8 @@ Stream Source에 의해 data가 생성되고, 데이터 크기를 알 수 있는
 Multipart.BodyPart에서 사용하기 위해 지정되지 않은 길이의 스트리밍 엔터티
 
 ## HttpEntity의 하위 type
-하위 유형에 따른 처리를 다르게 할 경우 하위 유형을 알아야 하지만 대부분 하위 유형에 상관하지 않고 일반 하위 method인 HttpEntity.dataBytes 를 통해 하위 유형에 관계없이 Enity data에 access할 수 있는 Source\[ByteString,_\]로 변환 할 수 있다.
+하위 유형에 따른 처리를 다르게 할 경우 하위 유형을 알아야 하지만 대부분 하위 유형를 알 필요는 없다.  
+HttpEntity.dataBytes 를 통해 Enity data에 access할 수 있는 Source\[ByteString,_\]를 얻어 처리한다.  
 
 ## Limit message entity length
 설정 파일에 max-content-length 으로 global 설정하는 할 수 있는데 이는 모든 request 요청에 대하여 적용이 된다.  
