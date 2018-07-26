@@ -99,6 +99,80 @@ fa.map(a => a) == fa
 fa.map(g(f(_))) == fa.map(f).map(g)
 {% endhighlight %}
 
+# Functor type class & instance
+기존에 해왔듯이 Functor의 type class 도 같다. Functor type class와 companion object의 apply method가  있고 실제 기본 유형에 대한 instance들은 cats.instances에 있다.  
+{% highlight scala %}
+import cats.Functor
+import cats.instances.list._
+  
+val xs = List(1,2,3,4,5)
+val ys:List[Int] = Functor[List].map(xs)(n => n * 2)
+println(ys)
+//List(2, 4, 6, 8, 10)
+
+import cats.instances.option._
+  
+val op01 = Option(123)
+val op02:Option[Int] = Functor[Option].map(op01)(n => n * 2)
+println(op02)
+//Some(246)
+
+{% endhighlight %}
+
+lift method도 지원된다.  
+{% highlight scala %}
+import cats.Functor
+import cats.instances.option._
+
+val fn = (i: Int) => i * 2
+val opFn: Option[Int] => Option[Int] = Functor[Option].lift(fn)
+println(opFn(Option(2)))
+//Some(4)
+{% endhighlight %}
+
+# Functor syntax
+Function 에는 map method가 없으며 대신 compose 혹은 andThen 이 있다.  
+반면 List 나 Option 등은 내장된 map method가 있다.  
+compiler는 내장 map method가 있을 경우 이를 먼저 찾으며, Function처럼 없다면 syntax가 하는 역할, 바로 확장 method를 찾을 것 이다.  
+
+Funciton은 map method가 없다.
+{% highlight scala %}
+//not map method in Function
+val fn01: Int => Int = (i: Int) => i * 2
+val fn02: Int => Double = (i: Int) => i.toDouble
+val fn03: Double => String = (d: Double) => d + "!"
+  
+val fn04: Int => String = fn03 compose fn02 compose fn01
+println(fn04(5))
+{% endhighlight %}
+
+Functor syntax의 확장 class로 인해 내장 map method가 있는 것 처럼 사용 할 수 있다.  
+{% highlight scala %}
+import cats.instances.function._
+import cats.syntax.functor._
+  
+val fn05: Int => String = fn01 map fn02 map fn03
+println(fn05(5))
+{% endhighlight %}
+확장 method를 했다면 다음과 같을 것 이다.
+{% highlight scala %}
+import cats.Functor
+import cats.syntax.functor._
+def doMath[F[_]](ma: F[Int])(implicit F: Functor[F]): F[Int] = {
+  ma.map(n => n * 2) //import cats.syntax.functor._  syntax 가 있어야 
+}
+{% endhighlight %}
+
+cats.syntax.funtor 에 확장 class
+{% highlight scala %}
+import cats.Functor
+implicit class FunctorOps[F[_], A](src: F[A]) {
+  def map[B](func: A => B)(implicit functor: Functor[F]): F[B] =
+    functor.map(src)(func)
+}
+{% endhighlight %}
+
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
