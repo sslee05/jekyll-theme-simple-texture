@@ -121,6 +121,9 @@ Multipart.BodyPart에서 사용하기 위해 지정되지 않은 길이의 스�
 ## Limit message entity length
 설정 파일에 max-content-length 으로 global 설정하는 할 수 있는데 이는 모든 request 요청에 대하여 적용이 된다.  
 만약 개별로 설정하고 싶은경우 HttpEntity에 withSizeLimit method를 이용하여 설정하면 된다.  
+설정을 통하든 method로 설정하든 설정에 위배되는 경우 실채화시에 Exception이 발생한다.  
+
+
 
 
 [^1]: This is a footnote.
