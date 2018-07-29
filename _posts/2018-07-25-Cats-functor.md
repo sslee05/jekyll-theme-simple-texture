@@ -172,6 +172,62 @@ implicit class FunctorOps[F[_], A](src: F[A]) {
 }
 {% endhighlight %}
 
+# Custom type Functor
+Option, Future , List 등 이들은 이미 Functor의 성질을 가지고 있다.  
+Cats에서는 cats 의 type class인 Functor의 instance로 Option이나 Future등 이미 제공하고 있지만 아래의 예제를 통해 원하는 type의 Functor 구현을 보여 준다.  
+{% highlight scala %}
+import cats.Functor
+  
+implicit val optionFunctor = new Functor[Option] {
+  def map[A,B](ma: Option[A])(f: A => B): Option[B] = ma map f
+}
+{% endhighlight %}
+
+Future 인 경우 ExecutionContext의 암시자가 필요하므로 def 로 선언하며 암시자를 인자로 선언 해야 한다.  
+{% highlight scala %}
+import cats.Functor
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
+
+implicit def functorFunctor(implicit ec: ExecutionContext) = 
+  new Functor[Future] {
+    def map[A,B](ma: Future[A])(f: A => B): Future[B] = ma map f  
+  }
+{% endhighlight %}
+
+# example
+Tree에 대한 Functor를 만드는 예제 인데 기존에 했던 것이과 다른 것이 없다. 다만 주의 할 점은 variant에 대한 것이다. 이는 일명 smart constructor라는 (scala 빨간책 lazy부분에 나옴)것을 이용하면 된다.  
+{% highlight scala %}
+trait Tree[+A]
+
+case class Branch[+A](left: Tree[A], right: Tree[A]) extends Tree[A]
+case class Leaf[+A](value: A) extends Tree[A]
+
+object Tree {
+  def branch[A](left: Tree[A], right: Tree[A]): Tree[A] =
+    Branch(left, right)
+
+  def leaf[A](value: A): Tree[A] = Leaf(value)
+}
+
+import cats.Functor
+
+implicit val treeFunctor = new Functor[Tree] {
+  def map[A, B](ma: Tree[A])(f: A => B): Tree[B] = ma match {
+    case Branch(left, right) => Branch(map(left)(f), map(right)(f))
+     case Leaf(value)         => Leaf(f(value))
+  }
+}
+
+val b01 = Tree.branch(Leaf(1), Leaf(2))
+val b02 = Tree.branch(Leaf(3), Leaf(4))
+val b03 = Tree.branch(b01, b02)
+
+import cats.syntax.functor._
+val bTree = b03.map(a => a + "!")
+{% endhighlight %}
+기존에 했던 것과 다를 것이 없다. 다만 varaint때문에 smart constructor를 하지 않는다면 명시적으로  b03 에 대한 명시적 type를 기제 해야 한다.
+
 
 [^1]: This is a footnote.
 
