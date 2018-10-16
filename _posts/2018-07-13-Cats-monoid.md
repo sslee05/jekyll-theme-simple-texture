@@ -158,7 +158,7 @@ println(ex05)
 {% endhighlight %}
 
 # exercise
-List에 담긴 항목의  add 연산자에 대한 Monoid를 작성해 보자
+Monoid를 이용하여 List에 담긴 항목의  add 연산자를 작성해 보자
 {% highlight scala %}
 import cats._
 import cats.syntax.monoid._
@@ -176,7 +176,7 @@ import cats.instances.option._
 val xs = List(Some(1),Some(2),Some(3),Some(4),Some(5),None)
 add(xs)
 {% endhighlight %}
-위의 List[Option] 의 add연산에 대한 Monoid 예를 보면 List의 항목에 Some, None이 같이 있기 때문에 이는 최종 List[Option] 유형이 된다. 만약 한가지 즉 List(Some(1), Some(2))처럼 되어 있다면 이는 List[Some]이 되어 type dispatch가 되어 compile error가 발생한다. 왜냐면 Monoid의 type parameter가 invariant 이기 때문이다.  
+Monoid를 이용한 위의 List[Option] 의 add연산를 보면 List의 항목에 Some, None이 같이 있기 때문에 이는 최종 List[Option] 유형이 된다. 만약 한가지 즉 List(Some(1), Some(2))처럼 되어 있다면 이는 List[Some]이 되어 type dispatch가 되어 compile error가 발생한다. 왜냐면 Monoid의 type parameter가 invariant 이기 때문이다.  
   
 
 Map 과 Tuple에 대한 예  
