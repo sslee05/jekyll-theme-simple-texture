@@ -94,6 +94,7 @@ println(fn06(5))
 println(fn07(5))
 {% endhighlight %}
 위의 예제를 보면 어떤 단일 함수를 map으로 sequence하게 연결함으로써 어떤 연산의 chain을 만들어 낼 수 있으며 이는 단지 연산의 선언적 표현으로 실제 실행은 되지 않고 언제가 호출시 실행된다는 점에서 Future와 비슷하다고 할 수 있겠다.  
+또 fn01,fn02,fn03을 익명함수로 치환해도 같은 결과를 얻을 수 있어 Future는 다르게 참조 투명함을 알 수 있다.  
 
 
 # Functor with Cats
