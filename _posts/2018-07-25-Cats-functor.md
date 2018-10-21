@@ -70,26 +70,31 @@ fn01: X => A, fn02: A => B 일때 fn01 compose fn02 이면  X => B 의 함수를
 val fn01: Int => Double = (i: Int) => i.toDouble
 val fn02: Double => Double = (d: Double) => d * 2
 val fn03: Double => String = (d: Double) => d.toString
-
-//연산의 서술, 연산이 실제 실행이 되는 것이 아니다.
-val fn04:Int => String = fn03 compose fn02 compose fn01
-
-//이것은 Cats map를 빌리면 아래와 같이 표현할 수 있다.
+  
+//함수의 합성으로 연산의 chain 실제 실행 되지 않는다. 
+val fn04: Int => String = fn03 compose fn02 compose fn01
+  
+//Cats 의 map 으로 표현 
 import cats.instances.function._
 import cats.syntax.functor._
-val fn05: Int => String = fn01 map fn02 map fn03
-
-//그리고 위의 것을 fn01, fn02, fn03자리를 익명함수로 치환하면
-val fn:Int => String = 
-  ((i: Int) => i.toDouble) map ( d => d * 2) map (d => d.toString)
-
-//연산의 실제 실행
+  
+val fn05:Int => String = fn01 map fn02 map fn03
+  
+// 함수의 변수 자리에 익명함수로 치환하여 참조투명성을 check 
+val fn06:Int => String = 
+ ((d:Double) => d.toString)  compose ((d:Double) => d * 2 ) compose ((i:Int) => i.toDouble)
+  
+val fn07:Int => String = 
+ ((i:Int) => i.toDouble) map ((d:Double) => d * 2) map ((d:Double) => d.toString)
+  
+//실제 실행
 println(fn04(5))
-//위의 실행결과와 같다.
-println(fn(5))
+println(fn05(5))
+println(fn06(5))
+println(fn07(5))
 {% endhighlight %}
 위의 예제를 보면 어떤 단일 함수를 map으로 sequence하게 연결함으로써 어떤 연산의 chain을 만들어 낼 수 있으며 이는 단지 연산의 선언적 표현으로 실제 실행은 되지 않고 언제가 호출시 실행된다는 점에서 Future와 비슷하다고 할 수 있겠다.  
-또 fn01,fn02,fn03을 익명함수로 치환해도 같은 결과를 얻을 수 있음을 알 수 있다. 이를 통해 Future와는 다르게 참조투명함를 알 수 있다.  
+
 
 # Functor with Cats
 ## cats 에서의 functor 정의
