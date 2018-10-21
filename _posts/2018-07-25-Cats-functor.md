@@ -74,9 +74,19 @@ val fn03: Double => String = (d: Double) => d.toString
 //연산의 서술, 연산이 실제 실행이 되는 것이 아니다.
 val fn04:Int => String = fn03 compose fn02 compose fn01
 
+//이것은 Cats map를 빌리면 아래와 같이 표현할 수 있다.
+import cats.instances.function._
+import cats.syntax.functor._
+val fn05: Int => String = fn01 map fn02 map fn03
+
+//그리고 위의 것을 fn01, fn02, fn03자리를 익명함수로 치환하면
+val fn:Int => String = 
+  ((i: Int) => i.toDouble) map ( d => d * 2) map (d => d.toString)
+
 //연산의 실제 실행
 println(fn04(5))
 {% endhighlight %}
+위의 예제를 보면 어떤 단일 함수를 map으로 sequence하게 연결함으로써 어떤 연산의 chain을 만들어 낼 수 있으며 이는 단지 연산의 선언적 표현으로 실제 실행은 되지 않고 언제가 호출시 실행된다는 점에서 Future와 비슷하다고 할 수 있겠다.  
 
 # Functor with Cats
 ## cats 에서의 functor 정의
