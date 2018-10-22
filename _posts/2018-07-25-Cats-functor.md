@@ -65,7 +65,7 @@ object FutureExplorer extends App {
 따라서 Future와 같은 성질의 다른 안전한 참조 투명성을 지닌 다른 유형인 찾아 보면 다음과 같이 Funtion 의 합성을 통하여 연산의 지연으로 Future 와 같은 미래의 연산을 나타 낼 수 있다.  
 
 # Function
-fn01: X => A, fn02: A => B 일때 fn01 compose fn02 이면  X => B 의 함수를 얻을 수 있다.  
+fn01: X => A, fn02: A => B 일때 fn01 compose fn02 이면  X => B 의 함수를 얻을 수 있다. 이를 통해 연산을 chain형태로 나타 낼 수 있으며 이때 이는 연산의 표현이며 표현이 곧 실행을 의미 하지는 않는다.  
 {% highlight scala %}
 val fn01: Int => Double = (i: Int) => i.toDouble
 val fn02: Double => Double = (d: Double) => d * 2
@@ -83,9 +83,8 @@ val fn05:Int => String = fn01 map fn02 map fn03
 // 함수의 변수 자리에 익명함수로 치환하여 참조투명성을 check 
 val fn06:Int => String = 
  ((d:Double) => d.toString)  compose ((d:Double) => d * 2 ) compose ((i:Int) => i.toDouble)
-  
 val fn07:Int => String = 
- ((i:Int) => i.toDouble) map ((d:Double) => d * 2) map ((d:Double) => d.toString)
+  ((i:Int) => i.toDouble) map ((d:Double) => d * 2) map ((d:Double) => d.toString)
   
 //실제 실행
 println(fn04(5))
@@ -93,9 +92,6 @@ println(fn05(5))
 println(fn06(5))
 println(fn07(5))
 {% endhighlight %}
-위의 예제를 보면 어떤 단일 함수를 map으로 sequence하게 연결함으로써 어떤 연산의 chain을 만들어 낼 수 있으며 이는 단지 연산의 선언적 표현으로 실제 실행은 되지 않고 언제가 호출시 실행된다는 점에서 Future와 비슷하다고 할 수 있겠다.  
-또 fn01,fn02,fn03을 익명함수로 치환해도 같은 결과를 얻을 수 있어 Future는 다르게 참조 투명함을 알 수 있다.  
-
 
 # Functor with Cats
 ## cats 에서의 functor 정의
