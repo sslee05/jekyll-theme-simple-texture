@@ -65,7 +65,7 @@ object FutureExplorer extends App {
 따라서 Future와 같은 성질의 다른 안전한 참조 투명성을 지닌 다른 유형인 찾아 보면 다음과 같이 Funtion 의 합성을 통하여 연산의 지연으로 Future 와 같은 미래의 연산을 나타 낼 수 있다.  
 
 # Function
-fn01: X => A, fn02: A => B 일때 fn01 compose fn02 이면  X => B 의 함수를 얻을 수 있다. 이를 통해 연산을 chain형태로 나타 낼 수 있으며 이때 이는 연산의 표현이며 표현이 곧 실행을 의미 하지는 않는다.  
+fn01: X => A, fn02: A => B 일때 fn02 compose fn01 이면  X => B 의 함수를 얻을 수 있다. 이를 통해 연산을 chain형태로 나타 낼 수 있으며 이때 이는 연산의 표현이며 표현이 곧 실행을 의미 하지는 않는다.  
 {% highlight scala %}
 val fn01: Int => Double = (i: Int) => i.toDouble
 val fn02: Double => Double = (d: Double) => d * 2
