@@ -94,6 +94,38 @@ println(fn07(5))
 {% endhighlight %}
 위의 예제를 보면 어떤 단일 함수를 map으로 sequence하게 연결함으로써 어떤 연산의 chain을 만들어 낼 수 있으며 이는 단지 연산의 선언적 표현으로 실제 실행은 되지 않고 언제가 호출시 실행된다는 점에서 Future와 비슷하다고 할 수 있겠다.  
 
+# Higher Kinded type 
+## Higher Kined type(고계타입)
+Functor, Monad, Applicative Functor 등을 이야기 할때 F[_] 이런 형태를 이야기 하지 않을 수 없다.  
+우리가 java에서 List<Integer>, List<String> 등 Integer, String 등의 어떠한 정해지지 않은 유형을 담는 List를 표현할때  List<A> 라고 표현한다. Map은 Map<K,V> 이렇게.  
+그럼 저런 List<A>, Map<K,V> 처럼 List나 Map 어떠한 유형을 내포하는 유형인데 List인지, Map 인지 정해지지 않은 유형을 표현할때는 어떻게 표현할까?  
+이게 고계타입(Higher Kinded type)이다.  
+일전에 Functor 게시글에서 이를 Higher Kinded type(고계타입 이라고)라고 하는데 이는 어떠한 type를 유형을 가지는 유형를 표현한 것이다.  
+
+# cats Functor 
+## type class
+{% highlight scala %}
+trait Functor[F[_]] {
+  def map[A,B](ma: F[A])(f: A => B):F[B]
+}
+
+{% endhighlight %}
+
+api에 보면  companion object의  apply method 은 아래와 과 같다.  
+{% highlight scala %}
+  def apply[F[_]](implicit functor: Functor[F]): Functor[F]
+{% endhighlight %}
+위의 코드에서 apply method가 적용될때는 F라는 고계타입에 해당하는 Functor가 암시적으로 받드시 있어야 한다. 따라서 import cats.instance.list._ 처럼 cats instance를 import해야 한다.  
+{% highlight scala %}
+import cats.Functor
+import cats.instances.list._
+
+//object Functor
+//def apply[F[_]](implicit instance: Functor[F]): Functor[F]
+val functor = Functor[List]
+{% endhighlight %}
+
+
 # Functor with Cats
 ## cats 에서의 functor 정의
 {% highlight scala %}
