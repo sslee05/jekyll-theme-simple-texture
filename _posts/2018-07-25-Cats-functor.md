@@ -157,6 +157,64 @@ implicit class FunctorOps[F[_], A](src: F[A]) {
 }
 {% endhighlight %}
 
+List 나 Option등은 기존에 map method 가 있다. 이런경우 List나 Option등의 map method가 적용된다.  
+구지 cats.Function 의 map을 사용해하고 싶은 경우 좀 꽁수를 써야 한다.
+{% highlight scala %}
+def ConvertForth[F[_]](src: F[Int])(implicit F: Functor[F]): F[Int] = 
+  src.map(i => i) // cats.syntax.functor._ 가 있어야 된다.
+  
+val xs = List(1,2,3,4,5)
+xs.map(_ * 2) //여기서 map method는 List의 map method 
+ConvertForth(xs).map(_ * 2)//여기서의 map method 는 cats.Functor의 map method
+//List의 map method가 Functor의 map method이기 때문에 결과 적으로는 같다.
+{% endhighlight %}
+src가 map method를 사용하려면 cats.syntax.functor._ 가 있어야 된다.  
+cats.syntax.functor._ 에는 아마도 위에처럼  FunctorOps 암시자가 있겠지  
+
+# Functor law
+Functor law는  다음과 같다.  
+Identity: 즉 Functor에 항등함수를 적용하면 원래의 Functor와 같다.  
+Composition: 두 함수 f와 g로 합성후 map를 적용한 것은 함수 f를 map적용한 후 다음 함수 g를 map 적용한 것과 동일하다.  
+위의 Functor type class, instance, syntax등을 이용하여 functor law예제를 보자  
+{% highlight scala %}
+val xs = List(1,2,3,4,5)
+  
+//1. identity law : ma map idFunction = ma
+def identityFn[A]: A => A = a => a
+  
+import cats.Functor
+import cats.instances.list._
+  
+//object Functor
+//def apply[F[_]](implicit instance: Functor[F]): Functor[F]
+val functor = Functor[List]
+  
+import cats.syntax.eq._
+import cats.instances.int._
+  
+println(functor.map(xs)(identityFn) === xs)
+  
+//2. Composition law: 
+// ma map f map g == ma map ( f compose g)
+  
+//Composition Law
+val fn01 = (i: Int) => i * 2
+val fn02 = (i: Int) => s"[$i]"
+  
+import cats.instances.string._
+import cats.instances.list._
+  
+import cats.syntax.functor._
+//List 의 경우 map method가 있어 List의 map method가 적용된다.
+//따라서 다음과 같이 꽁수를 적용 하면 List의 map method적용이 아닌 
+//cats.Functor map method가 적용된다.
+def ConvertForth[F[_]](src: F[Int])(implicit F: Functor[F]): F[Int] = 
+  src.map(i => i) // cats.syntax.functor._ 가 있어야 된다.
+  
+//functor.map(functor.map(xs)(fn01))(fn02) === 
+// ConvertForth(xs).map(fn02 compose fn01)
+println((xs map fn01 map fn02) === ConvertForth(xs).map(fn02 compose fn01))
+{% endhighlight %}
 
 [^1]: This is a footnote.
 
