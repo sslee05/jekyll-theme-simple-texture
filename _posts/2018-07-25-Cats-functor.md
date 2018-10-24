@@ -96,11 +96,12 @@ println(fn07(5))
 
 # Higher Kinded type 
 ## Higher Kined type(고계타입)
-Functor, Monad, Applicative Functor 등을 이야기 할때 F[_] 이런 형태를 이야기 하지 않을 수 없다.  
-우리가 java에서 List<Integer>, List<String> 등 Integer, String 등의 어떠한 정해지지 않은 유형을 담는 List를 표현할때  List<A> 라고 표현한다. Map은 Map<K,V> 이렇게.  
-그럼 저런 List<A>, Map<K,V> 처럼 List나 Map 어떠한 유형을 내포하는 유형인데 List인지, Map 인지 정해지지 않은 유형을 표현할때는 어떻게 표현할까?  
+Functor, Monad, Applicative Functor 등을 이야기 할때 F\[_\] 이런 형태를 이야기 하지 않을 수 없다.  
+우리가 java에서 List\<Integer\>, List\<String\> 등 Integer, String 등의 어떠한 정해지지 않은 유형을 담는 List를 표현할때  List\<A\> 라고 표현한다. Map은 Map\<K,V\> 이렇게.  
+그럼 저런 List\<A\>, Map\<K,V\> 처럼 List나 Map 어떠한 유형을 내포하는 유형인데 List인지, Map 인지 정해지지 않은 유형을 표현할때는 어떻게 표현할까?  
 이게 고계타입(Higher Kinded type)이다.  
 일전에 Functor 게시글에서 이를 Higher Kinded type(고계타입 이라고)라고 하는데 이는 어떠한 type를 유형을 가지는 유형를 표현한 것이다.  
+
 
 # cats Functor 
 ## type class
@@ -125,29 +126,7 @@ import cats.instances.list._
 val functor = Functor[List]
 {% endhighlight %}
 
-
-# Functor with Cats
-## cats 에서의 functor 정의
-{% highlight scala %}
-import scala.language.higherKinds
-trait Functor[F[_]] {
-  def map[A,B](ma: F[A])(f: A => B):F[B]
-}
-{% endhighlight %}
-
-## Functor의 law
-[Functor](https://sslee05.github.io/blog/2017/09/10/scala-functor/)에도 언급이 되어 있다.  
-Identity: 즉 Functor에 항등함수를 적용하면 원래의 Functor와 같다.  
-Composition: 두 함수 f와 g로 합성후 map를 적용한 것은 함수 f를 map적용한 후 다음 함수 g를 map 적용한 것과 동일하다.
-{% highlight scala %}
-//Identity
-fa.map(a => a) == fa
-
-//Composition
-fa.map(g(f(_))) == fa.map(f).map(g)
-{% endhighlight %}
-
-# Functor type class & instance
+## Functor type class & instance
 기존에 해왔듯이 Functor의 type class 도 같다. Functor type class와 companion object의 apply method가  있고 실제 기본 유형에 대한 instance들은 cats.instances에 있다.  
 {% highlight scala %}
 import cats.Functor
@@ -167,51 +146,9 @@ println(op02)
 
 {% endhighlight %}
 
-lift method도 지원된다.  
-{% highlight scala %}
-import cats.Functor
-import cats.instances.option._
-
-val fn = (i: Int) => i * 2
-val opFn: Option[Int] => Option[Int] = Functor[Option].lift(fn)
-println(opFn(Option(2)))
-//Some(4)
-{% endhighlight %}
-
-# Functor syntax
-Function 에는 map method가 없으며 대신 compose 혹은 andThen 이 있다.  
-반면 List 나 Option 등은 내장된 map method가 있다.  
-compiler는 내장 map method가 있을 경우 이를 먼저 찾으며, Function처럼 없다면 syntax가 하는 역할, 바로 확장 method를 찾을 것 이다.  
-
-Funciton은 map method가 없다.
-{% highlight scala %}
-//not map method in Function
-val fn01: Int => Int = (i: Int) => i * 2
-val fn02: Int => Double = (i: Int) => i.toDouble
-val fn03: Double => String = (d: Double) => d + "!"
-  
-val fn04: Int => String = fn03 compose fn02 compose fn01
-println(fn04(5))
-{% endhighlight %}
-
-Functor syntax의 확장 class로 인해 내장 map method가 있는 것 처럼 사용 할 수 있다.  
-{% highlight scala %}
-import cats.instances.function._
-import cats.syntax.functor._
-  
-val fn05: Int => String = fn01 map fn02 map fn03
-println(fn05(5))
-{% endhighlight %}
-확장 method를 했다면 다음과 같을 것 이다.
-{% highlight scala %}
-import cats.Functor
-import cats.syntax.functor._
-def doMath[F[_]](ma: F[Int])(implicit F: Functor[F]): F[Int] = {
-  ma.map(n => n * 2) //import cats.syntax.functor._  syntax 가 있어야 
-}
-{% endhighlight %}
-
-cats.syntax.funtor 에 확장 class
+## Functor syntax
+위의 Function 의 예제 코드에서  function01 map function02 map function03 처럼 사용했다. 하지만 Function에는 map method가 없다.  
+따라서 이것도 Function syntax가 관련될을 것이라 짐작 할 수 있다.  
 {% highlight scala %}
 import cats.Functor
 implicit class FunctorOps[F[_], A](src: F[A]) {
@@ -219,62 +156,6 @@ implicit class FunctorOps[F[_], A](src: F[A]) {
     functor.map(src)(func)
 }
 {% endhighlight %}
-
-# Custom type Functor
-Option, Future , List 등 이들은 이미 Functor의 성질을 가지고 있다.  
-Cats에서는 cats 의 type class인 Functor의 instance로 Option이나 Future등 이미 제공하고 있지만 아래의 예제를 통해 원하는 type의 Functor 구현을 보여 준다.  
-{% highlight scala %}
-import cats.Functor
-  
-implicit val optionFunctor = new Functor[Option] {
-  def map[A,B](ma: Option[A])(f: A => B): Option[B] = ma map f
-}
-{% endhighlight %}
-
-Future 인 경우 ExecutionContext의 암시자가 필요하므로 def 로 선언하며 암시자를 인자로 선언 해야 한다.  
-{% highlight scala %}
-import cats.Functor
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
-
-implicit def functorFunctor(implicit ec: ExecutionContext) = 
-  new Functor[Future] {
-    def map[A,B](ma: Future[A])(f: A => B): Future[B] = ma map f  
-  }
-{% endhighlight %}
-
-# example
-Tree에 대한 Functor를 만드는 예제 인데 기존에 했던 것이과 다른 것이 없다. 다만 주의 할 점은 variant에 대한 것이다. 이는 일명 smart constructor라는 (scala 빨간책 lazy부분에 나옴)것을 이용하면 된다.  
-{% highlight scala %}
-trait Tree[+A]
-
-case class Branch[+A](left: Tree[A], right: Tree[A]) extends Tree[A]
-case class Leaf[+A](value: A) extends Tree[A]
-
-object Tree {
-  def branch[A](left: Tree[A], right: Tree[A]): Tree[A] =
-    Branch(left, right)
-
-  def leaf[A](value: A): Tree[A] = Leaf(value)
-}
-
-import cats.Functor
-
-implicit val treeFunctor = new Functor[Tree] {
-  def map[A, B](ma: Tree[A])(f: A => B): Tree[B] = ma match {
-    case Branch(left, right) => Branch(map(left)(f), map(right)(f))
-     case Leaf(value)         => Leaf(f(value))
-  }
-}
-
-val b01 = Tree.branch(Leaf(1), Leaf(2))
-val b02 = Tree.branch(Leaf(3), Leaf(4))
-val b03 = Tree.branch(b01, b02)
-
-import cats.syntax.functor._
-val bTree = b03.map(a => a + "!")
-{% endhighlight %}
-기존에 했던 것과 다를 것이 없다. 다만 varaint때문에 smart constructor를 하지 않는다면 명시적으로  b03 에 대한 명시적 type를 기제 해야 한다.
 
 
 [^1]: This is a footnote.
