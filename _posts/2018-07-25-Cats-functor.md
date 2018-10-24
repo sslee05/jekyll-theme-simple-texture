@@ -95,7 +95,6 @@ println(fn07(5))
 위의 예제를 보면 어떤 단일 함수를 map으로 sequence하게 연결함으로써 어떤 연산의 chain을 만들어 낼 수 있으며 이는 단지 연산의 선언적 표현으로 실제 실행은 되지 않고 언제가 호출시 실행된다는 점에서 Future와 비슷하다고 할 수 있겠다.  
 
 # Higher Kinded type 
-## Higher Kined type(고계타입)
 Functor, Monad, Applicative Functor 등을 이야기 할때 F\[_\] 이런 형태를 이야기 하지 않을 수 없다.  
 우리가 java에서 List\<Integer\>, List\<String\> 등 Integer, String 등의 어떠한 정해지지 않은 유형을 담는 List를 표현할때  List\<A\> 라고 표현한다. Map은 Map\<K,V\> 이렇게.  
 그럼 저런 List\<A\>, Map\<K,V\> 처럼 List나 Map 어떠한 유형을 내포하는 유형인데 List인지, Map 인지 정해지지 않은 유형을 표현할때는 어떻게 표현할까?  
