@@ -215,6 +215,37 @@ def ConvertForth[F[_]](src: F[Int])(implicit F: Functor[F]): F[Int] =
 println((xs map fn01 map fn02) === ConvertForth(xs).map(fn02 compose fn01))
 {% endhighlight %}
 
+# Custom Functor 만들기
+Functor의 apply method는 암시자로 고계타입의 type parameter를 받는 Functor instance를 받는다.
+{% highlight scala %}
+def apply[F[_]](implicit F: Functor[F]): Functor[F]
+{% endhighlight %}
+따라서 custom Functor를 만들경우 implicit F에 해당하는 Functor instance를 암시자로 제공하면 된다.  
+{% highlight scala %}
+import cats.Functor
+implicit val functorOption: Functor[Option] = new Functor[Option] {
+  def map[A,B](ma: Option[A])(f: A => B): Option[B] = ma map f
+}
+
+import cats.syntax.option._
+val optionFct =  Functor[Option].map(1.some)(_ + 2)
+{% endhighlight %}
+Future에 대한 Functor를 만들경우 좀 고려해야 할 것이 ExecutionContext가 암시자로 필요하다는 것이다. Future에서 암시자를 받기 때문이다.  
+따라서 아래 코드와 같이 Context안에  ExecutionContext 암시자가 있어야 한다.
+{% highlight scala %}
+import cats.Functor
+
+implicit val ec = ExecutionContext.global
+implicit def functorFuture(implicit ec: ExecutionContext): Functor[Future] =
+  new Functor[Future] {
+    def map[A,B](ma: Future[A])(f: A => B): Future[B] = ma map f 
+  }
+
+//def apply[F[_]](implicit F: Functor[F]): Functor[F]
+//val fctFuture = Functor[Future](functorFuture)
+val futureFct = Functor[Future]
+{% endhighlight %}
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
