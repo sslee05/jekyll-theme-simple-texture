@@ -246,6 +246,43 @@ implicit def functorFuture(implicit ec: ExecutionContext): Functor[Future] =
 val futureFct = Functor[Future]
 {% endhighlight %}
 
+# 연습문제 01
+Leaf과 Branch를 가지는 Tree구조의  Functor를 만들어라.  
+{% highlight scala %}
+sealed trait Tree[+A]
+case class Branch[+A](left: Tree[A], right: Tree[A]) extends Tree[A]
+case class Leaf[A](value: A) extends Tree[A]
+
+import cats.Functor
+import cats.syntax.functor._
+
+implicit val treeFunctor: Functor[Tree] = new Functor[Tree] {
+  def map[A,B](ma: Tree[A])(f: A => B): Tree[B] = ma match {
+    case Branch(l,r) => Branch(map(l)(f),map(r)(f))
+    case Leaf(v) => Leaf(f(v))
+  }
+}
+
+val left01 = Branch(Leaf(1),Leaf(2))
+val right01 = Branch(Leaf(3),Leaf(4))
+val br = Branch(left01,right01)//br의 type은 Branch[Int]
+
+//br.map은 not member of Branch[Int]라고 compile error발생 
+//이유는 Functor의 type parameter가 invariant이기 때문이다.
+val result = br.map(i => s"node value $i") //compile error
+
+//따라서 class명과 같은 소문자로 시작하는 smart constructor를 명시하여 
+//return type을 Tree로 명시하는 하나의 방법이 있다.
+def branch[A](left: Tree[A], right:Tree[A]): Tree[A] = Branch(left,right)
+def leaf[A](a: A): Tree[A] = Leaf(a)
+
+val left01 = branch(leaf(1),leaf(2))
+val right01 = branch(leaf(3),leaf(4))
+val br = branch(left01,right01)// br의 type은 Tree[Int]
+val result = br.map(i => s"node value $i")
+{% endhighlight %}
+
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
