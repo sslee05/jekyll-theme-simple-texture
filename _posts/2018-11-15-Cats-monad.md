@@ -121,6 +121,56 @@ import cats.syntax.eq._
 println(rs4 === rs5)
 {% endhighlight %}
 
+## cats monad syntax asRight, asLeft
+Either는 map과 flatMap 을 가지고 있다. 따라서 for-comprehension 를 사용할 수 있다.  
+flatMap과 map은 return type이 Either이다.
+{% highlight scala %}
+val right01 = Right(1)
+val right02 = Right(2)
+val right03 = Right(3)
+val left04 = Left(0)
+
+val test01 = for {
+  i <- right01
+  j <- right02
+  k <- right03
+} yield i + j + k
+//test01: scala.util.Either[Nothing,Int] = Right(6)
+val test02 = for {
+  i <- right01
+  j <- left04
+  k <- right02
+} yield i + j + k
+test02: scala.util.Either[Int,String] = Left(0)
+{% endhighlight %}
+아래와 같은 연산의 예는 주의를 해야 함을 알 수 있다.
+{% highlight scala %}
+val xs = List(1,2,3,4,5)
+val rs = xs.foldLeft[Either[Int,Int]](Right(0))((acum, i) =>
+   if(i < 3) acum.map(n => i + n)
+   else Left(-1)
+)
+//res0: Either[Int,Int] = Left(-1)
+{% endhighlight %}
+하지만 Either와 같은 경우는 foldLeft에 누적유형을 명시하지 않으면 type 이 dismatch하게 된다.  
+{% highlight scala %}
+val xs = List(1,2,3,4,5)
+val rs = xs.foldLeft(Right(0))((acum, i) =>
+   if(i < 3) acum.map(n => i + n)
+   else Left(-1)
+)
+//compile error
+{% endhighlight %}
+물론 명시적으로 Right와 Left의 명시적 상위 type을 선언하면 되지만 cats.syntax.monad에 있는 asRight, asLeft를 이용하면 누적 유형을 명시하지 않아도 된다.
+{% highlight scala %}
+import cats.syntax.either._
+val rs02 = xs.foldLeft(0.asRight[Int])((acum, i) =>
+  if(i < 3) acum.map(n => n + i)
+  else -1.asLeft[Int]
+)
+//rs02: Either[Int,Int] = Left(-1)
+{% endhighlight %}
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
