@@ -121,54 +121,108 @@ import cats.syntax.eq._
 println(rs4 === rs5)
 {% endhighlight %}
 
-## cats monad syntax asRight, asLeft
-Either는 map과 flatMap 을 가지고 있다. 따라서 for-comprehension 를 사용할 수 있다.  
-flatMap과 map은 return type이 Either이다.
-{% highlight scala %}
-val right01 = Right(1)
-val right02 = Right(2)
-val right03 = Right(3)
-val left04 = Left(0)
-
-val test01 = for {
-  i <- right01
-  j <- right02
-  k <- right03
-} yield i + j + k
-//test01: scala.util.Either[Nothing,Int] = Right(6)
-val test02 = for {
-  i <- right01
-  j <- left04
-  k <- right02
-} yield i + j + k
-test02: scala.util.Either[Int,String] = Left(0)
-{% endhighlight %}
-아래와 같은 연산의 예는 주의를 해야 함을 알 수 있다.
+# cats Either syntax 유용용한 method
+## asRight[LeftT], asLeft[RightT]
+아래의 코드는 compile 되지 않는다.  
+이유는 접기 결과 유형이 Either가 아닌 Right로 타입 추론이 되면서 Left가 문제가 된다.
+또 Right의 Left type parameter를 Nothing으로 추론 된다.  
 {% highlight scala %}
 val xs = List(1,2,3,4,5)
-val rs = xs.foldLeft[Either[Int,Int]](Right(0))((acum, i) =>
-   if(i < 3) acum.map(n => i + n)
-   else Left(-1)
-)
-//res0: Either[Int,Int] = Left(-1)
+xs.foldLeft(Right(0))((acum,i) => 
+ if(i < 3) acum.map(n => n + 1) else Left("Not Supported"))
 {% endhighlight %}
-하지만 Either와 같은 경우는 foldLeft에 누적유형을 명시하지 않으면 type 이 dismatch하게 된다.  
+따라서 compile error가 나지 않게 하기 위해서 다음과 같이 하면 된다.  
 {% highlight scala %}
 val xs = List(1,2,3,4,5)
-val rs = xs.foldLeft(Right(0))((acum, i) =>
-   if(i < 3) acum.map(n => i + n)
-   else Left(-1)
-)
-//compile error
+xs.foldLeft[Either[String,Int]](Right(0))((acum, i) 
+ => if(i < 3) acum.map(n => n + i) else Left("Not Supported"))
 {% endhighlight %}
-물론 명시적으로 Right와 Left의 명시적 상위 type을 선언하면 되지만 cats.syntax.monad에 있는 asRight, asLeft를 이용하면 누적 유형을 명시하지 않아도 된다.
+이를 좀더 쉽게 cats의 asRight[LeftT], asLeft[RightT]를 사용하면 같은 결과를 가질 수 있다.
 {% highlight scala %}
 import cats.syntax.either._
-val rs02 = xs.foldLeft(0.asRight[Int])((acum, i) =>
-  if(i < 3) acum.map(n => n + i)
-  else -1.asLeft[Int]
-)
-//rs02: Either[Int,Int] = Left(-1)
+  // asRight[LeftT]  asLeft[RightT]
+xs.foldLeft(0.asRight[String])((acum, i) => 
+	if(i < 3) acum.map(n => n + i) else "Not Supprted".asLeft[Int])
+// Either[String,Int]
+{% endhighlight %}
+
+## cats.syntax.either.EitherObjectOps
+cats.syntax.either 에는 Either companion object type를 받는 method들이 있다.
+1. catchOnly\[A\], catchNonFatal\[A\]
+{% highlight scala %}
+val rs03 = Either.catchOnly[NumberFormatException]("foo".toInt)
+println(rs03)
+//Left(java.lang.NumberFormatException: For input string: "foo")
+
+//def catchNonFatal[A](f: => A): Either[Throwable, A]
+val rs04 = Either.catchNonFatal(sys.error("Occur error"))
+println(rs04)
+//Left(java.lang.RuntimeException: Occur error)
+{% endhighlight %}
+
+2. fromTry\[A\](t: Try\[A\]): Either\[Throwable, A\]
+{% highlight scala %}
+val rs05 = Either.fromTry(Try("foo".toInt))
+println(rs05)
+//Left(java.lang.NumberFormatException: For input string: "foo")
+{% endhighlight %}
+
+3. def fromOption\[A, B\](o: Option\[B\], ifNone: => A): Either\[A, B\]
+{% highlight scala %}
+val rs06 = Either.fromOption[String,Int](None, "Oops!")
+println(rs06)
+//Left(Oops!)
+{% endhighlight %}
+
+## Transforming Either
+cats.syntax.ethier 에는 변환 method들이 많다.  
+1. orElse, getOrElse
+{% highlight scala %}
+//1. orElse, 2. getOrElse
+val rs07 ="Error".asLeft[Int].getOrElse(0)
+println(rs07) //0
+val rs08 = "Error".asLeft[Int].orElse(3.asRight[String])
+println(rs08) //Right(3)
+{% endhighlight %}
+
+2. ensure Right의 조건 검증
+{% highlight scala %}
+val rs09 = -1.asRight[String].ensure("must not be negative value")(i => i >= 0)
+println(rs09)
+//Left(must not be negative value)
+{% endhighlight %}
+
+3. recover, recoverWith
+{% highlight scala %}
+val rs10 = "Error".asLeft[Int].recover{
+  case _: String => -1
+}
+println(rs10)
+//Right(-1)
+
+val rs11 = "Error".asLeft[Int].recoverWith {
+  case _: String => Right(-1)
+}
+println(rs11)
+//Right(-1)
+{% endhighlight %}
+
+4. leftMap, bimap
+{% highlight scala %}
+val rs12 = "leftMap".asLeft[Int].leftMap(_.reverse)
+println(rs12)//Left(paMtfel)
+
+val rs13 = 5.asRight[String].bimap(msg => msg.reverse, i => i * 10)
+val rs14 = "leftMap".asLeft[Int].bimap(ms => ms.reverse, i => i * 10)
+println(rs13)//Right(50)
+println(rs14)//Left(paMtfel)
+{% endhighlight %}
+
+5. swap
+{% highlight scala %}
+//swap
+val rs15 = "foo".asLeft[Int].swap
+println(rs15)//Right(foo)
 {% endhighlight %}
 
 [^1]: This is a footnote.
