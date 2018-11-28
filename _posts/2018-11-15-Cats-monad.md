@@ -198,7 +198,7 @@ val rs10 = "Error".asLeft[Int].recover{
   case _: String => -1
 }
 println(rs10)
-//Right(-1)
+//-1
 
 val rs11 = "Error".asLeft[Int].recoverWith {
   case _: String => Right(-1)
