@@ -225,6 +225,78 @@ val rs15 = "foo".asLeft[Int].swap
 println(rs15)//Right(foo)
 {% endhighlight %}
 
+# Eval Monad
+## 평가
+eager    : 즉시 평가  
+lazy     : 실행시 평가  
+memoized : 실행시 평가 이후 cache  
+{% highlight scala %}
+//vals = eager + memoized
+val x = {
+  println("Computing X")
+  math.random()
+}
+//Computing X
+//x: Double = 0.7810079442262585
+
+println(x)
+//0.7810079442262585
+println(x)
+//0.7810079442262585
+println(x)
+//0.7810079442262585
+
+//def = lazy + not memoized
+def y = {
+  println("Computing Y")
+  math.random()
+}
+//y: Double
+println(y)
+//Computing Y
+//0.5771256769413449
+println(y)
+//Computing Y
+//0.21990502916453714
+println(y)
+//Computing Y
+//0.4958650011258595
+
+//lazy vals = lazy + memoized
+lazy val z = {
+  println("Computing Z")
+  math.random()
+}
+//z: Double = <lazy>
+println(z)
+//Computing Z
+//0.614124247006023
+println(z)
+//0.614124247006023
+println(z)
+//0.614124247006023
+{% endhighlight %}
+
+cats에서 Now 는 즉시평가(val과 같이), Always는 실행시 매번 평가(def 같이), Later는 처음 실행시 평가 이후 cached처럼(momoized 같이) 작동 한다.
+{% highlight scala %}
+import cats.Eval
+val cx = Eval.now(math.random())
+//cx: cats.Eval[Double] = Now(0.7542159377020204)
+val cy = Eval.always(math.random())
+//cy: cats.Eval[Double] = cats.Always@3cc198f7
+val cz = Eval.later(math.random())
+//cz: cats.Eval[Double] = cats.Later@531d6244
+
+println(cx.value)//0.7542159377020204
+println(cy.value)//0.5143690057772041
+println(cz.value)//0.012411074690963253
+
+println(cx.value)//0.7542159377020204
+println(cy.value)//0.5093222535099888
+println(cz.value)//0.012411074690963253
+{% endhighlight %}
+
+
 [^1]: This is a footnote.
 
 [kramdown]: https://kramdown.gettalong.org/
