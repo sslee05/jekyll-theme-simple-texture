@@ -227,7 +227,7 @@ println(rs15)//Right(foo)
 
 # Eval Monad
 ## 평가
-eager    : 즉시 평가  
+eager    : 즉시 평가(값으로서)  
 lazy     : 실행시 평가  
 memoized : 실행시 평가 이후 cache  
 {% highlight scala %}
@@ -277,7 +277,9 @@ println(z)
 //0.614124247006023
 {% endhighlight %}
 
-cats에서 Now 는 즉시평가(val과 같이), Always는 실행시 매번 평가(def 같이), Later는 처음 실행시 평가 이후 cached처럼(momoized 같이) 작동 한다.
+cats에서 Now 는 즉시평가(val과 같이),  
+Always는 실행시 매번 평가(def 같이),  
+Later는 처음 실행시 평가 이후 cached처럼(momoized 같이) 작동 한다.
 {% highlight scala %}
 import cats.Eval
 val cx = Eval.now(math.random())
@@ -296,6 +298,69 @@ println(cy.value)//0.5093222535099888
 println(cz.value)//0.012411074690963253
 {% endhighlight %}
 
+## Eval Monad
+{% highlight scala %}
+import cats.Eval
+val greeting: Eval[String] = Eval.always{ println("Step 01"); "Hellow";}.map{s => println("Step 02"); s"$s world";}
+
+println(greeting.value)
+println(greeting.value)
+/* 결과
+start evaluation
+Step 01
+Step 02
+Hellow world
+Step 01
+Step 02
+Hellow world
+*/
+{% endhighlight %}
+위에 결과를 보면 always는 def 처럼 평가 됨을 알 수 있다. 
+{% highlight scala %}
+val ans: Eval[Int] = for {
+  a <- Eval.now{ println("Step01"); 10} //바로 평가 val 즉 값처럼 
+  b <- Eval.always{println("Step02"); 5}
+} yield {
+  println("Add A and B");
+  a + b
+}
+
+println("start evaluation")
+println(ans.value)
+println(ans.value)
+
+/*결과
+Step01 //선언과 동시에 출력
+start evaluation
+Step02
+Add A and B
+15
+Step02
+Add A and B
+15
+*/
+{% endhighlight %}
+위에 결과를 보면 평가전에 Step01 이 찍히는 것으로 봐서 선언과 동시에 값으로서 평가가 되어 진후 아래의 사용할 때 step01은 찍히지 않는 것을 보아 다시 평가 하지 않는다.  
+{% highlight scala %}
+val saying = Eval.always{ println("Step01"); "The cat"}
+  .map{s => println("Step02"); s" $s sat on"}.memoize
+  .map{s => println("Step03"); s"$s the mat"}
+
+println("start evaluation")
+println(saying.value)
+println(saying.value)
+
+/*결과
+start evaluation
+Step01
+Step02
+Step03
+ The cat sat on the mat
+Step03 //memoize 로 인하여 위의 연산 chain결과는 cache처럼 
+ The cat sat on the mat
+*/
+{% endhighlight %}
+위의 예제에서 memoize 로 인하여 앞에서의 연산chain이 한번 평가 이후 2번째 부터는 cahce처럼 행동  
 
 [^1]: This is a footnote.
 
